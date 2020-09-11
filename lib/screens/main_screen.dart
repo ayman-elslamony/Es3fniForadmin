@@ -1,17 +1,15 @@
+import 'package:admin/screens/paramedics/paramedics.dart';
 import 'package:admin/screens/paramedics_requests/paramedics_requests.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/providers/auth.dart';
-import 'package:admin/screens/user_profile/user_profile.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
-
-import 'edit_user_data/edit_user_data.dart';
+import 'coupons_and_discounts/coupons_and_discounts.dart';
 import 'services_and_prices/services_and_prices.dart';
 import 'sign_in_and_up/sign_in/sign_in.dart';
-
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home_screen';
@@ -25,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _page = 0;
   GlobalKey _bottomNavigationKey = GlobalKey();
   final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
-  List<String> type = ['Home', 'Clinic', 'Profile'];
+  List<String> type =  ['Paramedics requests', 'Paramedics',"Services and prices"];
   PageController _pageController;
   String _searchContent;
   List<String> _suggestionList = List<String>();
@@ -36,7 +34,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _pageController = PageController();
     _auth = Provider.of<Auth>(context, listen: false);
-    type = translator.currentLanguage == "en" ?['Home', 'Search', 'Profile']:['الرئيسيه','البحث','الملف الشخصي'];
+
+    type = translator.currentLanguage == "en"
+        ? ['Paramedics requests', 'Paramedics',"Services and prices"]
+        : ['طلبات المسعفين',  'المسعفين','الخدمات والاسعار',];
   }
 
   @override
@@ -45,21 +46,44 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  Widget _iconNavBar(String iconPath, DeviceInfo infoWidget) {
-    return ImageIcon(AssetImage(iconPath,
-      ),
-      size: infoWidget.orientation==Orientation.portrait?infoWidget.screenWidth*0.099:infoWidget.screenWidth*0.05,
-      color: Colors.white,
-    );
+  Widget _iconNavBar({IconData iconPath, String title, DeviceInfo infoWidget}) {
+    return title == null
+        ? Icon(
+            iconPath,
+            color: Colors.white,
+          )
+        : Padding(
+            padding: const EdgeInsets.only(top: 15.0),
+            child: Column(
+              children: <Widget>[
+                Icon(
+                  iconPath,
+                  color: Colors.white,
+                ),
+                title == null
+                    ? SizedBox()
+                    : Text(
+                        title,
+                        style: TextStyle(
+                            fontSize: MediaQuery.of(context).orientation ==
+                                    Orientation.portrait
+                                ? MediaQuery.of(context).size.width * 0.035
+                                : MediaQuery.of(context).size.width * 0.024,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      )
+              ],
+            ),
+          );
   }
 
-
-  Widget _drawerListTile({String name,
-    IconData icon = Icons.settings,
-    String imgPath = 'assets/icons/home.png',
-    bool isIcon = false,
-  DeviceInfo infoWidget,
-    Function onTap}) {
+  Widget _drawerListTile(
+      {String name,
+      IconData icon = Icons.settings,
+      String imgPath = 'assets/icons/home.png',
+      bool isIcon = false,
+      DeviceInfo infoWidget,
+      Function onTap}) {
     return InkWell(
       onTap: onTap,
       child: ListTile(
@@ -70,29 +94,35 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         leading: isIcon
             ? Icon(
-          icon,
-          color: Colors.indigo,
-        )
+                icon,
+                color: Colors.indigo,
+              )
             : Image.asset(
-          imgPath,
-          color: Colors.indigo,
-        ),
+                imgPath,
+                color: Colors.indigo,
+              ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return  InfoWidget(
+    return InfoWidget(
       builder: (context, infoWidget) {
-        print(infoWidget.screenWidth);print(infoWidget.screenHeight);
+        print(infoWidget.screenWidth);
+        print(infoWidget.screenHeight);
         return Directionality(
-          textDirection: translator.currentLanguage == "en" ?TextDirection.ltr:TextDirection.rtl,
+          textDirection: translator.currentLanguage == "en"
+              ? TextDirection.ltr
+              : TextDirection.rtl,
           child: Scaffold(
             key: mainKey,
             appBar: AppBar(
               centerTitle: true,
-              title: Text(type[_page], style: infoWidget.titleButton,),
+              title: Text(
+                type[_page],
+                style: infoWidget.titleButton,
+              ),
               actions: <Widget>[
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -103,14 +133,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: <Widget>[
                           Icon(
                             Icons.notifications,
-                            size: infoWidget.orientation==Orientation.portrait?infoWidget.screenHeight * 0.04:infoWidget.screenHeight * 0.07,
+                            size: infoWidget.orientation == Orientation.portrait
+                                ? infoWidget.screenHeight * 0.04
+                                : infoWidget.screenHeight * 0.07,
                           ),
                           Positioned(
                               right: 2.9,
                               top: 2.8,
                               child: Container(
-                                width: infoWidget.orientation==Orientation.portrait?infoWidget.screenWidth * 0.023:infoWidget.screenWidth * 0.014,
-                                height: infoWidget.orientation==Orientation.portrait?infoWidget.screenWidth * 0.023:infoWidget.screenWidth* 0.014,
+                                width: infoWidget.orientation ==
+                                        Orientation.portrait
+                                    ? infoWidget.screenWidth * 0.023
+                                    : infoWidget.screenWidth * 0.014,
+                                height: infoWidget.orientation ==
+                                        Orientation.portrait
+                                    ? infoWidget.screenWidth * 0.023
+                                    : infoWidget.screenWidth * 0.014,
                                 decoration: BoxDecoration(
                                     color: Colors.red,
                                     borderRadius: BorderRadius.circular(5)),
@@ -127,12 +165,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       bottomRight: Radius.circular(30))),
             ),
             drawer: Container(
-              width: infoWidget.orientation==Orientation.portrait?infoWidget.screenWidth * 0.61:infoWidget.screenWidth * 0.50,
+              width: infoWidget.orientation == Orientation.portrait
+                  ? infoWidget.screenWidth * 0.61
+                  : infoWidget.screenWidth * 0.50,
               height: infoWidget.screenHeight,
               child: Drawer(
                 child: ListView(
                   children: <Widget>[
-
 //                  (() {
 //                    if(_auth.getUserType == 'doctor'){
 //                      return Column();
@@ -147,25 +186,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                         _pageController.jumpToPage(_page);
                       },
-                      accountName: Text(
-                          "${_auth.userData.name.toUpperCase()}}"),
+                      accountName:
+                          Text("${_auth.userData.name.toUpperCase()}}"),
                       accountEmail: Text("${_auth.userData.name}"),
                       currentAccountPicture: CircleAvatar(
                         backgroundColor:
-                        Theme
-                            .of(context)
-                            .platform == TargetPlatform.iOS
-                            ? Colors.indigo
-                            : Colors.white,
+                            Theme.of(context).platform == TargetPlatform.iOS
+                                ? Colors.indigo
+                                : Colors.white,
                         child: Text(
-                          "${_auth.userData.name.substring(0,1).toUpperCase()
-                              .toUpperCase()}",
+                          "${_auth.userData.name.substring(0, 1).toUpperCase().toUpperCase()}",
                           style: TextStyle(fontSize: 40.0),
                         ),
                       ),
                     ),
                     _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Paramedics requests":'طلبات المسعفين',
+                        name: translator.currentLanguage == "en"
+                            ? "Paramedics requests"
+                            : 'طلبات المسعفين',
                         imgPath: 'assets/icons/home.png',
                         infoWidget: infoWidget,
                         onTap: () {
@@ -175,107 +213,112 @@ class _HomeScreenState extends State<HomeScreen> {
                           });
                           _pageController.jumpToPage(_page);
                         }),
-                   _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Services and prices":'الخدمات والاسعار',
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
+                            ? "Paramedics"
+                            : 'المسعفين',
+                        isIcon: true,
+                        icon: Icons.exit_to_app,
+                        infoWidget: infoWidget,
+                        onTap: () async {
+                          await Provider.of<Auth>(context, listen: false)
+                              .logout();
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => SignIn()));
+                        }),
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
+                            ? "Services and prices"
+                            : 'الخدمات والاسعار',
                         imgPath: 'assets/icons/search.png',
                         infoWidget: infoWidget,
                         onTap: () {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ServicesAndPrices()));
+                          setState(() {
+                            _page = 2;
+                          });
+                          _pageController.jumpToPage(_page);
                         }),
                     _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Edit Profile":'تعديل الحساب',
-                        imgPath: 'assets/icons/profile.png',
-                        infoWidget: infoWidget,
-                        onTap: () {
-                          print('njb');
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  EditProfile()));
-                        }),
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Coupons and discounts":'الكوبونات والخصومات',
+                        name: translator.currentLanguage == "en"
+                            ? "Coupons and discounts"
+                            : 'الكوبونات والخصومات',
                         isIcon: true,
                         icon: Icons.exit_to_app,
                         infoWidget: infoWidget,
                         onTap: () async {
                           await Provider.of<Auth>(context, listen: false)
                               .logout();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>SignIn()));
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => CouponsAndDiscounts()));
                         }),
+
                     _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Nurses":'الممرضين',
+                        name: translator.currentLanguage == "en"
+                            ? "Medical tests"
+                            : 'التحاليل الطبيه',
                         isIcon: true,
                         icon: Icons.exit_to_app,
                         infoWidget: infoWidget,
                         onTap: () async {
                           await Provider.of<Auth>(context, listen: false)
                               .logout();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>SignIn()));
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => SignIn()));
                         }),
                     _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Pharmacies and laboratories":'الصيدليات والمعامل',
+                        name: translator.currentLanguage == "en"
+                            ? "Log Out"
+                            : 'تسجيل الخروج',
                         isIcon: true,
                         icon: Icons.exit_to_app,
                         infoWidget: infoWidget,
                         onTap: () async {
                           await Provider.of<Auth>(context, listen: false)
                               .logout();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>SignIn()));
-                        }),
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Nurse Powers":'صلاحيات الممرض',
-                        isIcon: true,
-                        icon: Icons.exit_to_app,
-                        infoWidget: infoWidget,
-                        onTap: () async {
-                          await Provider.of<Auth>(context, listen: false)
-                              .logout();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>SignIn()));
-                        }),
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Patient Powers":'صلاحيات المريض',
-                        isIcon: true,
-                        icon: Icons.exit_to_app,
-                        infoWidget: infoWidget,
-                        onTap: () async {
-                          await Provider.of<Auth>(context, listen: false)
-                              .logout();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>SignIn()));
-                        }),
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en" ?"Log Out":'تسجيل الخروج',
-                        isIcon: true,
-                        icon: Icons.exit_to_app,
-                        infoWidget: infoWidget,
-                        onTap: () async {
-                          await Provider.of<Auth>(context, listen: false)
-                              .logout();
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context)=>SignIn()));
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (context) => SignIn()));
                         }),
                   ],
                 ),
               ),
             ),
-
             bottomNavigationBar: CurvedNavigationBar(
-              height: infoWidget
-                  .screenHeight >=960?70:50,
+              height: infoWidget.screenHeight >= 960 ? 70 : 55,
               key: _bottomNavigationKey,
               backgroundColor: Colors.white,
               color: Colors.indigo,
               items: <Widget>[
-                _page == 0
-                    ? _iconNavBar('assets/icons/home.png',infoWidget)
-                    : _iconNavBar('assets/icons/homename.png',infoWidget),
-                _auth.getUserType == 'doctor'?_page == 1
-                    ? _iconNavBar('assets/icons/clinic.png',infoWidget)
-                    : _iconNavBar('assets/icons/clinicname.png',infoWidget):_page == 1
-                    ? _iconNavBar('assets/icons/search.png',infoWidget)
-                    : _iconNavBar('assets/icons/nameSearch.png',infoWidget),
-                _page == 2
-                    ? _iconNavBar('assets/icons/profile.png',infoWidget)
-                    : _iconNavBar('assets/icons/profilename.png',infoWidget),
+                _page != 0
+                    ? _iconNavBar(
+                        infoWidget: infoWidget,
+                        iconPath: Icons.home,
+                        title: translator.currentLanguage == "en"
+                            ? "Paramedics requests"
+                            : 'طلبات المسعفين')
+                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.home),
+                _page != 1
+                    ? _iconNavBar(
+                        infoWidget: infoWidget,
+                        iconPath: Icons.people,
+                        title: translator.currentLanguage == "en"
+                            ? 'Paramedics'
+                            : 'المسعفين')
+                    : _iconNavBar(
+                        infoWidget: infoWidget, iconPath: Icons.people),
+                _page != 2
+                    ? _iconNavBar(
+                        infoWidget: infoWidget,
+                        iconPath: Icons.person,
+                        title: translator.currentLanguage == "en"
+                            ? 'Services and prices'
+                            : 'الخدمات والاسعار')
+                    : _iconNavBar(
+                        infoWidget: infoWidget, iconPath: Icons.person),
               ],
               onTap: (index) {
                 setState(() {
@@ -300,8 +343,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 children: <Widget>[
                   ParamedicsRequests(),
-                 SizedBox(),
-                  UserProfile()
+                Paramedics(),
+                ServicesAndPrices(),
                 ],
               ),
             ),

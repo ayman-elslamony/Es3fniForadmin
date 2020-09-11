@@ -40,7 +40,20 @@ class _ParamedicsRequestsState extends State<ParamedicsRequests> {
       ),
     );
   }
-
+  Widget  rowWidget({String title,String content,DeviceInfo infoWidget}){
+    return Column(
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Text(title,style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+            ),
+            Text(content,style: infoWidget.subTitle,
+            ),
+          ],
+        ) ,SizedBox(height: 5,),
+      ],
+    );
+    }
   @override
   Widget build(BuildContext context) {
     return InfoWidget(
@@ -49,7 +62,37 @@ class _ParamedicsRequestsState extends State<ParamedicsRequests> {
           child: Column(
             textDirection: translator.currentLanguage == "en" ?TextDirection.ltr:TextDirection.rtl,
             children: <Widget>[
-              content(infoWidget: infoWidget,type: 'حقنه',price: '20'),
+              InkWell(onTap: (){
+                showModalBottomSheet(
+                    context: context ,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.only(topRight: Radius.circular(10),topLeft: Radius.circular(10))),
+                    builder: (context){
+                      return Padding(
+                        padding: const EdgeInsets.only(left:15 , right: 15),
+                        child: Directionality(
+                          textDirection: TextDirection.rtl,
+                          child: ListView(
+                            children: <Widget>[
+                              SizedBox(height: 20,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  SizedBox(),
+                                  Text('البيانات بالكامل' , style: infoWidget.titleButton.copyWith(color: Colors.indigo) ,),
+                                  IconButton(icon: Icon(Icons.edit,color: Colors.indigo,), onPressed: (){})
+                                ],
+                              ),
+                              SizedBox(height: 10,),
+
+                                rowWidget(infoWidget: infoWidget,title: translator.currentLanguage == "en"?'service type: ':'نوع الخدمه: ',content: 'حقنه')
+                              ,rowWidget(infoWidget: infoWidget,title: translator.currentLanguage == "en"?'price: ':'السعر: ',content: '20')
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                );
+              },child: content(infoWidget: infoWidget,type: 'حقنه',price: '20')),
               content(infoWidget: infoWidget,type:'كسترا',price: '15'),
             ],
           ),

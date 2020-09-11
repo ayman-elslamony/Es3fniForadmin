@@ -1,17 +1,18 @@
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
+import 'package:admin/screens/user_profile/show_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 
-class ServicesAndPrices extends StatefulWidget {
+class Paramedics extends StatefulWidget {
   @override
-  _ServicesAndPricesState createState() => _ServicesAndPricesState();
+  _ParamedicsState createState() => _ParamedicsState();
 }
 
-class _ServicesAndPricesState extends State<ServicesAndPrices> {
-  TextEditingController serviceName=TextEditingController();
-  TextEditingController priceService=TextEditingController();
-  Widget content({String type='',String price,DeviceInfo infoWidget}) {
+class _ParamedicsState extends State<Paramedics> {
+  TextEditingController paramedicName=TextEditingController();
+  TextEditingController password=TextEditingController();
+  Widget content({String paramedicName='',String numberOfPoints,DeviceInfo infoWidget}) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Container(
@@ -22,9 +23,9 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Column(children: <Widget>[
-                Text(translator.currentLanguage =='en'?'Service Type: $type':'نوع الخدمه: $type',
+                Text(translator.currentLanguage =='en'?'Paramedic: $paramedicName':'مسعف: $paramedicName',
                   style: infoWidget.title,)  ,
-                Text(translator.currentLanguage =='en'?'Price: $price EGP':'السعر: $price جنيه ',
+                Text(translator.currentLanguage =='en'?'Number of points: $numberOfPoints':'عدد النقاط: $numberOfPoints ',
                   style: infoWidget.subTitle,)  ,
               ],),
               Column(children: <Widget>[
@@ -48,12 +49,17 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
         return Directionality(
           textDirection: translator.currentLanguage == "en"?TextDirection.ltr:TextDirection.rtl,
           child: Scaffold(
-
             body: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  content(infoWidget: infoWidget,type: 'حقنه',price: '50'),
-                  content(infoWidget: infoWidget,type:'كسترا',price: '50'),
+                  InkWell(
+                  onTap: (){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
+
+                      )));
+                  }
+                  ,child: content(infoWidget: infoWidget,paramedicName: 'احمد ابراهيم',numberOfPoints: '50')),
+                  content(infoWidget: infoWidget,paramedicName:'محمد محمود',numberOfPoints: '50'),
                 ],
               ),
             ),
@@ -68,7 +74,7 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                             borderRadius: BorderRadius.all(Radius.circular(25.0))),
                         contentPadding: EdgeInsets.only(top: 10.0),
                         title: Text(
-                          translator.currentLanguage == "en"?'add service':'اضافه خدمه',
+                          translator.currentLanguage == "en"?'add Paramedic':'اضافه مسعف',
                           textAlign: TextAlign.center,
                           style: infoWidget.title,
                         ),
@@ -80,9 +86,9 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                 Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(height: 60 ,width: MediaQuery.of(context).size.width/0.85,child: TextFormField(
-                                      controller: serviceName,
+                                      controller: paramedicName,
                                       decoration: InputDecoration(
-                                        labelText: translator.currentLanguage == "en"?'service name':'اسم الخدمه',
+                                        labelText: translator.currentLanguage == "en"?'Paramedic name':'اسم المسعف',
                                         labelStyle: TextStyle(color: Colors.indigo),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.all(Radius.circular(10.0)),
@@ -107,9 +113,9 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                 Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(height: 60 ,width: MediaQuery.of(context).size.width/0.85,child: TextFormField(
-                                      controller: priceService,
+                                      controller: password,
                                       decoration: InputDecoration(
-                                        labelText: translator.currentLanguage == "en"?'service price':'سعر الخدمه',
+                                        labelText: translator.currentLanguage == "en"?'Password':'كلمه المرور',
                                         labelStyle: TextStyle(color: Colors.indigo),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius: BorderRadius.all(Radius.circular(10.0)),

@@ -34,7 +34,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   bool enableScheduleTheService = false;
   bool enablePicture = false;
   bool _showWorkingDays = false;
-  String _dateTime='';
+  String _dateTime = '';
   List<String> _selectedWorkingDays = List<String>();
   List<bool> _clicked = List<bool>.generate(7, (i) => false);
   List<String> _sortedWorkingDays = List<String>.generate(7, (i) => '');
@@ -52,9 +52,14 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
     'gender': '',
     'age': '',
     'Location': '',
-    'coupon':'','accessories':'','nurse type':'','service type':'',
+    'coupon': '',
+    'accessories': '',
+    'nurse type': '',
+    'service type': '',
     'lat': '',
-    'long': '','startDate': '','endDate': '',
+    'long': '',
+    'startDate': '',
+    'endDate': '',
   };
   List<String> workingDays = [
     'Saturday',
@@ -65,7 +70,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
     'Thursday',
     'Friday',
   ];
-  List<String> visitTime=[];
+  List<String> visitTime = [];
   final FocusNode _phoneNumberNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
   List<Step> steps = [];
@@ -87,6 +92,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   goTo(int step) {
     setState(() => currentStep = step);
   }
+
   getDays(int index) {
     setState(() {
       _clicked[index] = !_clicked[index];
@@ -97,6 +103,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
       _selectedWorkingDays.remove(workingDays[index]);
     }
   }
+
   Widget _createTextForm(
       {String labelText,
       FocusNode currentFocusNode,
@@ -321,7 +328,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
         context: context,
         builder: (BuildContext context) {
           return Container(
-            height: 110.0,
+            height: MediaQuery.of(context).orientation==Orientation.portrait?MediaQuery.of(context).size.height*0.16:MediaQuery.of(context).size.height*0.28,
             padding: EdgeInsets.all(10.0),
             child: Column(children: [
               Text(
@@ -1083,68 +1090,80 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                       ),
                     ),
                   ),
-                  enablePicture?SizedBox():Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: InkWell(
-                          onTap: () {
-                            _openImagePicker();
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(4.0),
-                            decoration: BoxDecoration(
-                                color: Colors.indigo,
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Center(
-                              child: Text(
-                                translator.currentLanguage == "en"
-                                    ? " Select Image "
-                                    : ' اختر صوره ',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .display1
-                                    .copyWith(
-                                        color: Colors.white, fontSize: 17),
+                  enablePicture
+                      ? SizedBox()
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: InkWell(
+                                onTap: () {
+                                  _openImagePicker();
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(4.0),
+                                  decoration: BoxDecoration(
+                                      color: Colors.indigo,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Center(
+                                    child: Text(
+                                      translator.currentLanguage == "en"
+                                          ? " Select Image "
+                                          : ' اختر صوره ',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .display1
+                                          .copyWith(
+                                              color: Colors.white,
+                                              fontSize: 17),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
+                          ],
+                        )
                 ],
               ),
             ),
-            enablePicture?Container(
-              width: double.infinity,
-              height: 200,
-              child: Stack(
-                children: <Widget>[
-                  ClipRRect(
-                    //backgroundColor: Colors.white,
-                    //backgroundImage:
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.file(
-                      _imageFile,
-                      fit: BoxFit.fill,
-                      width: double.infinity,
-                      height: 200,
+            enablePicture
+                ? Container(
+                    width: double.infinity,
+                    height: 200,
+                    child: Stack(
+                      children: <Widget>[
+                        ClipRRect(
+                          //backgroundColor: Colors.white,
+                          //backgroundImage:
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.file(
+                            _imageFile,
+                            fit: BoxFit.fill,
+                            width: double.infinity,
+                            height: 200,
+                          ),
+                        ),
+                        Positioned(
+                            top: 3.0,
+                            right: 3.0,
+                            child: IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Colors.indigo,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _imageFile = null;
+                                    enablePicture = false;
+                                  });
+                                }))
+                      ],
                     ),
-                  ),
-                  Positioned(
-    top: 3.0,right: 3.0
-    ,child: IconButton(icon: Icon(Icons.clear,color: Colors.indigo,), onPressed: (){
-                    setState(() {
-                      _imageFile =null;
-                      enablePicture=false;
-                    });
-                  }))
-                ],
-              ),
-            ):SizedBox(),
+                  )
+                : SizedBox(),
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0, top: 17),
               child: Row(
@@ -1169,86 +1188,143 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                       Switch(
                         value: enableCoupon,
                         onChanged: (value) {
-                          if(enableCoupon==false){
+                          if (enableCoupon == false) {
                             showDialog(
                                 context: context,
                                 barrierDismissible: false,
                                 builder: (ctx) => Directionality(
-                                  textDirection: translator.currentLanguage == "en"?TextDirection.ltr:TextDirection.rtl,
-                                  child: AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(Radius.circular(25.0))),
-                                    contentPadding: EdgeInsets.only(top: 10.0),
-                                    title: Text(
-                                      translator.currentLanguage == "en"?'Discount coupon':'كوبون خصم',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                    content: Container(
-                                      height: 60,
-                                      child: Center(
-                                          child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
-                                              child: Container(height: 60 ,width: MediaQuery.of(context).size.width/0.85,child: TextFormField(
-                                                decoration: InputDecoration(
-                                                  labelText: translator.currentLanguage == "en"?'cpupon':'كوبون',
-                                                  labelStyle: TextStyle(color: Colors.indigo),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.indigo,
+                                      textDirection:
+                                          translator.currentLanguage == "en"
+                                              ? TextDirection.ltr
+                                              : TextDirection.rtl,
+                                      child: AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(25.0))),
+                                        contentPadding:
+                                            EdgeInsets.only(top: 10.0),
+                                        title: Text(
+                                          translator.currentLanguage == "en"
+                                              ? 'Discount coupon'
+                                              : 'كوبون خصم',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                        content: Container(
+                                          height: 60,
+                                          child: Center(
+                                              child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    height: 60,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            0.85,
+                                                    child: TextFormField(
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelText: translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? 'cpupon'
+                                                            : 'كوبون',
+                                                        labelStyle: TextStyle(
+                                                            color:
+                                                                Colors.indigo),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10.0)),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color:
+                                                                Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10.0)),
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color:
+                                                                Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10.0)),
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .indigo),
+                                                        ),
+                                                      ),
+                                                      keyboardType:
+                                                          TextInputType.text,
+                                                      onChanged: (val) {
+                                                        _paramedicsData[
+                                                            'coupon'] = val;
+                                                      },
                                                     ),
-                                                  ),
-                                                  disabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                    borderSide: BorderSide(
-                                                      color: Colors.indigo,
-                                                    ),
-                                                  ),
-                                                  enabledBorder: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                    borderSide: BorderSide(color: Colors.indigo),
-                                                  ),
-                                                ),
-                                                keyboardType: TextInputType.text,
-                                                onChanged: (val){
-                                                  _paramedicsData['coupon']=val;
-                                                },
-                                              ),)
+                                                  ))),
+                                        ),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Cancel'
+                                                  : 'الغاء',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.indigo),
+                                            ),
+                                            onPressed: () {
+                                              setState(() {
+                                                enableCoupon = false;
+                                                _paramedicsData['coupon'] = '';
+                                              });
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'ok'
+                                                  : 'موافق',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.indigo),
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
                                           )
+                                        ],
                                       ),
-                                    ),
-                                    actions: <Widget>[
-                                      FlatButton(
-                                        child: Text(translator.currentLanguage == "en"?'Cancel':'الغاء',style: TextStyle(fontSize: 16,color: Colors.indigo),),
-                                        onPressed: () {
-                                          setState(() {
-                                            enableCoupon=false;
-                                            _paramedicsData['coupon']='';
-                                          });
-                                          Navigator.of(ctx).pop();
-                                        },
-                                      ),
-                                      FlatButton(
-                                        child: Text(translator.currentLanguage == "en"?'ok':'موافق',style: TextStyle(fontSize: 16,color: Colors.indigo),),
-                                        onPressed: () {
-                                          Navigator.of(ctx).pop();
-                                        },
-                                      )
-                                    ],
-                                  ),
-                                ));
+                                    ));
                             setState(() {
-                              enableCoupon= value;
-
+                              enableCoupon = value;
                             });
-                          }else{
+                          } else {
                             setState(() {
-                              enableCoupon= value;
-                              _paramedicsData['coupon']='';
+                              enableCoupon = value;
+                              _paramedicsData['coupon'] = '';
                             });
                           }
-
                         },
                         activeTrackColor: Colors.indigoAccent,
                         activeColor: Colors.indigo,
@@ -1282,18 +1358,16 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                       Switch(
                         value: enableScheduleTheService,
                         onChanged: (value) {
-                          if(enableScheduleTheService==false){
+                          if (enableScheduleTheService == false) {
                             setState(() {
-                              enableScheduleTheService= value;
-
+                              enableScheduleTheService = value;
                             });
-                          }else{
+                          } else {
                             setState(() {
-                              enableScheduleTheService= value;
-                              _paramedicsData['coupon']='';
+                              enableScheduleTheService = value;
+                              _paramedicsData['coupon'] = '';
                             });
                           }
-
                         },
                         activeTrackColor: Colors.indigoAccent,
                         activeColor: Colors.indigo,
@@ -1303,304 +1377,369 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                 ],
               ),
             ),
-    enableScheduleTheService?Column(
-    children: <Widget>[
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7),
-                child: Text(
-                  translator.currentLanguage == "en"
-                      ? 'The visit period:':'فتره الزياره:',
-                  style: TextStyle(fontSize: 18),
-                  maxLines: 2,
-                ),
-              ),
-            ),
-            SizedBox(),
-          ],
-        ),
-      ),
-      Column(
-    children: <Widget>[
-      RaisedButton(onPressed: (){
-        DatePicker.showDatePicker(context,
-            showTitleActions: true,
-            theme: DatePickerTheme(
-              itemStyle: TextStyle(color: Colors.indigo),
-              backgroundColor: Colors.white,
-              headerColor: Colors.white,
-              doneStyle: TextStyle(
-                  color: Colors.indigoAccent
-              ),
-              cancelStyle: TextStyle(
-                  color: Colors.black87
-              ),
-            ),
-            minTime: DateTime.now(),
-            maxTime: DateTime(2080, 6, 7), onChanged: (_) {
-            }, onConfirm: (date) {
-              print('confirm $date');
-              setState(() {
-                _paramedicsData['startDate']='${date.day}-${date.month}-${date.year}';
-              });
-            }, currentTime: DateTime.now(), locale: translator.currentLanguage == "en"
-                ?LocaleType.en:LocaleType.ar);
-      },color: Colors.indigo,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    child: Text(translator.currentLanguage == "en"
-        ? 'Start Date ${_paramedicsData['startDate']}':' تاريخ البدايه ${_paramedicsData['startDate']}',style: TextStyle(color: Colors.white,fontSize: 18),),
-    ),RaisedButton(onPressed: (){
-        DatePicker.showDatePicker(context,
-            showTitleActions: true,
-            theme: DatePickerTheme(
-              itemStyle: TextStyle(color: Colors.indigo),
-              backgroundColor: Colors.white,
-              headerColor: Colors.white,
-              doneStyle: TextStyle(
-                color: Colors.indigoAccent
-              ),
-              cancelStyle: TextStyle(
-                  color: Colors.black87
-              ),
-            ),
-            minTime: DateTime.now(),
-            maxTime: DateTime(2080, 6, 7), onChanged: (_) {
-            }, onConfirm: (date) {
-              print('confirm $date');
-              setState(() {
-                _paramedicsData['endDate']='${date.day}-${date.month}-${date.year}';
-
-              });
-            }, currentTime: DateTime.now(), locale: translator.currentLanguage == "en"
-                ?LocaleType.en:LocaleType.ar);
-      },color: Colors.indigo,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    child: Text(translator.currentLanguage == "en"
-        ? 'End Date ${_paramedicsData['endDate']}':' تاريخ النهايه ${_paramedicsData['endDate']} ',style: TextStyle(color: Colors.white,fontSize: 18),),
-    ),
-    ],
-    ),
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7),
-                child: Text(
-                  translator.currentLanguage == "en"
-                      ? 'Days of the visit:'
-                      : 'ايام الزياره:',
-                  style: TextStyle(fontSize: 18),
-                  maxLines: 2,
-                ),
-              ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Switch(
-                  value: _showWorkingDays,
-                  onChanged: (value) {
-
-                    if(_showWorkingDays){
-                      setState(() {
-                        _showWorkingDays= value;
-                        _clicked=List<bool>.generate(7, (i) => false);
-                        _selectedWorkingDays.clear();
-                      });
-                    }else{
-                      setState(() {
-                        _showWorkingDays= value;
-
-                      });
-                    }
-                  },
-                  activeTrackColor: Colors.indigoAccent,
-                  activeColor: Colors.indigo,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      _showWorkingDays?Padding(
-          padding: const EdgeInsets.only(
-              bottom: 8.0,
-              left: 15,
-              right: 15,
-              top: 6.0),
-          child: GridView.builder(
-              shrinkWrap: true,physics: NeverScrollableScrollPhysics(),
-              itemCount: workingDays.length,
-              gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10),
-              itemBuilder: (ctx, index) => InkWell(
-                onTap: () {
-                  getDays(index);
-                  print(_selectedWorkingDays);
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: _clicked[index]
-                          ? Colors.grey
-                          : Colors.indigo,
-                      borderRadius:
-                      BorderRadius.circular(
-                          10)),
-                  child: Center(
-                    child: Text(
-                      workingDays[index],
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15),
-                    ),
-                  ),
-                ),
-              ))):SizedBox(),
-      Padding(
-        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 7),
-                child: Text(
-                  translator.currentLanguage == "en"
-                      ? 'Visit Time:':'وقت الزياره:',
-                  style: TextStyle(fontSize: 18),
-                  maxLines: 2,
-                ),
-              ),
-            ),
-            RaisedButton(onPressed: (){
-
-              showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (ctx) => Directionality(
-                    textDirection: translator.currentLanguage == "en"?TextDirection.ltr:TextDirection.rtl,
-                    child: AlertDialog(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(25.0))),
-                      contentPadding: EdgeInsets.only(top: 10.0),
-                      title: Text(
-                        translator.currentLanguage == "en"?'Discount coupon':'كوبون خصم',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      content: TimePickerSpinner(
-                        is24HourMode: true,
-                        normalTextStyle:
-                        TextStyle(fontSize: 18, color: Colors.indigo[200]),
-                        highlightedTextStyle:
-                        TextStyle(fontSize: 18, color: Colors.indigo),
-                        spacing: 30,
-                        itemHeight: 40,
-                        isForce2Digits: true,
-                        onTimeChange: (time) {
-                          // _clinicData['startTime']=time.toIso8601String();
-                          _dateTime ='${time.hour}:${time.minute}';
-                        },
-                      ),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text(translator.currentLanguage == "en"?'Cancel':'الغاء',style: TextStyle(fontSize: 16,color: Colors.indigo),),
-                          onPressed: () {
-                            _dateTime='';
-                            Navigator.of(ctx).pop();
-                          },
+            enableScheduleTheService
+                ? Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 7),
+                                child: Text(
+                                  translator.currentLanguage == "en"
+                                      ? 'The visit period:'
+                                      : 'فتره الزياره:',
+                                  style: TextStyle(fontSize: 18),
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            SizedBox(),
+                          ],
                         ),
-                        FlatButton(
-                          child: Text(translator.currentLanguage == "en"?'ok':'موافق',style: TextStyle(fontSize: 16,color: Colors.indigo),),
-                          onPressed: () {
-                            setState(() {
-                              visitTime.add(_dateTime);
-                            });
-                            Navigator.of(ctx).pop();
-                          },
-                        )
-                      ],
-                    ),
-                  ));
-
-
-            },color: Colors.indigo,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              child: Text(translator.currentLanguage == "en"
-                  ? 'Add Time':'اضافه وقت',style: TextStyle(color: Colors.white,fontSize: 18),),
-            ),
-          ],
-        ),
-      ),
-      Padding(
-          padding: const EdgeInsets.only(
-              bottom: 8.0,
-              left: 15,
-              right: 15,
-              top: 6.0),
-          child: GridView.builder(
-              shrinkWrap: true,physics: NeverScrollableScrollPhysics(),
-              itemCount: visitTime.length,
-              gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10),
-              itemBuilder: (ctx, index) => InkWell(
-                onTap: () {
-                  setState(() {
-                    String deletedItem = visitTime.removeAt(index);
-                    setState(() {
-                      _key.currentState
-                        ..removeCurrentSnackBar()
-                        ..showSnackBar(
-                          SnackBar(
-                            content: Text(translator.currentLanguage == "en"
-                                ? "Removed $deletedItem":'حذف $deletedItem'),
-                            action: SnackBarAction(
-                                label: translator.currentLanguage == "en"
-                                    ? "UNDO":'تراجع',
-                                onPressed: () => setState(() => visitTime.insert(index, deletedItem),) // this is what you needed
+                      ),
+                      Column(
+                        children: <Widget>[
+                          RaisedButton(
+                            onPressed: () {
+                              DatePicker.showDatePicker(context,
+                                  showTitleActions: true,
+                                  theme: DatePickerTheme(
+                                    itemStyle: TextStyle(color: Colors.indigo),
+                                    backgroundColor: Colors.white,
+                                    headerColor: Colors.white,
+                                    doneStyle:
+                                        TextStyle(color: Colors.indigoAccent),
+                                    cancelStyle:
+                                        TextStyle(color: Colors.black87),
+                                  ),
+                                  minTime: DateTime.now(),
+                                  maxTime: DateTime(2080, 6, 7),
+                                  onChanged: (_) {}, onConfirm: (date) {
+                                print('confirm $date');
+                                setState(() {
+                                  _paramedicsData['startDate'] =
+                                      '${date.day}-${date.month}-${date.year}';
+                                });
+                              },
+                                  currentTime: DateTime.now(),
+                                  locale: translator.currentLanguage == "en"
+                                      ? LocaleType.en
+                                      : LocaleType.ar);
+                            },
+                            color: Colors.indigo,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              translator.currentLanguage == "en"
+                                  ? 'Start Date ${_paramedicsData['startDate']}'
+                                  : ' تاريخ البدايه ${_paramedicsData['startDate']}',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
                             ),
                           ),
-                        );
-                    });
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: _clicked[index]
-                          ? Colors.grey
-                          : Colors.indigo,
-                      borderRadius:
-                      BorderRadius.circular(
-                          10)),
-                  child: Center(
-                    child: Text(
-                      visitTime[index],
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15),
-                    ),
-                  ),
-                ),
-              )))
-    ],
-    ):SizedBox(),
+                          RaisedButton(
+                            onPressed: () {
+                              DatePicker.showDatePicker(context,
+                                  showTitleActions: true,
+                                  theme: DatePickerTheme(
+                                    itemStyle: TextStyle(color: Colors.indigo),
+                                    backgroundColor: Colors.white,
+                                    headerColor: Colors.white,
+                                    doneStyle:
+                                        TextStyle(color: Colors.indigoAccent),
+                                    cancelStyle:
+                                        TextStyle(color: Colors.black87),
+                                  ),
+                                  minTime: DateTime.now(),
+                                  maxTime: DateTime(2080, 6, 7),
+                                  onChanged: (_) {}, onConfirm: (date) {
+                                print('confirm $date');
+                                setState(() {
+                                  _paramedicsData['endDate'] =
+                                      '${date.day}-${date.month}-${date.year}';
+                                });
+                              },
+                                  currentTime: DateTime.now(),
+                                  locale: translator.currentLanguage == "en"
+                                      ? LocaleType.en
+                                      : LocaleType.ar);
+                            },
+                            color: Colors.indigo,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              translator.currentLanguage == "en"
+                                  ? 'End Date ${_paramedicsData['endDate']}'
+                                  : ' تاريخ النهايه ${_paramedicsData['endDate']} ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 7),
+                                child: Text(
+                                  translator.currentLanguage == "en"
+                                      ? 'Days of the visit:'
+                                      : 'ايام الزياره:',
+                                  style: TextStyle(fontSize: 18),
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: <Widget>[
+                                Switch(
+                                  value: _showWorkingDays,
+                                  onChanged: (value) {
+                                    if (_showWorkingDays) {
+                                      setState(() {
+                                        _showWorkingDays = value;
+                                        _clicked = List<bool>.generate(
+                                            7, (i) => false);
+                                        _selectedWorkingDays.clear();
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _showWorkingDays = value;
+                                      });
+                                    }
+                                  },
+                                  activeTrackColor: Colors.indigoAccent,
+                                  activeColor: Colors.indigo,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      _showWorkingDays
+                          ? Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 8.0, left: 15, right: 15, top: 6.0),
+                              child: GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: workingDays.length,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 2,
+                                          childAspectRatio: 3,
+                                          crossAxisSpacing: 10,
+                                          mainAxisSpacing: 10),
+                                  itemBuilder: (ctx, index) => InkWell(
+                                        onTap: () {
+                                          getDays(index);
+                                          print(_selectedWorkingDays);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color: _clicked[index]
+                                                  ? Colors.grey
+                                                  : Colors.indigo,
+                                              borderRadius:
+                                                  BorderRadius.circular(10)),
+                                          child: Center(
+                                            child: Text(
+                                              workingDays[index],
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 15),
+                                            ),
+                                          ),
+                                        ),
+                                      )))
+                          : SizedBox(),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 7),
+                                child: Text(
+                                  translator.currentLanguage == "en"
+                                      ? 'Visit Time:'
+                                      : 'وقت الزياره:',
+                                  style: TextStyle(fontSize: 18),
+                                  maxLines: 2,
+                                ),
+                              ),
+                            ),
+                            RaisedButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (ctx) => Directionality(
+                                          textDirection:
+                                              translator.currentLanguage == "en"
+                                                  ? TextDirection.ltr
+                                                  : TextDirection.rtl,
+                                          child: AlertDialog(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(25.0))),
+                                            contentPadding:
+                                                EdgeInsets.only(top: 10.0),
+                                            title: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Discount coupon'
+                                                  : 'كوبون خصم',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                            content: TimePickerSpinner(
+                                              is24HourMode: true,
+                                              normalTextStyle: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.indigo[200]),
+                                              highlightedTextStyle: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.indigo),
+                                              spacing: 30,
+                                              itemHeight: 40,
+                                              isForce2Digits: true,
+                                              onTimeChange: (time) {
+                                                // _clinicData['startTime']=time.toIso8601String();
+                                                _dateTime =
+                                                    '${time.hour}:${time.minute}';
+                                              },
+                                            ),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                child: Text(
+                                                  translator.currentLanguage ==
+                                                          "en"
+                                                      ? 'Cancel'
+                                                      : 'الغاء',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.indigo),
+                                                ),
+                                                onPressed: () {
+                                                  _dateTime = '';
+                                                  Navigator.of(ctx).pop();
+                                                },
+                                              ),
+                                              FlatButton(
+                                                child: Text(
+                                                  translator.currentLanguage ==
+                                                          "en"
+                                                      ? 'ok'
+                                                      : 'موافق',
+                                                  style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.indigo),
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    visitTime.add(_dateTime);
+                                                  });
+                                                  Navigator.of(ctx).pop();
+                                                },
+                                              )
+                                            ],
+                                          ),
+                                        ));
+                              },
+                              color: Colors.indigo,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Text(
+                                translator.currentLanguage == "en"
+                                    ? 'Add Time'
+                                    : 'اضافه وقت',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 18),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.only(
+                              bottom: 8.0, left: 15, right: 15, top: 6.0),
+                          child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: visitTime.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      childAspectRatio: 3,
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10),
+                              itemBuilder: (ctx, index) => InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        String deletedItem =
+                                            visitTime.removeAt(index);
+                                        setState(() {
+                                          _key.currentState
+                                            ..removeCurrentSnackBar()
+                                            ..showSnackBar(
+                                              SnackBar(
+                                                content: Text(translator
+                                                            .currentLanguage ==
+                                                        "en"
+                                                    ? "Removed $deletedItem"
+                                                    : 'حذف $deletedItem'),
+                                                action: SnackBarAction(
+                                                    label: translator
+                                                                .currentLanguage ==
+                                                            "en"
+                                                        ? "UNDO"
+                                                        : 'تراجع',
+                                                    onPressed: () => setState(
+                                                          () =>
+                                                              visitTime.insert(
+                                                                  index,
+                                                                  deletedItem),
+                                                        ) // this is what you needed
+                                                    ),
+                                              ),
+                                            );
+                                        });
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: _clicked[index]
+                                              ? Colors.grey
+                                              : Colors.indigo,
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Center(
+                                        child: Text(
+                                          visitTime[index],
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 15),
+                                        ),
+                                      ),
+                                    ),
+                                  )))
+                    ],
+                  )
+                : SizedBox(),
 
 //            Padding(
 //              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
