@@ -304,33 +304,33 @@ class _HomeScreenState extends State<HomeScreen> {
                             : 'المسعفين')
                     : _iconNavBar(
                         infoWidget: infoWidget, iconPath: Icons.people),
-                _page != 2
-                    ? _iconNavBar(
-                        infoWidget: infoWidget,
-                        iconPath: Icons.person,
-                        title: translator.currentLanguage == "en"
-                            ? 'Services and prices'
-                            : 'الخدمات والاسعار')
-                    : _iconNavBar(
-                        infoWidget: infoWidget, iconPath: Icons.person),
+//                _page != 2
+//                    ? _iconNavBar(
+//                        infoWidget: infoWidget,
+//                        iconPath: Icons.person,
+//                        title: translator.currentLanguage == "en"
+//                            ? 'Services and prices'
+//                            : 'الخدمات والاسعار')
+//                    : _iconNavBar(
+//                        infoWidget: infoWidget, iconPath: Icons.person),
               ],
               onTap: (index) {
                 setState(() {
                   _page = index;
                 });
                 _pageController.jumpToPage(_page);
-                _textEditingController.clear();
+                //_textEditingController.clear();
               },
             ),
             body: Padding(
               padding: const EdgeInsets.only(bottom: 14.0),
               child: PageView(
+                physics: NeverScrollableScrollPhysics(),
                 controller: _pageController,
                 onPageChanged: (index) {
                   setState(() {
                     _page = index;
                   });
-                  _textEditingController.clear();
                   final CurvedNavigationBarState navBarState =
                       _bottomNavigationKey.currentState;
                   navBarState.setPage(_page);
@@ -338,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: <Widget>[
                   ParamedicsRequests(),
                 Paramedics(),
-                ServicesAndPrices(),
+               // ServicesAndPrices(),
                 ],
               ),
             ),

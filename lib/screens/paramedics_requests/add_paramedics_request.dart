@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/providers/auth.dart';
+import 'package:admin/providers/home.dart';
 import 'package:admin/screens/shared_widget/map.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter/material.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -28,7 +30,10 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   bool _isEditLocationEnable = true;
   bool _selectUserLocationFromMap = false;
   bool _isGenderSelected = false;
+  bool _isServiceSelected = false;
+  bool _isNurseTypeSelected = false;
   bool _isAgeSelected = false;
+  bool _isNumOfUsersSelected = false;
   bool isSwitched = false;
   bool enableCoupon = false;
   bool enableScheduleTheService = false;
@@ -39,6 +44,10 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   List<bool> _clicked = List<bool>.generate(7, (i) => false);
   List<String> _sortedWorkingDays = List<String>.generate(7, (i) => '');
   List<bool> values = List.filled(7, false);
+  FocusNode focusNode=FocusNode();
+  FocusNode locationFocusNode=FocusNode();
+  FocusNode nameFocusNode=FocusNode();
+
   TextEditingController _locationTextEditingController =
       TextEditingController();
   File _imageFile;
@@ -46,6 +55,12 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   List<String> _ageList = List.generate(100, (index) {
     return '${1 + index}';
   });
+  List<String> _numUsersList = List.generate(30, (index) {
+    return '${1 + index}';
+  });
+  final TextEditingController controller = TextEditingController();
+  String initialCountry = 'EG';
+  PhoneNumber number = PhoneNumber(isoCode: 'EG');
   Map<String, dynamic> _paramedicsData = {
     'Patient name': '',
     'Phone number': '',
@@ -54,8 +69,10 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
     'Location': '',
     'coupon': '',
     'accessories': '',
+    'notes': '',
     'nurse type': '',
     'service type': '',
+    'numberOfUsersUseService': '1',
     'lat': '',
     'long': '',
     'startDate': '',
@@ -74,13 +91,24 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   final FocusNode _phoneNumberNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
   List<Step> steps = [];
-  Auth _auth;
-
+  Home _home;
+  List<String> allServices=[];
+  getAllServices() async {
+    if(_home.allService.length ==0){
+      await _home.getAllServices();
+      for(int i=0; i< _home.allService.length; i++){
+        allServices.add(_home.allService[i].serviceName);
+      }
+    }
+  }
   @override
   void initState() {
     super.initState();
-    _auth = Provider.of<Auth>(context, listen: false);
-    _genderList = ['ذكر', 'انثى'];
+    _home = Provider.of<Home>(context, listen: false);
+    getAllServices();
+    if(translator.currentLanguage != "en") {
+      _genderList = ['ذكر', 'انثى'];
+    }
   }
 
   cancel() {
@@ -123,7 +151,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
         autofocus: false,
         textInputAction:
             isStopped ? TextInputAction.done : TextInputAction.next,
-        focusNode: currentFocusNode == null ? null : currentFocusNode,
+        focusNode: nameFocusNode,
         enabled: isEnable,
         decoration: InputDecoration(
           suffixIcon: Icon(
@@ -162,6 +190,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
             borderSide: BorderSide(color: Colors.indigo),
           ),
+          errorStyle: TextStyle(color: Colors.indigo)
         ),
         keyboardType: textInputType,
 // ignore: missing_return
@@ -417,10 +446,12 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
 
   verifyUserData() async {
     if (_paramedicsData['Patient name'] == '' ||
-        _paramedicsData['Phone number'] == '' ||
-        _paramedicsData['gender'] == '' ||
-        _paramedicsData['age'] == '' ||
-        _paramedicsData['Location'] == '') {
+        _paramedicsData['Phone number'] == ''
+    //||
+//        _paramedicsData['gender'] == '' ||
+//        _paramedicsData['age'] == '' ||
+//        _paramedicsData['Location'] == ''
+    ) {
       Toast.show(
           translator.currentLanguage == "en"
               ? "Please complete patient info"
@@ -434,8 +465,26 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
       });
       try {
         String isSccuess = '';
-//        await Provider.of<Auth>(context, listen: false)
-//            .registerUserData(listOfData: _accountData);
+
+        await _home
+            .addPatientRequest(
+          notes: _paramedicsData['notes'],
+          discountCoupon: _paramedicsData['coupon'],
+          endVisitDate: _paramedicsData['endDate'],
+          numOfPatients: _paramedicsData['numberOfUsersUseService'],
+          nurseGender: _paramedicsData['nurse type'],
+          patientAge: _paramedicsData['age'],
+          patientGender: _paramedicsData['gender'],
+          patientLocation: _paramedicsData['Location'],
+          patientName: _paramedicsData['Patient name'],
+          patientPhone: _paramedicsData['Phone number'],
+          picture: _imageFile,
+          serviceType: _paramedicsData['service type'],
+          startVisitDate: _paramedicsData['startDate'],
+          suppliesFromPharmacy: _paramedicsData['accessories'],
+          visitDays:workingDays.toString(),
+          visitTime: visitTime.toString(),
+        );
         print('isScuessisScuess$isSccuess');
         if (isSccuess == 'success') {
           setState(() {
@@ -504,14 +553,15 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
     print(currentStep);
 
     if (currentStep == 0) {
+      _newAccountKey.currentState.validate();
       print(_paramedicsData);
       if (_paramedicsData['Patient name'] == '' ||
-          _paramedicsData['Phone number'] == '' ||
-          _paramedicsData['Location'] == '') {
+          _paramedicsData['Phone number'] == ''
+         ) {
         Toast.show(
             translator.currentLanguage == "en"
-                ? "Please add patient location"
-                : 'من فضلك ادخل موقع المريض',
+                ? "Please add patient data"
+                : ' من فضلك ادخل معلومات المريض ',
             context,
             duration: Toast.LENGTH_SHORT,
             gravity: Toast.BOTTOM);
@@ -524,11 +574,8 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
       return;
     }
     if (currentStep == 1) {
-      if (_paramedicsData['age'] == '' ||
-          _paramedicsData['month'] == '' ||
-          _paramedicsData['year'] == '' ||
-          _paramedicsData['gender'] == '' ||
-          _paramedicsData['materialStatus'] == '') {
+      if (_paramedicsData['service type'] == '' ||
+          visitTime.length == 0) {
         Toast.show(
             translator.currentLanguage == "en"
                 ? "Please Complete data"
@@ -560,7 +607,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
             children: <Widget>[
               _createTextForm(
                   labelText: 'Patient name',
-                  nextFocusNode: _phoneNumberNode,
+                  nextFocusNode: focusNode,
                   // ignore: missing_return
                   validator: (String val) {
                     if (val.trim().isEmpty || val.trim().length < 2) {
@@ -574,27 +621,22 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                           : 'الاسم خطا';
                     }
                   }),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 7.0),
-                height: 80,
-                child: TextFormField(
-                  autofocus: false,
-                  textInputAction: TextInputAction.next,
-                  focusNode: _phoneNumberNode,
-                  decoration: InputDecoration(
-                    prefix: Container(
-                      padding: EdgeInsets.all(4.0),
-                      child: Text(
-                        "+20",
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    labelText: translator.currentLanguage == "en"
-                        ? "Phone number"
-                        : 'رقم الهاتف',
+              InternationalPhoneNumberInput(
+                onInputChanged: (PhoneNumber number) {
+                  _paramedicsData['Phone number']= number.phoneNumber;
+                },
+                focusNode: focusNode,
+                ignoreBlank: true,
+                autoValidate: false,
+                selectorTextStyle: TextStyle(color: Colors.black),
+                initialValue: number,
+                textFieldController: controller,
+                inputBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.indigo),
+                ),
+                autoFocus: false,
+                inputDecoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       borderSide: BorderSide(
@@ -623,38 +665,18 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       borderSide: BorderSide(color: Colors.indigo),
                     ),
-                  ),
-                  keyboardType: TextInputType.phone,
-// ignore: missing_return
-                  validator: (String value) {
-                    if (value.trim().isEmpty || value.trim().length != 10) {
-                      return translator.currentLanguage == "en"
-                          ? "Please enter Phone number!"
-                          : 'من فضلك ادخل رقم الهاتف';
-                    }
-                    if (value.trim().length != 10) {
-                      return translator.currentLanguage == "en"
-                          ? "Invalid Phone number!"
-                          : 'الرقم خطاء';
-                    }
-                  },
-                  onChanged: (value) {
-                    _paramedicsData['Phone number'] = value.trim();
-                  },
-                  onSaved: (value) {
-                    _paramedicsData['Phone number'] = value.trim();
-                    _phoneNumberNode.unfocus();
-                  },
-                  onFieldSubmitted: (_) {
-                    _phoneNumberNode.unfocus();
-                  },
+                    errorStyle: TextStyle(color: Colors.indigo)
                 ),
+                errorMessage: translator.currentLanguage == "en" ?'Invalid phone number':'الرقم غير صحيح',
+                hintText: translator.currentLanguage == "en" ?'phone number':'رقم الهاتف',
               ),
+              SizedBox(height: 8,),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 7.0),
                 height: 80,
                 child: TextFormField(
                   autofocus: false,
+                  focusNode: locationFocusNode,
                   style: TextStyle(fontSize: 15),
                   controller: _locationTextEditingController,
                   textInputAction: TextInputAction.done,
@@ -697,6 +719,74 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                     ),
                   ),
                   keyboardType: TextInputType.text,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      child: Text(
+                        translator.currentLanguage == "en" ? 'number of users use service:' : 'عدد مستخدمى الخدمه: ',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Material(
+                        shadowColor: Colors.blueAccent,
+                        elevation: 2.0,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        type: MaterialType.card,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8.0),
+                              child: Text(
+                                  _isNumOfUsersSelected == false
+                                      ? translator.currentLanguage == "en"
+                                          ? 'number'
+                                          : 'العدد'
+                                      : _paramedicsData['numberOfUsersUseService'],
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            Container(
+                              height: 40,
+                              width: 35,
+                              child: PopupMenuButton(
+                                initialValue: translator.currentLanguage == "en"
+                                    ? 'number'
+                                    : 'العدد',
+                                tooltip: 'Select num',
+                                itemBuilder: (ctx) => _numUsersList
+                                    .map((String val) => PopupMenuItem<String>(
+                                          value: val,
+                                          child: Text(val.toString()),
+                                        ))
+                                    .toList(),
+                                onSelected: (val) {
+                                  setState(() {
+                                    _paramedicsData['numberOfUsersUseService'] = val.trim();
+                                    _isNumOfUsersSelected = true;
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
               Padding(
@@ -879,7 +969,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                             padding:
                                 const EdgeInsets.only(left: 8.0, right: 8.0),
                             child: Text(
-                                _isGenderSelected == false
+                                _isServiceSelected == false
                                     ? translator.currentLanguage == "en"
                                         ? 'type'
                                         : 'النوع'
@@ -895,7 +985,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                                   ? 'Injection'
                                   : 'حقنه',
                               tooltip: 'Select Service',
-                              itemBuilder: (ctx) => _genderList
+                              itemBuilder: (ctx) => allServices
                                   .map((String val) => PopupMenuItem<String>(
                                         value: val,
                                         child: Text(val.toString()),
@@ -904,7 +994,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                               onSelected: (val) {
                                 setState(() {
                                   _paramedicsData['service type'] = val.trim();
-                                  _isGenderSelected = true;
+                                  _isServiceSelected = true;
                                 });
                               },
                               icon: Icon(
@@ -948,7 +1038,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                             padding:
                                 const EdgeInsets.only(left: 8.0, right: 8.0),
                             child: Text(
-                                _isGenderSelected == false
+                                _isNurseTypeSelected== false
                                     ? translator.currentLanguage == "en"
                                         ? 'gender'
                                         : 'النوع'
@@ -973,7 +1063,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                               onSelected: (val) {
                                 setState(() {
                                   _paramedicsData['nurse type'] = val.trim();
-                                  _isGenderSelected = true;
+                                  _isNurseTypeSelected = true;
                                 });
                               },
                               icon: Icon(
@@ -1027,6 +1117,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
             ),
             isSwitched
                 ? Container(
+              height: 90,
                     padding: EdgeInsets.symmetric(vertical: 7.0),
                     child: TextFormField(
                       autofocus: false,
@@ -1740,6 +1831,59 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                     ],
                   )
                 : SizedBox(),
+            Text(
+              translator.currentLanguage == "en"
+                  ? 'Notes:'
+                  : 'ملاحظات:',
+              style: TextStyle(fontSize: 18),
+            ),
+                Container(
+              height: 90,
+              padding: EdgeInsets.symmetric(vertical: 7.0),
+              child: TextFormField(
+                autofocus: false,
+                textInputAction: TextInputAction.newline,
+                decoration: InputDecoration(
+                  labelText: translator.currentLanguage == "en"
+                      ? "notes"
+                      : 'ملاحظات',
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.indigo,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.indigo,
+                    ),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.indigo,
+                    ),
+                  ),
+                  disabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(
+                      color: Colors.indigo,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    borderSide: BorderSide(color: Colors.indigo),
+                  ),
+                ),
+                keyboardType: TextInputType.text,
+                onChanged: (value) {
+                  _paramedicsData['notes'] = value.trim();
+                },
+                maxLines: 5,
+                minLines: 2,
+              ),
+            )
 
 //            Padding(
 //              padding: const EdgeInsets.only(bottom: 8.0, top: 17),

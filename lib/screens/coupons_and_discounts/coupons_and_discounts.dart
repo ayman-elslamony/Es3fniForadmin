@@ -49,6 +49,18 @@ class _CouponsAndDiscountsState extends State<CouponsAndDiscounts> {
           isLoading = false;
         });
       }
+      if(auth == 'not valid'){
+        Toast.show(
+            translator.currentLanguage == "en"
+                ? "Already exists"
+                : 'موجود بالفعل',
+            context,
+            duration: Toast.LENGTH_SHORT,
+            gravity: Toast.BOTTOM);
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
   Widget content({Coupon coupon,DeviceInfo infoWidget}) {

@@ -28,8 +28,11 @@ class _ParamedicsState extends State<Paramedics> {
   Widget content({UserData userData, DeviceInfo infoWidget}) {
     return InkWell(
       onTap: () {
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ShowUserProfile(userData: userData,)));
+        if(userData.nationalId !='' && userData.gender != ''){
+          Navigator.of(context)
+              .push(MaterialPageRoute(builder: (context) => ShowUserProfile(userData: userData,)));
+        }
+
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 6),
@@ -68,6 +71,7 @@ class _ParamedicsState extends State<Paramedics> {
                               setState(() {
                                 userData.loading = true;
                               });
+                              print(userData.email);print(userData.password);
                               bool x = await _home.deleteParamedic(
                                   userData: userData);
                               if (x) {

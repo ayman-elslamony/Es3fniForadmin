@@ -117,6 +117,18 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
           isLoading = false;
         });
       }
+      if(auth == 'not valid'){
+        Toast.show(
+            translator.currentLanguage == "en"
+                ? "Already exists"
+                : 'موجود بالفعل',
+            context,
+            duration: Toast.LENGTH_SHORT,
+            gravity: Toast.BOTTOM);
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

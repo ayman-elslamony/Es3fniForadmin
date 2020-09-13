@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:admin/models/coupon.dart';
 import 'package:admin/models/http_exception.dart';
 import 'package:admin/models/service.dart';
@@ -57,6 +59,8 @@ class Home with ChangeNotifier {
       for (int i = 0; i < docs.documents.length; i++) {
         allNurses.add(UserData(
             docId: docs.documents[i].documentID,
+            email: docs.documents[i].data['email'] ?? '',
+            password: docs.documents[i].data['password'] ?? '',
             points: docs.documents[i].data['points'] ?? '',
             name: docs.documents[i].data['name'] ?? '',
             phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
@@ -100,26 +104,24 @@ class Home with ChangeNotifier {
 
   Future<String> addServices({String serviceName, String price}) async {
     var services = databaseReference.collection("services");
-    String isvalid = 'yes';
-//    var docs = await services.getDocuments();
-//
-//    if (docs.documents.length != 0) {
-//      for (int i = 0; i < docs.documents.length; i++) {
-//        if (docs.documents[i].data['serviceName'] == serviceName) {
-//          isvalid = 'not valid';
-//        }
-//      }
-//    }
+    String isValid = 'yes';
+    if (allService.length != 0) {
+      for (int i = 0; i < allService.length; i++) {
+        if (allService[i].serviceName == serviceName) {
+          isValid = 'not valid';
+        }
+      }
+    }
 
-    if (isvalid == 'yes') {
+    if (isValid == 'yes') {
       await services.document().setData({
         'serviceName': serviceName,
         'price': price,
       }, merge: true);
       await getAllServices();
-      isvalid = 'scuess';
+      isValid = 'scuess';
     }
-    return isvalid;
+    return isValid;
   }
 
   Future getAllServices() async {
@@ -152,18 +154,18 @@ class Home with ChangeNotifier {
       String numberOfUses,
       String expiryDate}) async {
     var services = databaseReference.collection("coupons");
-    String isvalid = 'yes';
+    String isValid = 'yes';
 //    var docs = await services.getDocuments();
 //
-//    if (docs.documents.length != 0) {
-//      for (int i = 0; i < docs.documents.length; i++) {
-//        if (docs.documents[i].data['serviceName'] == serviceName) {
-//          isvalid = 'not valid';
-//        }
-//      }
-//    }
+    if (allCoupons.length != 0) {
+      for (int i = 0; i < allCoupons.length; i++) {
+        if (allCoupons[i].couponName == couponName) {
+          isValid = 'not valid';
+        }
+      }
+    }
 
-    if (isvalid == 'yes') {
+    if (isValid == 'yes') {
       await services.document().setData({
         'couponName': couponName,
         'discountPercentage': discountPercentage,
@@ -171,9 +173,9 @@ class Home with ChangeNotifier {
         'expiryDate': expiryDate
       }, merge: true);
       await getAllCoupons();
-      isvalid = 'scuess';
+      isValid = 'scuess';
     }
-    return isvalid;
+    return isValid;
   }
 
   Future<bool> deleteCoupon({String couponId}) async {
@@ -201,4 +203,72 @@ class Home with ChangeNotifier {
     }
     notifyListeners();
   }
+
+  Future addPatientRequest({
+    String patientName,
+    String patientPhone,
+    String patientLocation,
+    String patientAge,
+    String patientGender,
+    String numOfPatients,
+    String serviceType,
+    String nurseGender,
+    String suppliesFromPharmacy,
+    File picture,
+    String discountCoupon,
+    String startVisitDate,
+    String endVisitDate,
+    String visitDays,
+    String visitTime,
+    String notes
+  }) async {
+    var users = databaseReference.collection("users");
+    var docs =
+        await users.where('phone', isEqualTo: patientPhone).getDocuments();
+    if(docs.documents.length !=0){
+      users
+          .document(docs.documents[0].documentID)
+          .collection('requests')
+          .document()
+          .setData({
+        'patientName':patientName,
+        'patientPhone':patientPhone,
+        'patientLocation':patientLocation,
+        'patientAge':patientAge,
+        'patientGender':patientGender,
+        'numOfPatients':numOfPatients,
+        'serviceType':serviceType,
+        'nurseGender':nurseGender,
+        'suppliesFromPharmacy':suppliesFromPharmacy,
+        'picture':picture,
+        'discountCoupon':discountCoupon,
+        'startVisitDate':startVisitDate,
+        'endVisitDate':endVisitDate,
+        'visitDays':visitDays,
+        'visitTime':visitTime,
+        'notes':notes
+      });
+    }else{
+      databaseReference.collection('requests')
+          .document()
+          .setData({
+        'patientName':patientName,
+        'patientPhone':patientPhone,
+        'patientLocation':patientLocation,
+        'patientAge':patientAge,
+        'patientGender':patientGender,
+        'numOfPatients':numOfPatients,
+        'serviceType':serviceType,
+        'nurseGender':nurseGender,
+        'suppliesFromPharmacy':suppliesFromPharmacy,
+        'picture':picture,
+        'discountCoupon':discountCoupon,
+        'startVisitDate':startVisitDate,
+        'endVisitDate':endVisitDate,
+        'visitDays':visitDays,
+        'visitTime':visitTime,
+      });
+    }
+  }
+
 }
