@@ -1,5 +1,6 @@
 import 'package:admin/screens/paramedics/paramedics.dart';
 import 'package:admin/screens/paramedics_requests/paramedics_requests.dart';
+import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
@@ -9,7 +10,6 @@ import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'coupons_and_discounts/coupons_and_discounts.dart';
 import 'services_and_prices/services_and_prices.dart';
-import 'sign_in_and_up/sign_in/sign_in.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home_screen';
@@ -179,16 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
 //                    return Column();
 //                  }()),
                     UserAccountsDrawerHeader(
-                      onDetailsPressed: () {
-                        Navigator.of(context).pop();
-                        setState(() {
-                          _page = 2;
-                        });
-                        _pageController.jumpToPage(_page);
-                      },
                       accountName:
-                          Text("${_auth.userData.name.toUpperCase()}}"),
-                      accountEmail: Text("${_auth.userData.name}"),
+                          Text("${_auth.userData.name.toUpperCase()}"),
+                      accountEmail: Text(translator.currentLanguage == "en"
+                          ?'Points supplied: ${_auth.userData.points}':' النقاط المورده: ${_auth.userData.points}'),
                       currentAccountPicture: CircleAvatar(
                         backgroundColor:
                             Theme.of(context).platform == TargetPlatform.iOS

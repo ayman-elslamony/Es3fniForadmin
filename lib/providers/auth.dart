@@ -10,48 +10,21 @@ import 'package:admin/core/models/device_info.dart';
 import 'package:admin/models/http_exception.dart';
 import 'package:admin/models/user_data.dart';
 import 'package:admin/screens/main_screen.dart';
-import 'package:admin/screens/sign_in_and_up/register_using_phone/verify_code.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
 class Auth with ChangeNotifier {
-  var firebaseAuth = FirebaseAuth.instance;
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final databaseReference = Firestore.instance;
-  static String _token;
-  static String userId = '';
+   String _token;
+   String userId = '';
   String signInType = '';
-  String _userType = 'patient';
-  UserData _userData = UserData(
-    name: 'ayman',
-    id: '12345',
-    email: 'ayman17@gmail',
-    address: 'mansoura',
-    phone: '01145523795',
-    gender: 'male',
-    government: 'mansoura',
-    imgUrl: 'https://w0.pngwave.com/png/246/366/computer-icons-avatar-user-profile-man-avatars-png-clip-art.png'
-  );
-  set setUserType(String type) {
-    _userType = type;
-  }
-  String get getUserType {
-    return _userType;
-  }
+   UserData _userData;
+
   UserData get userData => _userData;
   bool get isAuth {
-    try {
-      firebaseAuth.currentUser().then((user) {
-        if (user != null) {
-          user.getIdToken().then((token) {
-            _token = token.token;
-          });
-        }
-      });
       return _token != null;
-    } catch (e) {
-      return _token == null;
-    }
   }
 
   String getToken() {
@@ -70,370 +43,64 @@ class Auth with ChangeNotifier {
 
   Future<bool> tryToLogin() async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('signInUsingFBorG')) {
-      final dataToSignIn = await json
-          .decode(prefs.getString('signInUsingFBorG')) as Map<String, Object>;
-      if (dataToSignIn['isSignInUsingFaceBook'] == true) {
-        await signInUsingFBorG('FB').then((x) {
-          if (x) {
-            signInType = 'signInUsingFBorG';
-          }
-        });
-      }
-      if (dataToSignIn['isSignInUsingGoogle'] == true) {
-        await signInUsingFBorG('G').then((x) {
-          if (x) {
-            signInType = 'signInUsingFBorG';
-          }
-        });
-      }
-    }
-
-    if(prefs.containsKey('signInUsingPhone')){
-  final dataToSignIn = await json
-      .decode(prefs.getString('signInUsingPhone')) as Map<String, Object>;
-  AuthResult x = await firebaseAuth.signInWithCustomToken(token: dataToSignIn['phoneToken']);
-      userId = x.user.uid;
-     signInType = 'signInUsingPhone';
-    }
-    if (_token == null) {
-      await firebaseAuth.currentUser().then((user) {
-        if (user != null) {
-          user.getIdToken().then((token) {
-            _token = token.token;
-          });
-        }
+    if (prefs.containsKey('signInUsingEmail')) {
+      final dataToSignIn =
+      await json.decode(prefs.getString('signInUsingEmail')) as Map<String, Object>;
+   await signInUsingEmail(email: dataToSignIn['email'], password: dataToSignIn['password']).then((_){
+        signInType='signInUsingEmail';
       });
     }
-
-    if (signInType == 'signInUsingFBorG') {
+   if(signInType =='signInUsingEmail'){
       return true;
-    } else if (signInType == 'signInUsingPhone') {
-      return true;
-    } else {
+    }else{
       return false;
     }
   }
 
-  Future<void> createRecord({String userId, UserData userData}) async {
+  Future<void> setAndGetAdminData({String email}) async {
     var users = databaseReference.collection("admins");
     DocumentSnapshot doc = await users.document(userId).get();
+    var x=email.split('@');
     if (!doc.exists) {
       await users.document(userId).setData({
-        'name': userData.name,
-        'email': userData.email,
-        'imgUrl': userData.imgUrl,
+
+        'name': x[0]??'Admin',
+        'points': '0'
       });
+      _userData= UserData(name: x[0]??'Admin',points: '0');
+    }else{
+      _userData= UserData(name: doc.data['name']??'Admin',points: doc.data['points']??'0');
     }
+    print('fdndfnmedf');
   }
-  Future<bool> editProfile({String type,String address,String phone,File image,String job,String social,String bio})async{
-//    FormData formData;
-//    var data;
-//    try{
-//      if(type =='bio'){
-//        formData = FormData.fromMap({
-//          'bio': bio,
-//        });
-//        data = await _netWork
-//            .updateData(url: 'doctor/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'image'){
-//        String fileName = image.path
-//            .split('/')
-//            .last;
-//        if(_userType == 'doctor'){
-//          formData = FormData.fromMap({
-//            'doctorImage': await MultipartFile.fromFile(image.path,
-//                filename: fileName)
-//          });
-//        }else{
-//          formData = FormData.fromMap({
-//            'patientImage': await MultipartFile.fromFile(image.path,
-//                filename: fileName)
-//          });
-//        }
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print(data);
-//      }
-//      if(type == 'job'){
-//        formData = FormData.fromMap({
-//          'job': job,
-//        });
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'address'){
-//        String government = '';
-//        for (int i = 0; i < governorateList.length; i++) {
-//          if (address.contains(governorateList[i])) {
-//            government = governorateList[i];
-//          }
-//        }
-//        formData = FormData.fromMap({
-//          'address': address,
-//          'government': government,
-//        });
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'phone'){
-//        if(_userType == 'doctor') {
-//          formData = FormData.fromMap({
-//            'number': '0$phone',
-//          });
-//        }else{
-//          formData = FormData.fromMap({
-//            'phone': '0$phone',
-//          });
-//        }
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'social'){
-//        formData = FormData.fromMap({
-//          'status': social,
-//        });
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if (data != null) {
-//        if(_userType =='doctor'){
-//          rgisterData = RegisterData.fromJson(data['doctor'], 'doctor');
-//        }else{
-//          rgisterData = RegisterData.fromJson(data['patient'], 'patient');
-//        }
-//        print('svfdsb');
-//        notifyListeners();
-//        return true;
-//      }else{
-//        return false;
-//      }
-//    }catch (e){
-//      print(e);
-//      return false;
-//    }
-  return true;
-  }
-  createAccount(
-      {String name,
-      String email,
-      String imgUrl,
-      String id,
-      bool isSignUsingEmail = false}) async {
-    if (isSignUsingEmail) {
-      await createRecord(
-          userId: id,
-          userData: UserData(email: email, name: name, imgUrl: imgUrl));
-    } else {
-      await createRecord(
-          userId: id,
-          userData: UserData(email: email, name: name, imgUrl: imgUrl));
-    }
-  }
-
-  Future<bool> signInUsingFBorG(String type) async {
-    final prefs = await SharedPreferences.getInstance();
-    try {
-      switch (type) {
-        case "FB":
-          FacebookLoginResult facebookLoginResult = await _handleFBSignIn();
-          final accessToken = facebookLoginResult.accessToken.token;
-          if (facebookLoginResult.status == FacebookLoginStatus.loggedIn) {
-            final facebookAuthCred =
-                FacebookAuthProvider.getCredential(accessToken: accessToken);
-            final user =
-                await firebaseAuth.signInWithCredential(facebookAuthCred);
-            userId = user.user.uid;
-//         email: googleSignIn.currentUser.email,
-//    name: googleSignIn.currentUser.displayName,
-//    profilePicURL: googleSignIn.currentUser.photoUrl,
-//    gender: await getGender()
-            FacebookLogin facebookLogin = FacebookLogin();
-            //user.additionalUserInfo.profile.
-            //createAccount(imgUrl: ,name: user.user.displayName,email: user.user.email,id: user.user.uid)
-            print("User : " + user.user.displayName);
-            final _signInUsingFBorG = json.encode({
-              'isSignInUsingFaceBook': true,
-              'isSignInUsingGoogle': false,
-            });
-            prefs.setString('signInUsingFBorG', _signInUsingFBorG);
-            //  notifyListeners();
-            return true;
-          } else
-            //notifyListeners();
-            return false;
-          break;
-        case "G":
-          try {
-            GoogleSignInAccount googleSignInAccount =
-                await _handleGoogleSignIn();
-            final googleAuth = await googleSignInAccount.authentication;
-            final googleAuthCred = GoogleAuthProvider.getCredential(
-                idToken: googleAuth.idToken,
-                accessToken: googleAuth.accessToken);
-            final user =
-                await firebaseAuth.signInWithCredential(googleAuthCred);
-            userId = user.user.uid;
-            await createAccount(
-                imgUrl: user.user.photoUrl,
-                name: user.user.displayName,
-                email: user.user.email,
-                id: user.user.uid);
-            final _signInUsingFBorG = json.encode({
-              'isSignInUsingFaceBook': false,
-              'isSignInUsingGoogle': true,
-            });
-            prefs.setString('signInUsingFBorG', _signInUsingFBorG);
-            return true;
-          } catch (error) {
-            return false;
-          }
+  Future<bool> signInUsingEmail({String email,String password})async{
+    AuthResult auth;
+    try{
+      auth= await firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      if(auth != null) {
+        userId = auth.user.uid;
+         IdTokenResult x =await  auth.user.getIdToken();
+         _token= x.token;
+        await setAndGetAdminData(email: email);
+        final prefs = await SharedPreferences.getInstance();
+        if (!prefs.containsKey('signInUsingEmail')) {
+          final _signInUsingEmail = json.encode({
+            'email': email,
+            'password': password,
+          });
+          prefs.setString('signInUsingEmail', _signInUsingEmail);
+        }
       }
-    } catch (e) {
-      return false;
+      notifyListeners();
+      return true;
+    }catch (e) {
+      throw HttpException(e.code);
     }
   }
 
-  Future<FacebookLoginResult> _handleFBSignIn() async {
-    FacebookLogin facebookLogin = FacebookLogin();
-    FacebookLoginResult facebookLoginResult =
-        await facebookLogin.logIn(['email']);
-    switch (facebookLoginResult.status) {
-      case FacebookLoginStatus.cancelledByUser:
-        print("Cancelled");
-        break;
-      case FacebookLoginStatus.error:
-        print("error");
-        break;
-      case FacebookLoginStatus.loggedIn:
-        print("Logged In");
-        break;
-    }
-    return facebookLoginResult;
-  }
-
-  Future<GoogleSignInAccount> _handleGoogleSignIn() async {
-    GoogleSignIn googleSignIn = GoogleSignIn(
-        scopes: ['email', 'https://www.googleapis.com/auth/contacts.readonly']);
-    GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    return googleSignInAccount;
-  }
-
-
-  Future<String> signInUsingPhone(
-      
-      {String phone, BuildContext context, DeviceInfo infoWidget}) async {
-    final prefs = await SharedPreferences.getInstance();
-     firebaseAuth.verifyPhoneNumber(
-         phoneNumber: phone,
-         timeout: Duration(seconds: 60),
-         verificationCompleted: (AuthCredential credential) async {
-           print('dfbfbff');
-           AuthResult result =
-           await firebaseAuth.signInWithCredential(credential);
-           FirebaseUser user = result.user;
-
-           if (user != null) {
-             userId = user.uid;
-             if (_token == null) {
-               await firebaseAuth.currentUser().then((user) async{
-                 if (user != null) {
-                   await user.getIdToken().then((token) {
-                     print(token.token);
-                     _token = token.token;
-                   });
-                 }
-
-               });
-               print(userId);
-               print(_token);
-               final _signInUsingPhone = json.encode({
-                 'phoneToken': _token,
-               });
-               prefs.setString('signInUsingPhone', _signInUsingPhone);
-               Navigator.of(context).pushReplacement(MaterialPageRoute(
-                   builder: (context) =>HomeScreen() ));
-             }
-           } else {
-             print("Error");
-           }
-         },
-         verificationFailed: (AuthException exception) {
-           print('vdbcdbd');
-           print(exception.message);
-           Toast.show(translator.currentLanguage == "en"
-               ? "you are send more requests please try again later":'لقد قمت بطلب الكود اكثر من مره من فضلك حاول فى وق لاحق', context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
-         },
-         codeSent: (String verificationId, [int forceResendingToken]) {
-           getCode(String code)async{
-             print('etey$code');
-             try {
-               AuthCredential credential =
-               PhoneAuthProvider.getCredential(
-                   verificationId: verificationId,
-                   smsCode: code);
-               AuthResult result =
-               await firebaseAuth.signInWithCredential(credential);
-               FirebaseUser user = result.user;
-               print('etetee');
-               if (user != null) {
-                 userId = user.uid;
-                 if (_token == null) {
-                   await firebaseAuth.currentUser().then((user) async{
-                     if (user != null) {
-                       await user.getIdToken().then((token) {
-                         print(token.token);
-                         _token = token.token;
-                       });
-                     }
-
-                   });
-                   print(userId);
-                   print(_token);
-                   final _signInUsingPhone = json.encode({
-                     'phoneToken': _token,
-                   });
-                   prefs.setString('signInUsingPhone', _signInUsingPhone);
-                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                       builder: (context) =>HomeScreen() ));
-                 }
-
-               } else {
-                 print("Error");
-               }
-             }catch (e){
-               print(e);
-               Toast.show(translator.currentLanguage == "en"
-                   ? "invalid verification code":'الكود الذى ادخلته غير صحيح', context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
-             }
-
-           }
-           Navigator.of(context).push(MaterialPageRoute(
-               builder: (context) => VerifyCode(
-                 phoneNumber: phone,
-                 function: getCode,
-               )));
-         },
-         codeAutoRetrievalTimeout: null);
-  }
 
   Future<bool> logout() async {
     try {

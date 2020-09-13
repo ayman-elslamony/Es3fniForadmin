@@ -1,12 +1,10 @@
 import 'package:admin/providers/home.dart';
-import 'package:admin/screens/sign_in_and_up/sign_in_and_up.dart';
+import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth.dart';
 import 'screens/main_screen.dart';
-import 'screens/sign_in_and_up/register_using_phone/verify_code.dart';
-import 'screens/sign_in_and_up/sign_in/sign_in.dart';
 import 'screens/splash_screen.dart';
 
 Future<void> main() async {
@@ -80,7 +78,7 @@ class _AppState extends State<App> {
                         !auth.isAuth) {
                   return Splash();
                 } else {
-                  return Sign();
+                  return SignIn();
                 }
               }),
         ),
