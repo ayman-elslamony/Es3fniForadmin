@@ -21,6 +21,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
   Widget content({Requests request,DeviceInfo infoWidget}){
     String visitDays='';
     String visitTime='';
+    print(request.analysisType);
     if(request.visitDays !=''){
       var x = request.visitDays.replaceFirst('[', '');
       visitDays = x.replaceAll(']', '');

@@ -506,6 +506,7 @@ class Home with ChangeNotifier {
           priceAfterDiscount: docs.documents[i].data['priceAfterDiscount'].toString()??''
         ));
       }
+      notifyListeners();
     }
   }
   Future getAllPatientsRequests()async{
@@ -513,13 +514,13 @@ class Home with ChangeNotifier {
     QuerySnapshot docs = await requests
         .getDocuments();
     if (docs.documents.length != 0) {
-      allAnalysisRequests.clear();
+      allPatientsRequests.clear();
       for (int i = 0; i < docs.documents.length; i++) {
-        allAnalysisRequests.add(Requests(
+        allPatientsRequests.add(Requests(
           patientId: docs.documents[i].data['patientId']??'',
           docId: docs.documents[i].documentID,
-         visitTime: docs.documents[i].data['visitTime']??'',
-          visitDays: docs.documents[i].data['visitDays']??'',
+         visitTime: docs.documents[i].data['visitTime']=='[]'?'':docs.documents[i].data['visitTime']??'',
+          visitDays: docs.documents[i].data['visitDays']=='[]'?'':docs.documents[i].data['visitDays']??'',
           suppliesFromPharmacy: docs.documents[i].data['suppliesFromPharmacy']??'',
           startVisitDate: docs.documents[i].data['startVisitDate']??'',
           serviceType: docs.documents[i].data['serviceType']??'',
@@ -539,6 +540,7 @@ class Home with ChangeNotifier {
           priceAfterDiscount: docs.documents[i].data['priceAfterDiscount'].toString()??''
         ));
       }
+      notifyListeners();
     }
   }
 }

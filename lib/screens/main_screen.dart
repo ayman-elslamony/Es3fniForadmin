@@ -1,3 +1,4 @@
+import 'package:admin/screens/paramedics/paramedics.dart';
 import 'package:admin/screens/patient_requests/patient_requests.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -231,6 +232,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget,
                         onTap: () async {
 
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => Paramedics()));
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"

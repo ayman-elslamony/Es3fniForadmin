@@ -240,6 +240,15 @@ class _ParamedicsState extends State<Paramedics> {
               await _home.getAllParamedics();
             },
             child: Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                title: Text(
+                  translator.currentLanguage == "en"
+                      ? "Paramedics"
+                      : 'المسعفين',
+                  style: infoWidget.titleButton,
+                ),
+              ),
               body: loadingBody
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
