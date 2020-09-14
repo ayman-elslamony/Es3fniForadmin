@@ -1,5 +1,6 @@
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
+import 'package:admin/models/analysis.dart';
 import 'package:admin/models/service.dart';
 import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
@@ -9,20 +10,20 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:toast/toast.dart';
 
-class ServicesAndPrices extends StatefulWidget {
+class Analysiss extends StatefulWidget {
   @override
-  _ServicesAndPricesState createState() => _ServicesAndPricesState();
+  _AnalysissState createState() => _AnalysissState();
 }
 
-class _ServicesAndPricesState extends State<ServicesAndPrices> {
-  TextEditingController serviceName = TextEditingController();
-  TextEditingController priceService = TextEditingController();
+class _AnalysissState extends State<Analysiss> {
+  TextEditingController analysisName = TextEditingController();
+  TextEditingController analysisPrice = TextEditingController();
   Home _home;
   bool loadingBody = true;
   bool isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey();
 
-  Widget content({Service service, DeviceInfo infoWidget}) {
+  Widget content({Analysis analysis, DeviceInfo infoWidget}) {
     return Padding(
       padding: const EdgeInsets.only(top: 6),
       child: Container(
@@ -36,26 +37,26 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                 children: <Widget>[
                   Text(
                     translator.currentLanguage == 'en'
-                        ? 'Service Type: ${service.serviceName}'
-                        : 'نوع الخدمه: ${service.serviceName}',
+                        ? 'Analysis Type: ${analysis.analysisName}'
+                        : 'نوع التحليل: ${analysis.analysisName}',
                     style: infoWidget.title,
                   ),
                   Text(
                     translator.currentLanguage == 'en'
-                        ? 'Price: ${service.price} EGP'
-                        : 'السعر: ${service.price} جنيه ',
+                        ? 'Price: ${analysis.price} EGP'
+                        : 'السعر: ${analysis.price} جنيه ',
                     style: infoWidget.subTitle,
                   ),
                 ],
               ),
               Column(
                 children: <Widget>[
-                  service.loading ?Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)):RaisedButton(
+                  analysis.loading ?Center(child: CircularProgressIndicator(backgroundColor: Colors.indigo,)):RaisedButton(
                     onPressed: () async{
                      setState(() {
-                       service.loading = true;
+                       analysis.loading = true;
                      });
-                      bool x =await  _home.deleteService(serviceId: service.id);
+                      bool x =await  _home.deleteAnalysis(analysisId: analysis.id);
                     if(x){
                       Toast.show(
                           translator.currentLanguage == "en"
@@ -74,7 +75,7 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                           gravity: Toast.BOTTOM);
                     }
                      setState(() {
-                       service.loading = false;
+                       analysis.loading = false;
                      });
                      },
                     child: Text(
@@ -94,15 +95,15 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
     );
   }
 
-  addServices() async {
+  addAnalysis() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       setState(() {
         isLoading = true;
       });
-      String auth = await _home.addServices(
-          serviceName: serviceName.text.trim(),
-          price: priceService.text.trim());
+      String auth = await _home.addAnalysis(
+          analysisName: analysisName.text.trim(),
+          price: analysisPrice.text.trim());
       print('welcome');
       if (auth == 'scuess') {
         Toast.show(
@@ -132,9 +133,9 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
     }
   }
 
-  getAllServices() async {
-    if(_home.allService.length ==0){
-      await _home.getAllServices();
+  getAllAnalysis() async {
+    if(_home.allAnalysis.length ==0){
+      await _home.getAllAnalysis();
     }
     setState(() {
       loadingBody = false;
@@ -144,7 +145,7 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
-    getAllServices();
+    getAllAnalysis();
     super.initState();
   }
 
@@ -160,16 +161,15 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
             color: Colors.indigo,
             backgroundColor: Colors.white,
             onRefresh: ()async{
-              await _home.getAllServices();
+              await _home.getAllAnalysis();
             },
             child: Scaffold(
-
               appBar: AppBar(
                 centerTitle: true,
                 title: Text(
                   translator.currentLanguage == "en"
-                      ? "Services and prices"
-                      : 'الخدمات والاسعار',
+                      ? 'Medical tests'
+                      : 'التحاليل الطبيه',
                   style: infoWidget.titleButton,
                 ),
               ),
@@ -196,22 +196,22 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                   )
                   : Consumer<Home>(
                       builder: (context, data, _) {
-                        if (data.allService.length == 0) {
+                        if (data.allAnalysis.length == 0) {
                           return Center(
                             child: Text(
                               translator.currentLanguage == "en"
-                                  ? 'there is no any services'
-                                  : 'لا يوجد خدمات',
+                                  ? 'there is no any Analysis'
+                                  : 'لا يوجد تحاليل',
                               style: infoWidget.titleButton
                                   .copyWith(color: Colors.indigo),
                             ),
                           );
                         } else {
                           return ListView.builder(
-                              itemCount: data.allService.length,
+                              itemCount: data.allAnalysis.length,
                               itemBuilder: (context, index) => content(
                                   infoWidget: infoWidget,
-                                 service: data.allService[index]));
+                                 analysis: data.allAnalysis[index]));
                         }
                       },
                     ),
@@ -231,8 +231,8 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                 contentPadding: EdgeInsets.only(top: 10.0),
                                 title: Text(
                                   translator.currentLanguage == "en"
-                                      ? 'add service'
-                                      : 'اضافه خدمه',
+                                      ? 'add analysis'
+                                      : 'اضافه تحليل',
                                   textAlign: TextAlign.center,
                                   style: infoWidget.title,
                                 ),
@@ -252,13 +252,13 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                                         .width /
                                                     0.85,
                                                 child: TextFormField(
-                                                  controller: serviceName,
+                                                  controller: analysisName,
                                                   decoration: InputDecoration(
                                                     labelText: translator
                                                                 .currentLanguage ==
                                                             "en"
-                                                        ? 'service name'
-                                                        : 'اسم الخدمه',
+                                                        ? 'analysis name'
+                                                        : 'اسم التحليل',
                                                     labelStyle: TextStyle(
                                                         color: Colors.indigo),
                                                     focusedBorder:
@@ -297,8 +297,8 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                                       return translator
                                                                   .currentLanguage ==
                                                               "en"
-                                                          ? 'Invalid service'
-                                                          : 'لايوجد خدمه';
+                                                          ? 'Invalid analysis'
+                                                          : 'لايوجد تحليل';
                                                     }
                                                   },
                                                   keyboardType:
@@ -314,13 +314,13 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                                         .width /
                                                     0.85,
                                                 child: TextFormField(
-                                                  controller: priceService,
+                                                  controller: analysisPrice,
                                                   decoration: InputDecoration(
                                                       labelText: translator
                                                                   .currentLanguage ==
                                                               "en"
-                                                          ? 'service price'
-                                                          : 'سعر الخدمه',
+                                                          ? 'Analysis price'
+                                                          : 'سعر التحليل',
                                                       labelStyle: TextStyle(
                                                           color: Colors.indigo),
                                                       focusedBorder:
@@ -410,7 +410,7 @@ class _ServicesAndPricesState extends State<ServicesAndPrices> {
                                             style: infoWidget.subTitle
                                                 .copyWith(color: Colors.indigo),
                                           ),
-                                          onPressed: addServices,
+                                          onPressed: addAnalysis,
                                         )
                                 ],
                               ),

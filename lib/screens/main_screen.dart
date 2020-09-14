@@ -8,6 +8,7 @@ import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/providers/auth.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
+import 'analysis/analysis.dart';
 import 'coupons_and_discounts/coupons_and_discounts.dart';
 import 'services_and_prices/services_and_prices.dart';
 
@@ -209,15 +210,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
-                            ? "Medical tests"
-                            : 'التحاليل الطبيه',
+                            ? "Analysis requests"
+                            : 'طلبات التحليل',
                         isIcon: true,
                         icon: Icons.exit_to_app,
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).pop();
                           setState(() {
-                            _page = 0;
+                            _page = 1;
                           });
                           _pageController.jumpToPage(_page);
                         }),
@@ -238,26 +239,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         imgPath: 'assets/icons/search.png',
                         infoWidget: infoWidget,
                         onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _page = 2;
-                          });
-                          _pageController.jumpToPage(_page);
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => ServicesAndPrices()));
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
-                            ? "Analysis requests"
-                            : 'طلبات التحليل',
+                            ? "Medical tests"
+                            : 'التحاليل الطبيه',
                         isIcon: true,
                         icon: Icons.exit_to_app,
                         infoWidget: infoWidget,
                         onTap: () async {
-//                          await Provider.of<Auth>(context, listen: false)
-//                              .logout();
-//                          Navigator.of(context).pushReplacement(
-//                              MaterialPageRoute(
-//                                  builder: (context) => SignIn()));
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => Analysiss()));
                         }),
+
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
                             ? "Coupons and discounts"

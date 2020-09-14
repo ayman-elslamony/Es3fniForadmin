@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:admin/models/analysis.dart';
+import 'package:admin/models/price.dart';
 import 'package:path/path.dart' as path;
 import 'package:admin/models/coupon.dart';
 import 'package:admin/models/http_exception.dart';
@@ -19,8 +21,66 @@ class Home with ChangeNotifier {
   );
 
   List<Service> allService = [];
+  List<Analysis> allAnalysis = [];
   List<UserData> allNurses = [];
   List<Coupon> allCoupons = [];
+
+  Price price=Price(allServiceType: [],servicePrice: 0.0);
+  Coupon coupon;
+  double discount=0.0;
+  double priceBeforeDiscount=0.0;
+  addToPrice({String type,String serviceType}){
+    if(type == 'analysis'){
+      if(!price.allServiceType.contains(serviceType)){
+       int index= allAnalysis.indexWhere((x)=>x.analysisName == serviceType);
+     List<String> x = price.allServiceType;
+     x.add(serviceType);
+       priceBeforeDiscount =price.servicePrice + double.parse(allAnalysis[index].price);
+       price=Price(
+      // servicePrice: price.servicePrice + double.parse(allAnalysis[index].price),
+       allServiceType:x);
+      }
+    }else{
+      if(!price.allServiceType.contains(serviceType)) {
+
+        int index = allService.indexWhere((x) => x.serviceName == serviceType);
+        List<String> x = price.allServiceType;
+       // priceBeforeDiscount =price.servicePrice + double.parse(allService[index].price);
+        x.add(serviceType);
+        price=Price(
+            servicePrice: price.servicePrice + double.parse(allService[index].price),
+            allServiceType:x);
+      }
+    }
+    notifyListeners();
+}
+  resetPrice(){
+    price = Price(allServiceType: [],servicePrice: 0.0);
+  }
+
+
+   removeFromPrice({String type,String serviceType}){
+    if(type == 'analysis'){
+      if(!price.allServiceType.contains(serviceType)){
+       int index= allAnalysis.indexWhere((x)=>x.analysisName == serviceType);
+     List<String> x = price.allServiceType;
+     x.add(serviceType);
+       price=Price(
+       servicePrice: price.servicePrice + double.parse(allAnalysis[index].price),
+       allServiceType:x);
+      }
+    }else{
+      if(!price.allServiceType.contains(serviceType)) {
+        int index = allService.indexWhere((x) => x.serviceName == serviceType);
+        List<String> x = price.allServiceType;
+        x.add(serviceType);
+        price=Price(
+            servicePrice: price.servicePrice + double.parse(allService[index].price),
+            allServiceType:x);
+      }
+    }
+    notifyListeners();
+}
 
   Future<bool> createAccountForParamedics(
       {String email, String password, String nationalId}) async {
@@ -149,13 +209,101 @@ class Home with ChangeNotifier {
     notifyListeners();
     return true;
   }
+  Future<String> addAnalysis({String analysisName, String price}) async {
+    var analysis = databaseReference.collection("analysis");
+    String isValid = 'yes';
+    if (allAnalysis.length != 0) {
+      for (int i = 0; i < allAnalysis.length; i++) {
+        if (allAnalysis[i].analysisName == analysisName) {
+          isValid = 'not valid';
+        }
+      }
+    }
 
+    if (isValid == 'yes') {
+      await analysis.document().setData({
+        'analysisName': analysisName,
+        'price': price,
+      }, merge: true);
+      await getAllAnalysis();
+      isValid = 'scuess';
+    }
+    return isValid;
+  }
+
+  Future getAllAnalysis() async {
+    var analysis = databaseReference.collection("analysis");
+    var docs = await analysis.getDocuments();
+    if (docs.documents.length != 0) {
+      allAnalysis.clear();
+      for (int i = 0; i < docs.documents.length; i++) {
+        allAnalysis.add(Analysis(
+          id: docs.documents[i].documentID,
+          price: docs.documents[i].data['price'],
+          analysisName: docs.documents[i].data['analysisName'],
+        ));
+      }
+    }
+    notifyListeners();
+  }
+
+  Future<bool> deleteAnalysis({String analysisId}) async {
+    var services = databaseReference.collection("analysis");
+    await services.document(analysisId).delete();
+    allAnalysis.removeWhere((x) => x.id == analysisId);
+    notifyListeners();
+    return true;
+  }
+  Future<String>  verifyCoupon({String couponName})async{
+    var services = databaseReference.collection("coupons");
+    QuerySnapshot docs =await services.where('couponName',isEqualTo: couponName).getDocuments();
+    if(docs.documents.length == 0){
+      return 'false';
+    }else{
+      if(price.isAddingDiscount == false && price.servicePrice !=0.0){
+      coupon = Coupon(
+        docId: docs.documents[0].documentID,
+        couponName: docs.documents[0].data['couponName'],
+        discountPercentage: docs.documents[0].data['discountPercentage'],
+        expiryDate: docs.documents[0].data['expiryDate'],
+        numberOfUses: docs.documents[0].data['numberOfUses'],
+      );
+      double prices = price.servicePrice;
+      priceBeforeDiscount =price.servicePrice;
+       discount = prices*(double.parse(coupon.discountPercentage)/100);
+      List<String> x = price.allServiceType;
+      price =Price(
+        servicePrice: (prices-discount),
+        isAddingDiscount: true,
+        allServiceType: x
+      );
+      notifyListeners();
+      return 'true';
+    }else if(price.servicePrice ==0.0){
+        return 'add service before discount';
+      }else{
+        return 'already discount';
+      }
+    }
+  }
+  Future<void>  unVerifyCoupon()async{
+      double prices = price.servicePrice;
+      List<String> x = price.allServiceType;
+      price =Price(
+        servicePrice: (prices+discount),
+        isAddingDiscount: false,
+        allServiceType: x
+      );
+      notifyListeners();
+
+
+  }
   Future<String> addCoupon(
       {String couponName,
       String discountPercentage,
       String numberOfUses,
       String expiryDate}) async {
-    var services = databaseReference.collection("coupons");
+    var coupon = databaseReference.collection("coupons");
     String isValid = 'yes';
 //    var docs = await services.getDocuments();
 //
@@ -168,7 +316,7 @@ class Home with ChangeNotifier {
     }
 
     if (isValid == 'yes') {
-      await services.document().setData({
+      await coupon.document().setData({
         'couponName': couponName,
         'discountPercentage': discountPercentage,
         'numberOfUses': numberOfUses,
@@ -206,7 +354,7 @@ class Home with ChangeNotifier {
     notifyListeners();
   }
 
-  Future addPatientRequest(
+  Future<bool> addPatientRequest(
       {String analysisType,
       String patientName,
       String patientPhone,
@@ -239,29 +387,64 @@ class Home with ChangeNotifier {
     } catch (e) {
       print(e);
     }
-    DocumentReference x = await databaseReference.collection('requests').add({
-      'patientName': patientName,
-      'patientPhone': patientPhone,
-      'patientLocation': patientLocation,
-      'patientAge': patientAge,
-      'patientGender': patientGender,
-      'numOfPatients': numOfPatients,
-      'serviceType': serviceType,
-      'nurseGender': nurseGender,
-      'suppliesFromPharmacy': suppliesFromPharmacy,
-      'picture': imgUrl,
-      'discountCoupon': discountCoupon,
-      'startVisitDate': startVisitDate,
-      'endVisitDate': endVisitDate,
-      'visitDays': visitDays,
-      'visitTime': visitTime,
-    });
-    if (docs.documents.length != 0) {
-      await users
-          .document(docs.documents[0].documentID)
-          .collection('requests')
-          .document(x.documentID)
-          .setData({'docId': x.documentID});
+    if(analysisType ==''){
+      DocumentReference x = await databaseReference.collection('requests').add({
+        'patientName': patientName,
+        'patientPhone': patientPhone,
+        'patientLocation': patientLocation,
+        'patientAge': patientAge,
+        'patientGender': patientGender,
+        'numOfPatients': numOfPatients,
+        'serviceType': serviceType,
+        'nurseGender': nurseGender,
+        'suppliesFromPharmacy': suppliesFromPharmacy,
+        'picture': imgUrl,
+        'discountCoupon': discountCoupon,
+        'startVisitDate': startVisitDate,
+        'endVisitDate': endVisitDate,
+        'visitDays': visitDays,
+        'visitTime': visitTime,
+        'notes':notes,
+        'priceBeforeDiscount': discountCoupon==''?price.servicePrice.toString():priceBeforeDiscount.toString(),
+        'priceAfterDiscount': price.servicePrice,
+      });
+      if (docs.documents.length != 0) {
+        await users
+            .document(docs.documents[0].documentID)
+            .collection('requests')
+            .document(x.documentID)
+            .setData({'docId': x.documentID});
+      }
+    }else{
+      DocumentReference x = await databaseReference.collection('analysis').add({
+        'patientName': patientName,
+        'patientPhone': patientPhone,
+        'patientLocation': patientLocation,
+        'patientAge': patientAge,
+        'patientGender': patientGender,
+        'numOfPatients': numOfPatients,
+        'serviceType': serviceType,
+        'analysisType':analysisType,
+        'nurseGender': nurseGender,
+        'suppliesFromPharmacy': suppliesFromPharmacy,
+        'picture': imgUrl,
+        'discountCoupon': discountCoupon,
+        'startVisitDate': startVisitDate,
+        'endVisitDate': endVisitDate,
+        'visitDays': visitDays,
+        'visitTime': visitTime,
+        'notes':notes,
+        'priceBeforeDiscount': discountCoupon==''?price.servicePrice.toString():priceBeforeDiscount.toString(),
+        'priceAfterDiscount': price.servicePrice,
+      });
+      if (docs.documents.length != 0) {
+        await users
+            .document(docs.documents[0].documentID)
+            .collection('analysis')
+            .document(x.documentID)
+            .setData({'docId': x.documentID});
+      }
     }
+    return true;
   }
 }

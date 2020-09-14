@@ -46,9 +46,10 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   List<String> _sortedWorkingDays = List<String>.generate(7, (i) => '');
   List<bool> values = List.filled(7, false);
   FocusNode focusNode=FocusNode();
+  FocusNode couponFocusNode=FocusNode();
   FocusNode locationFocusNode=FocusNode();
   FocusNode nameFocusNode=FocusNode();
-
+bool isLoadingCoupon =false;
   TextEditingController _locationTextEditingController =
       TextEditingController();
   File _imageFile;
@@ -92,17 +93,23 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   List<String> visitTime = [];
   final FocusNode _phoneNumberNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
-  List<Step> steps = [];
+  //List<Step> steps = [];
   Home _home;
   bool isAnalysisSelected = false;
   List<String> allServices=translator.currentLanguage == "en"
       ?['Analysis']:['تحاليل'];
   List<String> allAnalysisType=[];
-  getAllServices() async {
+  getAllServicesAndAnalysis() async {
     if(_home.allService.length ==0){
       await _home.getAllServices();
       for(int i=0; i< _home.allService.length; i++){
         allServices.add(_home.allService[i].serviceName);
+      }
+    }
+    if(_home.allAnalysis.length ==0){
+      await _home.getAllAnalysis();
+      for(int i=0; i< _home.allAnalysis.length; i++){
+        allAnalysisType.add(_home.allAnalysis[i].analysisName);
       }
     }
   }
@@ -110,7 +117,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   void initState() {
     super.initState();
     _home = Provider.of<Home>(context, listen: false);
-    getAllServices();
+    getAllServicesAndAnalysis();
     if(translator.currentLanguage != "en") {
       _genderList = ['ذكر', 'انثى'];
     }
@@ -469,9 +476,8 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
         _isLoading = true;
       });
       try {
-        String isSccuess = '';
 
-        await _home
+        bool isSccuess =await _home
             .addPatientRequest(
           analysisType: _paramedicsData['analysis type'],
           notes: _paramedicsData['notes'],
@@ -488,53 +494,62 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
           serviceType: _paramedicsData['service type'],
           startVisitDate: _paramedicsData['startDate'],
           suppliesFromPharmacy: _paramedicsData['accessories'],
-          visitDays:workingDays.toString(),
+          visitDays:_selectedWorkingDays.toString(),
           visitTime: visitTime.toString(),
         );
         print('isScuessisScuess$isSccuess');
-        if (isSccuess == 'success') {
+        if (isSccuess) {
           setState(() {
             _isLoading = false;
           });
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0))),
-              contentPadding: EdgeInsets.only(top: 10.0),
-              title: Text("Profile Created"),
-              content: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    "Welcome ${_paramedicsData['First name']}",
-                  ),
-                ],
-              ),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text("Ok"),
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => HomeScreen()));
-                  },
-                ),
-                FlatButton(
-                  child: Text("Cancel"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    setState(() => complete = true);
-                  },
-                ),
-              ],
-            ),
-          );
+
+          if(isSccuess){
+            Toast.show(translator.currentLanguage == "en"
+                ?'Sccfully added':"نجحت الاضافه", context,
+                duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+            _home.resetPrice();
+            Navigator.of(context).pop();
+//          showDialog(
+//            context: context,
+//            builder: (ctx) => AlertDialog(
+//              shape: RoundedRectangleBorder(
+//                  borderRadius: BorderRadius.all(Radius.circular(25.0))),
+//              contentPadding: EdgeInsets.only(top: 10.0),
+//              title: Text("Profile Created"),
+//              content: Row(
+//                crossAxisAlignment: CrossAxisAlignment.center,
+//                mainAxisAlignment: MainAxisAlignment.center,
+//                children: <Widget>[
+//                  Text(
+//                    "Welcome ${_paramedicsData['First name']}",
+//                  ),
+//                ],
+//              ),
+//              actions: <Widget>[
+//                FlatButton(
+//                  child: Text("Ok"),
+//                  onPressed: () {
+//                    Navigator.of(context).pushReplacement(
+//                        MaterialPageRoute(builder: (context) => HomeScreen()));
+//                  },
+//                ),
+//                FlatButton(
+//                  child: Text("Cancel"),
+//                  onPressed: () {
+//                    Navigator.of(context).pop();
+//                    setState(() => complete = true);
+//                  },
+//                ),
+//              ],
+//            ),
+//          );
+          }
         } else {
           setState(() {
             _isLoading = false;
           });
-          Toast.show("Please try again", context,
+          Toast.show(translator.currentLanguage == "en"
+              ?"Please try again":'من فضلك حاول مره اخرى', context,
               duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
         }
       } catch (e) {
@@ -542,20 +557,20 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
         setState(() {
           _isLoading = false;
         });
-        Toast.show("Please try again", context,
+        Toast.show(translator.currentLanguage == "en"
+            ?"Please try again":'من فضلك حاول مره اخرى', context,
             duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
       }
     }
   }
 
   _incrementStep() {
-    currentStep + 1 == steps.length
+    currentStep + 1 == 2
         ? setState(() => complete = true)
         : goTo(currentStep + 1);
   }
 
   nextStep() async {
-    print(steps.length);
     print(currentStep);
 
     if (currentStep == 0) {
@@ -580,8 +595,8 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
       return;
     }
     if (currentStep == 1) {
-      if (_paramedicsData['service type'] == '' ||
-          visitTime.length == 0) {
+      if (_paramedicsData['service type'] == ''
+          ) {
         Toast.show(
             translator.currentLanguage == "en"
                 ? "Please Complete data"
@@ -598,1377 +613,1480 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
 
   @override
   Widget build(BuildContext context) {
-//    SystemChannels.textInput.invokeMethod('TextInput.hide');
-    steps = [
-      Step(
-        title: Text(translator.currentLanguage == "en"
-            ? 'Patient Info'
-            : 'معلومات المريض'),
-        isActive: true,
-        state: StepState.indexed,
-        content: Form(
-          key: _newAccountKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _createTextForm(
-                  labelText: 'Patient name',
-                  nextFocusNode: focusNode,
-                  // ignore: missing_return
-                  validator: (String val) {
-                    if (val.trim().isEmpty || val.trim().length < 2) {
-                      return translator.currentLanguage == "en"
-                          ? 'Please enter patient name'
-                          : 'من فضلك ادخل اسم المريض';
-                    }
-                    if (val.trim().length < 2) {
-                      return translator.currentLanguage == "en"
-                          ? 'Invalid Name'
-                          : 'الاسم خطا';
-                    }
-                  }),
-              InternationalPhoneNumberInput(
-                onInputChanged: (PhoneNumber number) {
-                  _paramedicsData['Phone number']= number.phoneNumber;
-                },
-                focusNode: focusNode,
-                ignoreBlank: true,
-                autoValidate: false,
-                selectorTextStyle: TextStyle(color: Colors.black),
-                initialValue: number,
-                textFieldController: controller,
-                inputBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.indigo),
-                ),
-                autoFocus: false,
-                inputDecoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: Colors.indigo),
-                    ),
-                    errorStyle: TextStyle(color: Colors.indigo)
-                ),
-                errorMessage: translator.currentLanguage == "en" ?'Invalid phone number':'الرقم غير صحيح',
-                hintText: translator.currentLanguage == "en" ?'phone number':'رقم الهاتف',
-              ),
-              SizedBox(height: 8,),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 7.0),
-                height: 80,
-                child: TextFormField(
-                  autofocus: false,
-                  focusNode: locationFocusNode,
-                  style: TextStyle(fontSize: 15),
-                  controller: _locationTextEditingController,
-                  textInputAction: TextInputAction.done,
-                  enabled: _isEditLocationEnable,
-                  decoration: InputDecoration(
-                    suffixIcon: InkWell(
-                      onTap: selectUserLocationType,
-                      child: Icon(
-                        Icons.my_location,
-                        size: 20,
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    labelText: translator.currentLanguage == "en"
-                        ? 'Location'
-                        : 'الموقع',
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(
-                        color: Colors.indigo,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: Colors.indigo),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: Colors.indigo),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      borderSide: BorderSide(color: Colors.indigo),
-                    ),
-                  ),
-                  keyboardType: TextInputType.text,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en" ? 'number of users use service:' : 'عدد مستخدمى الخدمه: ',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Material(
-                        shadowColor: Colors.blueAccent,
-                        elevation: 2.0,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        type: MaterialType.card,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8.0),
-                              child: Text(
-                                  _isNumOfUsersSelected == false
-                                      ? translator.currentLanguage == "en"
-                                          ? 'number'
-                                          : 'العدد'
-                                      : _paramedicsData['numberOfUsersUseService'],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            Container(
-                              height: 40,
-                              width: 35,
-                              child: PopupMenuButton(
-                                initialValue: translator.currentLanguage == "en"
-                                    ? 'number'
-                                    : 'العدد',
-                                tooltip: 'Select num',
-                                itemBuilder: (ctx) => _numUsersList
-                                    .map((String val) => PopupMenuItem<String>(
-                                          value: val,
-                                          child: Text(val.toString()),
-                                        ))
-                                    .toList(),
-                                onSelected: (val) {
-                                  setState(() {
-                                    _paramedicsData['numberOfUsersUseService'] = val.trim();
-                                    _isNumOfUsersSelected = true;
-                                  });
-                                },
-                                icon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en" ? 'Age:' : 'السن',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Material(
-                        shadowColor: Colors.blueAccent,
-                        elevation: 2.0,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        type: MaterialType.card,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8.0),
-                              child: Text(
-                                  _isAgeSelected == false
-                                      ? translator.currentLanguage == "en"
-                                          ? 'Age'
-                                          : 'السن'
-                                      : _paramedicsData['age'],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            Container(
-                              height: 40,
-                              width: 35,
-                              child: PopupMenuButton(
-                                initialValue: translator.currentLanguage == "en"
-                                    ? 'Age'
-                                    : 'السن',
-                                tooltip: 'Select Age',
-                                itemBuilder: (ctx) => _ageList
-                                    .map((String val) => PopupMenuItem<String>(
-                                          value: val,
-                                          child: Text(val.toString()),
-                                        ))
-                                    .toList(),
-                                onSelected: (val) {
-                                  setState(() {
-                                    _paramedicsData['age'] = val.trim();
-                                    _isAgeSelected = true;
-                                  });
-                                },
-                                icon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en"
-                            ? 'Gender:'
-                            : 'النوع:',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: Material(
-                        shadowColor: Colors.blueAccent,
-                        elevation: 2.0,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        type: MaterialType.card,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8.0),
-                              child: Text(
-                                  _isGenderSelected == false
-                                      ? translator.currentLanguage == "en"
-                                          ? 'gender'
-                                          : 'النوع'
-                                      : _paramedicsData['gender'],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                            Container(
-                              height: 40,
-                              width: 35,
-                              child: PopupMenuButton(
-                                initialValue: translator.currentLanguage == "en"
-                                    ? 'Male'
-                                    : 'ذكر',
-                                tooltip: 'Select Gender',
-                                itemBuilder: (ctx) => _genderList
-                                    .map((String val) => PopupMenuItem<String>(
-                                          value: val,
-                                          child: Text(val.toString()),
-                                        ))
-                                    .toList(),
-                                onSelected: (val) {
-                                  setState(() {
-                                    _paramedicsData['gender'] = val.trim();
-                                    _isGenderSelected = true;
-                                  });
-                                },
-                                icon: Icon(
-                                  Icons.keyboard_arrow_down,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ],
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    return InfoWidget(
+      builder: (context, infoWidget) => Directionality(
+        textDirection: translator.currentLanguage == "en"
+            ? TextDirection.ltr
+            : TextDirection.rtl,
+        child: Scaffold(
+          key: _key,
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            centerTitle: true,
+            title: Text(
+              translator.currentLanguage == "en"
+                  ? 'New paramedics request'
+                  : 'طلب مسعف جديد',
+              style: infoWidget.titleButton,
+            ),
+           actions: <Widget>[
+             Padding(
+               padding: const EdgeInsets.only(top: 14,left: 8),
+               child: Consumer<Home>(
+                 builder: (context,data,_)=>Text(
+                   translator.currentLanguage == "en"
+                       ? '${data.price.servicePrice*double.parse(_paramedicsData['numberOfUsersUseService'])} EGP'
+                       : '${data.price.servicePrice*double.parse(_paramedicsData['numberOfUsersUseService'])} جنيه ',
+                   style: infoWidget.titleButton,
+                 ),
+               ),
+             ),
+           ],
           ),
-        ),
-      ),
-      Step(
-        isActive: true,
-        state: StepState.indexed,
-        title: Text(translator.currentLanguage == "en"
-            ? 'Service info'
-            : 'معلومات الخدمه'),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    child: Text(
-                      translator.currentLanguage == "en"
-                          ? 'Service type:'
-                          : 'نوع الخدمه:',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Material(
-                      shadowColor: Colors.blueAccent,
-                      elevation: 2.0,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      type: MaterialType.card,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: Text(
-                                _isServiceSelected == false
-                                    ? translator.currentLanguage == "en"
-                                        ? 'type'
-                                        : 'النوع'
-                                    : _paramedicsData['service type'],
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
+          body: SafeArea(
+            child: Column(
+              children: <Widget>[
+                Expanded(
+                  child: _isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.indigo,
                           ),
-                          Container(
-                            height: 40,
-                            width: 35,
-                            child: PopupMenuButton(
-                              initialValue: translator.currentLanguage == "en"
-                                  ? 'Injection'
-                                  : 'حقنه',
-                              tooltip: 'Select Service',
-                              itemBuilder: (ctx) => allServices
-                                  .map((String val) => PopupMenuItem<String>(
-                                        value: val,
-                                        child: Text(val.toString()),
-                                      ))
-                                  .toList(),
-                              onSelected: (val) {
-                                if(val == 'تحاليل' || val == 'Analysis'){
-                                  setState(() {
-                                    isAnalysisSelected = true;
-                                    _paramedicsData['service type'] = val.trim();
-                                    _isServiceSelected = true;
-                                  });
-                                }else {
-                                  setState(() {
-                                    _paramedicsData['service type'] =
-                                        val.trim();
-                                    _isServiceSelected = true;
-                                  });
-                                }
-                              },
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            isAnalysisSelected?
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    child: Text(
-                      translator.currentLanguage == "en"
-                          ? 'Analysis type:'
-                          : 'نوع التحليل:',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Material(
-                      shadowColor: Colors.blueAccent,
-                      elevation: 2.0,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      type: MaterialType.card,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: Text(
-                                _isAnalysisSelected == false
-                                    ? translator.currentLanguage == "en"
-                                        ? 'type'
-                                        : 'النوع'
-                                    : _paramedicsData['analysis type'],
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
-                          ),
-                          Container(
-                            height: 40,
-                            width: 35,
-                            child: PopupMenuButton(
-                              initialValue: translator.currentLanguage == "en"
-                                  ? 'Injection'
-                                  : 'حقنه',
-                              tooltip: 'Select Service',
-                              itemBuilder: (ctx) => allAnalysisType
-                                  .map((String val) => PopupMenuItem<String>(
-                                        value: val,
-                                        child: Text(val.toString()),
-                                      ))
-                                  .toList(),
-                              onSelected: (val) {
-                                setState(() {
-                                  _paramedicsData['analysis type'] = val.trim();
-                                  _isAnalysisSelected = true;
-                                });
-                              },
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ):SizedBox(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7),
-                    child: Text(
-                      translator.currentLanguage == "en"
-                          ? 'Nurse Type:'
-                          : 'نوع الممرض:',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Material(
-                      shadowColor: Colors.blueAccent,
-                      elevation: 2.0,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      type: MaterialType.card,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: Text(
-                                _isNurseTypeSelected== false
-                                    ? translator.currentLanguage == "en"
-                                        ? 'gender'
-                                        : 'النوع'
-                                    : _paramedicsData['nurse type'],
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold)),
-                          ),
-                          Container(
-                            height: 40,
-                            width: 35,
-                            child: PopupMenuButton(
-                              initialValue: translator.currentLanguage == "en"
-                                  ? 'Male'
-                                  : 'ذكر',
-                              tooltip: 'Select Gender',
-                              itemBuilder: (ctx) => _genderList
-                                  .map((String val) => PopupMenuItem<String>(
-                                        value: val,
-                                        child: Text(val.toString()),
-                                      ))
-                                  .toList(),
-                              onSelected: (val) {
-                                setState(() {
-                                  _paramedicsData['nurse type'] = val.trim();
-                                  _isNurseTypeSelected = true;
-                                });
-                              },
-                              icon: Icon(
-                                Icons.keyboard_arrow_down,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en"
-                            ? 'You need supplies from the pharmacy:'
-                            : 'تحتاج لمستلزمات من الصيدليه:',
-                        style: TextStyle(fontSize: 18),
-                        maxLines: 2,
-                      ),
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Switch(
-                        value: isSwitched,
-                        onChanged: (value) {
-                          setState(() {
-                            isSwitched = value;
-                            print(isSwitched);
-                          });
-                        },
-                        activeTrackColor: Colors.indigoAccent,
-                        activeColor: Colors.indigo,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            isSwitched
-                ? Container(
-              height: 90,
-                    padding: EdgeInsets.symmetric(vertical: 7.0),
-                    child: TextFormField(
-                      autofocus: false,
-                      textInputAction: TextInputAction.newline,
-                      decoration: InputDecoration(
-                        labelText: translator.currentLanguage == "en"
-                            ? "Accessories"
-                            : 'مستلزمات',
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                            color: Colors.indigo,
-                          ),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                            color: Colors.indigo,
-                          ),
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                            color: Colors.indigo,
-                          ),
-                        ),
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                            color: Colors.indigo,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(color: Colors.indigo),
-                        ),
-                      ),
-                      keyboardType: TextInputType.text,
-                      onChanged: (value) {
-                        _paramedicsData['accessories'] = value.trim();
-                      },
-                      maxLines: 5,
-                      minLines: 2,
-                    ),
-                  )
-                : SizedBox(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en"
-                            ? 'Add a picture with Roshta or the name of the analysis:'
-                            : 'اضافه صوره بالروشته او اسم التحليل:',
-                        style: TextStyle(fontSize: 18),
-                        maxLines: 2,
-                      ),
-                    ),
-                  ),
-                  enablePicture
-                      ? SizedBox()
-                      : Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: InkWell(
-                                onTap: () {
-                                  _openImagePicker();
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.all(4.0),
-                                  decoration: BoxDecoration(
-                                      color: Colors.indigo,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Center(
-                                    child: Text(
-                                      translator.currentLanguage == "en"
-                                          ? " Select Image "
-                                          : ' اختر صوره ',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .display1
-                                          .copyWith(
-                                              color: Colors.white,
-                                              fontSize: 17),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
                         )
-                ],
-              ),
-            ),
-            enablePicture
-                ? Container(
-                    width: double.infinity,
-                    height: 200,
-                    child: Stack(
-                      children: <Widget>[
-                        ClipRRect(
-                          //backgroundColor: Colors.white,
-                          //backgroundImage:
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.file(
-                            _imageFile,
-                            fit: BoxFit.fill,
-                            width: double.infinity,
-                            height: 200,
-                          ),
-                        ),
-                        Positioned(
-                            top: 3.0,
-                            right: 3.0,
-                            child: IconButton(
-                                icon: Icon(
-                                  Icons.clear,
-                                  color: Colors.indigo,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _imageFile = null;
-                                    enablePicture = false;
-                                  });
-                                }))
-                      ],
-                    ),
-                  )
-                : SizedBox(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en"
-                            ? 'Discount coupon: ${_paramedicsData['coupon']}'
-                            : ' كوبون خصم: ${_paramedicsData['coupon']}',
-                        style: TextStyle(fontSize: 18),
-                        maxLines: 2,
-                      ),
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Switch(
-                        value: enableCoupon,
-                        onChanged: (value) {
-                          if (enableCoupon == false) {
-                            showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder: (ctx) => Directionality(
-                                      textDirection:
-                                          translator.currentLanguage == "en"
-                                              ? TextDirection.ltr
-                                              : TextDirection.rtl,
-                                      child: AlertDialog(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(25.0))),
-                                        contentPadding:
-                                            EdgeInsets.only(top: 10.0),
-                                        title: Text(
-                                          translator.currentLanguage == "en"
-                                              ? 'Discount coupon'
-                                              : 'كوبون خصم',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                        content: Container(
-                                          height: 60,
-                                          child: Center(
-                                              child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Container(
-                                                    height: 60,
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            0.85,
-                                                    child: TextFormField(
-                                                      decoration:
-                                                          InputDecoration(
-                                                        labelText: translator
-                                                                    .currentLanguage ==
-                                                                "en"
-                                                            ? 'cpupon'
-                                                            : 'كوبون',
-                                                        labelStyle: TextStyle(
-                                                            color:
-                                                                Colors.indigo),
-                                                        focusedBorder:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10.0)),
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color:
-                                                                Colors.indigo,
-                                                          ),
-                                                        ),
-                                                        disabledBorder:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10.0)),
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color:
-                                                                Colors.indigo,
-                                                          ),
-                                                        ),
-                                                        enabledBorder:
-                                                            OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.all(
-                                                                  Radius
-                                                                      .circular(
-                                                                          10.0)),
-                                                          borderSide:
-                                                              BorderSide(
-                                                                  color: Colors
-                                                                      .indigo),
-                                                        ),
-                                                      ),
-                                                      keyboardType:
-                                                          TextInputType.text,
-                                                      onChanged: (val) {
-                                                        _paramedicsData[
-                                                            'coupon'] = val;
-                                                      },
-                                                    ),
-                                                  ))),
-                                        ),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: Text(
-                                              translator.currentLanguage == "en"
-                                                  ? 'Cancel'
-                                                  : 'الغاء',
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.indigo),
+                      : Stepper(
+                          steps: [
+                            Step(
+                              title: Text(translator.currentLanguage == "en"
+                                  ? 'Patient Info'
+                                  : 'معلومات المريض'),
+                              isActive: true,
+                              state: StepState.indexed,
+                              content: Form(
+                                key: _newAccountKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    _createTextForm(
+                                        labelText: 'Patient name',
+                                        nextFocusNode: focusNode,
+                                        // ignore: missing_return
+                                        validator: (String val) {
+                                          if (val.trim().isEmpty || val.trim().length < 2) {
+                                            return translator.currentLanguage == "en"
+                                                ? 'Please enter patient name'
+                                                : 'من فضلك ادخل اسم المريض';
+                                          }
+                                          if (val.trim().length < 2) {
+                                            return translator.currentLanguage == "en"
+                                                ? 'Invalid Name'
+                                                : 'الاسم خطا';
+                                          }
+                                        }),
+                                    InternationalPhoneNumberInput(
+                                      onInputChanged: (PhoneNumber number) {
+                                        _paramedicsData['Phone number']= number.phoneNumber;
+                                      },
+                                      focusNode: focusNode,
+                                      ignoreBlank: true,
+                                      autoValidate: false,
+                                      selectorTextStyle: TextStyle(color: Colors.black),
+                                      initialValue: number,
+                                      textFieldController: controller,
+                                      inputBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                        borderSide: BorderSide(color: Colors.indigo),
+                                      ),
+                                      autoFocus: false,
+                                      inputDecoration: InputDecoration(
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
                                             ),
-                                            onPressed: () {
-                                              setState(() {
-                                                enableCoupon = false;
-                                                _paramedicsData['coupon'] = '';
-                                              });
-                                              Navigator.of(ctx).pop();
-                                            },
                                           ),
-                                          FlatButton(
-                                            child: Text(
-                                              translator.currentLanguage == "en"
-                                                  ? 'ok'
-                                                  : 'موافق',
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: Colors.indigo),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
                                             ),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
+                                          ),
+                                          focusedErrorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          disabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(color: Colors.indigo),
+                                          ),
+                                          errorStyle: TextStyle(color: Colors.indigo)
+                                      ),
+                                      errorMessage: translator.currentLanguage == "en" ?'Invalid phone number':'الرقم غير صحيح',
+                                      hintText: translator.currentLanguage == "en" ?'phone number':'رقم الهاتف',
+                                    ),
+                                    SizedBox(height: 8,),
+                                    Container(
+                                      padding: EdgeInsets.symmetric(vertical: 7.0),
+                                      height: 80,
+                                      child: TextFormField(
+                                        autofocus: false,
+                                        focusNode: locationFocusNode,
+                                        style: TextStyle(fontSize: 15),
+                                        controller: _locationTextEditingController,
+                                        textInputAction: TextInputAction.done,
+                                        enabled: _isEditLocationEnable,
+                                        decoration: InputDecoration(
+                                          suffixIcon: InkWell(
+                                            onTap: selectUserLocationType,
+                                            child: Icon(
+                                              Icons.my_location,
+                                              size: 20,
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          labelText: translator.currentLanguage == "en"
+                                              ? 'Location'
+                                              : 'الموقع',
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          disabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(color: Colors.indigo),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(color: Colors.indigo),
+                                          ),
+                                          focusedErrorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(color: Colors.indigo),
+                                          ),
+                                        ),
+                                        keyboardType: TextInputType.text,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
+                                            child: Text(
+                                              translator.currentLanguage == "en" ? 'number of users use service:' : 'عدد مستخدمى الخدمه: ',
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                            child: Material(
+                                              shadowColor: Colors.blueAccent,
+                                              elevation: 2.0,
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              type: MaterialType.card,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Padding(
+                                                    padding:
+                                                    const EdgeInsets.only(left: 8.0, right: 8.0),
+                                                    child: Text(
+                                                        _isNumOfUsersSelected == false
+                                                            ? translator.currentLanguage == "en"
+                                                            ? 'number'
+                                                            : 'العدد'
+                                                            : _paramedicsData['numberOfUsersUseService'],
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.bold)),
+                                                  ),
+                                                  Container(
+                                                    height: 40,
+                                                    width: 35,
+                                                    child: PopupMenuButton(
+                                                      initialValue: translator.currentLanguage == "en"
+                                                          ? 'number'
+                                                          : 'العدد',
+                                                      tooltip: 'Select num',
+                                                      itemBuilder: (ctx) => _numUsersList
+                                                          .map((String val) => PopupMenuItem<String>(
+                                                        value: val,
+                                                        child: Text(val.toString()),
+                                                      ))
+                                                          .toList(),
+                                                      onSelected: (val) {
+                                                        setState(() {
+                                                          _paramedicsData['numberOfUsersUseService'] = val.trim();
+                                                          _isNumOfUsersSelected = true;
+                                                        });
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.keyboard_arrow_down,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           )
                                         ],
                                       ),
-                                    ));
-                            setState(() {
-                              enableCoupon = value;
-                            });
-                          } else {
-                            setState(() {
-                              enableCoupon = value;
-                              _paramedicsData['coupon'] = '';
-                            });
-                          }
-                        },
-                        activeTrackColor: Colors.indigoAccent,
-                        activeColor: Colors.indigo,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
-                      child: Text(
-                        translator.currentLanguage == "en"
-                            ? 'Schedule the service:'
-                            : 'جدوله الخدمه:',
-                        style: TextStyle(fontSize: 18),
-                        maxLines: 2,
-                      ),
-                    ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Switch(
-                        value: enableScheduleTheService,
-                        onChanged: (value) {
-                          if (enableScheduleTheService == false) {
-                            setState(() {
-                              enableScheduleTheService = value;
-                            });
-                          } else {
-                            setState(() {
-                              enableScheduleTheService = value;
-                              _paramedicsData['coupon'] = '';
-                            });
-                          }
-                        },
-                        activeTrackColor: Colors.indigoAccent,
-                        activeColor: Colors.indigo,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            enableScheduleTheService
-                ? Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 7),
-                                child: Text(
-                                  translator.currentLanguage == "en"
-                                      ? 'The visit period:'
-                                      : 'فتره الزياره:',
-                                  style: TextStyle(fontSize: 18),
-                                  maxLines: 2,
-                                ),
-                              ),
-                            ),
-                            SizedBox(),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        children: <Widget>[
-                          RaisedButton(
-                            onPressed: () {
-                              DatePicker.showDatePicker(context,
-                                  showTitleActions: true,
-                                  theme: DatePickerTheme(
-                                    itemStyle: TextStyle(color: Colors.indigo),
-                                    backgroundColor: Colors.white,
-                                    headerColor: Colors.white,
-                                    doneStyle:
-                                        TextStyle(color: Colors.indigoAccent),
-                                    cancelStyle:
-                                        TextStyle(color: Colors.black87),
-                                  ),
-                                  minTime: DateTime.now(),
-                                  maxTime: DateTime(2080, 6, 7),
-                                  onChanged: (_) {}, onConfirm: (date) {
-                                print('confirm $date');
-                                setState(() {
-                                  _paramedicsData['startDate'] =
-                                      '${date.day}-${date.month}-${date.year}';
-                                });
-                              },
-                                  currentTime: DateTime.now(),
-                                  locale: translator.currentLanguage == "en"
-                                      ? LocaleType.en
-                                      : LocaleType.ar);
-                            },
-                            color: Colors.indigo,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Text(
-                              translator.currentLanguage == "en"
-                                  ? 'Start Date ${_paramedicsData['startDate']}'
-                                  : ' تاريخ البدايه ${_paramedicsData['startDate']}',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                          ),
-                          RaisedButton(
-                            onPressed: () {
-                              DatePicker.showDatePicker(context,
-                                  showTitleActions: true,
-                                  theme: DatePickerTheme(
-                                    itemStyle: TextStyle(color: Colors.indigo),
-                                    backgroundColor: Colors.white,
-                                    headerColor: Colors.white,
-                                    doneStyle:
-                                        TextStyle(color: Colors.indigoAccent),
-                                    cancelStyle:
-                                        TextStyle(color: Colors.black87),
-                                  ),
-                                  minTime: DateTime.now(),
-                                  maxTime: DateTime(2080, 6, 7),
-                                  onChanged: (_) {}, onConfirm: (date) {
-                                print('confirm $date');
-                                setState(() {
-                                  _paramedicsData['endDate'] =
-                                      '${date.day}-${date.month}-${date.year}';
-                                });
-                              },
-                                  currentTime: DateTime.now(),
-                                  locale: translator.currentLanguage == "en"
-                                      ? LocaleType.en
-                                      : LocaleType.ar);
-                            },
-                            color: Colors.indigo,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Text(
-                              translator.currentLanguage == "en"
-                                  ? 'End Date ${_paramedicsData['endDate']}'
-                                  : ' تاريخ النهايه ${_paramedicsData['endDate']} ',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 7),
-                                child: Text(
-                                  translator.currentLanguage == "en"
-                                      ? 'Days of the visit:'
-                                      : 'ايام الزياره:',
-                                  style: TextStyle(fontSize: 18),
-                                  maxLines: 2,
-                                ),
-                              ),
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget>[
-                                Switch(
-                                  value: _showWorkingDays,
-                                  onChanged: (value) {
-                                    if (_showWorkingDays) {
-                                      setState(() {
-                                        _showWorkingDays = value;
-                                        _clicked = List<bool>.generate(
-                                            7, (i) => false);
-                                        _selectedWorkingDays.clear();
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _showWorkingDays = value;
-                                      });
-                                    }
-                                  },
-                                  activeTrackColor: Colors.indigoAccent,
-                                  activeColor: Colors.indigo,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      _showWorkingDays
-                          ? Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 8.0, left: 15, right: 15, top: 6.0),
-                              child: GridView.builder(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: workingDays.length,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: 2,
-                                          childAspectRatio: 3,
-                                          crossAxisSpacing: 10,
-                                          mainAxisSpacing: 10),
-                                  itemBuilder: (ctx, index) => InkWell(
-                                        onTap: () {
-                                          getDays(index);
-                                          print(_selectedWorkingDays);
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: _clicked[index]
-                                                  ? Colors.grey
-                                                  : Colors.indigo,
-                                              borderRadius:
-                                                  BorderRadius.circular(10)),
-                                          child: Center(
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
                                             child: Text(
-                                              workingDays[index],
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 15),
+                                              translator.currentLanguage == "en" ? 'Age:' : 'السن',
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                            child: Material(
+                                              shadowColor: Colors.blueAccent,
+                                              elevation: 2.0,
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              type: MaterialType.card,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Padding(
+                                                    padding:
+                                                    const EdgeInsets.only(left: 8.0, right: 8.0),
+                                                    child: Text(
+                                                        _isAgeSelected == false
+                                                            ? translator.currentLanguage == "en"
+                                                            ? 'Age'
+                                                            : 'السن'
+                                                            : _paramedicsData['age'],
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.bold)),
+                                                  ),
+                                                  Container(
+                                                    height: 40,
+                                                    width: 35,
+                                                    child: PopupMenuButton(
+                                                      initialValue: translator.currentLanguage == "en"
+                                                          ? 'Age'
+                                                          : 'السن',
+                                                      tooltip: 'Select Age',
+                                                      itemBuilder: (ctx) => _ageList
+                                                          .map((String val) => PopupMenuItem<String>(
+                                                        value: val,
+                                                        child: Text(val.toString()),
+                                                      ))
+                                                          .toList(),
+                                                      onSelected: (val) {
+                                                        setState(() {
+                                                          _paramedicsData['age'] = val.trim();
+                                                          _isAgeSelected = true;
+                                                        });
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.keyboard_arrow_down,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Gender:'
+                                                  : 'النوع:',
+                                              style: TextStyle(fontSize: 18),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                            child: Material(
+                                              shadowColor: Colors.blueAccent,
+                                              elevation: 2.0,
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              type: MaterialType.card,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: <Widget>[
+                                                  Padding(
+                                                    padding:
+                                                    const EdgeInsets.only(left: 8.0, right: 8.0),
+                                                    child: Text(
+                                                        _isGenderSelected == false
+                                                            ? translator.currentLanguage == "en"
+                                                            ? 'gender'
+                                                            : 'النوع'
+                                                            : _paramedicsData['gender'],
+                                                        style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.bold)),
+                                                  ),
+                                                  Container(
+                                                    height: 40,
+                                                    width: 35,
+                                                    child: PopupMenuButton(
+                                                      initialValue: translator.currentLanguage == "en"
+                                                          ? 'Male'
+                                                          : 'ذكر',
+                                                      tooltip: 'Select Gender',
+                                                      itemBuilder: (ctx) => _genderList
+                                                          .map((String val) => PopupMenuItem<String>(
+                                                        value: val,
+                                                        child: Text(val.toString()),
+                                                      ))
+                                                          .toList(),
+                                                      onSelected: (val) {
+                                                        setState(() {
+                                                          _paramedicsData['gender'] = val.trim();
+                                                          _isGenderSelected = true;
+                                                        });
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.keyboard_arrow_down,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Step(
+                              isActive: true,
+                              state: StepState.indexed,
+                              title: Text(translator.currentLanguage == "en"
+                                  ? 'Service info'
+                                  : 'معلومات الخدمه'),
+                              content: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 7),
+                                          child: Text(
+                                            translator.currentLanguage == "en"
+                                                ? 'Service type:'
+                                                : 'نوع الخدمه:',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                          child: Material(
+                                            shadowColor: Colors.blueAccent,
+                                            elevation: 2.0,
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            type: MaterialType.card,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(left: 8.0, right: 8.0),
+                                                  child: Text(
+                                                      _isServiceSelected == false
+                                                          ? translator.currentLanguage == "en"
+                                                          ? 'type'
+                                                          : 'النوع'
+                                                          : _paramedicsData['service type'],
+                                                      style: TextStyle(
+                                                          fontSize: 16, fontWeight: FontWeight.bold)),
+                                                ),
+                                                Container(
+                                                  height: 40,
+                                                  width: 35,
+                                                  child: PopupMenuButton(
+                                                    initialValue: translator.currentLanguage == "en"
+                                                        ? 'Injection'
+                                                        : 'حقنه',
+                                                    tooltip: 'Select Service',
+                                                    itemBuilder: (ctx) => allServices
+                                                        .map((String val) => PopupMenuItem<String>(
+                                                      value: val,
+                                                      child: Text(val.toString()),
+                                                    ))
+                                                        .toList(),
+                                                    onSelected: (val) {
+                                                      if(val == 'تحاليل' || val == 'Analysis'){
+                                                        setState(() {
+                                                          _home.resetPrice();
+                                                          isAnalysisSelected = true;
+                                                          _paramedicsData['service type'] = val.trim();
+                                                          _isServiceSelected = true;
+                                                        });
+                                                      }else {
+                                                        _home.resetPrice();
+                                                        _home.addToPrice(type: '',serviceType:val);
+                                                        setState(() {
+                                                          isAnalysisSelected = false;
+                                                          _paramedicsData['analysis type']='';
+                                                          _paramedicsData['service type'] =
+                                                              val.trim();
+                                                          _isServiceSelected = true;
+                                                        });
+                                                      }
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.keyboard_arrow_down,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  isAnalysisSelected?
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 7),
+                                          child: Text(
+                                            translator.currentLanguage == "en"
+                                                ? 'Analysis type:'
+                                                : 'نوع التحليل:',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                          child: Material(
+                                            shadowColor: Colors.blueAccent,
+                                            elevation: 2.0,
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            type: MaterialType.card,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(left: 8.0, right: 8.0),
+                                                  child: Text(
+                                                      _isAnalysisSelected == false
+                                                          ? translator.currentLanguage == "en"
+                                                          ? 'type'
+                                                          : 'النوع'
+                                                          : _paramedicsData['analysis type'],
+                                                      style: TextStyle(
+                                                          fontSize: 16, fontWeight: FontWeight.bold)),
+                                                ),
+                                                Container(
+                                                  height: 40,
+                                                  width: 35,
+                                                  child: PopupMenuButton(
+                                                    initialValue: translator.currentLanguage == "en"
+                                                        ? 'Injection'
+                                                        : 'حقنه',
+                                                    tooltip: 'Select Service',
+                                                    itemBuilder: (ctx) => allAnalysisType
+                                                        .map((String val) => PopupMenuItem<String>(
+                                                      value: val,
+                                                      child: Text(val.toString()),
+                                                    ))
+                                                        .toList(),
+                                                    onSelected: (val) {
+                                                      _home.resetPrice();
+                                                      _home.addToPrice(type: 'analysis',serviceType:val);
+                                                      setState(() {
+                                                        _paramedicsData['analysis type'] = val.trim();
+                                                        _isAnalysisSelected = true;
+                                                      });
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.keyboard_arrow_down,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ):SizedBox(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 7),
+                                          child: Text(
+                                            translator.currentLanguage == "en"
+                                                ? 'Nurse Type:'
+                                                : 'نوع الممرض:',
+                                            style: TextStyle(fontSize: 18),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                          child: Material(
+                                            shadowColor: Colors.blueAccent,
+                                            elevation: 2.0,
+                                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                                            type: MaterialType.card,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                  const EdgeInsets.only(left: 8.0, right: 8.0),
+                                                  child: Text(
+                                                      _isNurseTypeSelected== false
+                                                          ? translator.currentLanguage == "en"
+                                                          ? 'gender'
+                                                          : 'النوع'
+                                                          : _paramedicsData['nurse type'],
+                                                      style: TextStyle(
+                                                          fontSize: 16, fontWeight: FontWeight.bold)),
+                                                ),
+                                                Container(
+                                                  height: 40,
+                                                  width: 35,
+                                                  child: PopupMenuButton(
+                                                    initialValue: translator.currentLanguage == "en"
+                                                        ? 'Male'
+                                                        : 'ذكر',
+                                                    tooltip: 'Select Gender',
+                                                    itemBuilder: (ctx) => _genderList
+                                                        .map((String val) => PopupMenuItem<String>(
+                                                      value: val,
+                                                      child: Text(val.toString()),
+                                                    ))
+                                                        .toList(),
+                                                    onSelected: (val) {
+                                                      setState(() {
+                                                        _paramedicsData['nurse type'] = val.trim();
+                                                        _isNurseTypeSelected = true;
+                                                      });
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.keyboard_arrow_down,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'You need supplies from the pharmacy:'
+                                                  : 'تحتاج لمستلزمات من الصيدليه:',
+                                              style: TextStyle(fontSize: 18),
+                                              maxLines: 2,
                                             ),
                                           ),
                                         ),
-                                      )))
-                          : SizedBox(),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Expanded(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 7),
-                                child: Text(
-                                  translator.currentLanguage == "en"
-                                      ? 'Visit Time:'
-                                      : 'وقت الزياره:',
-                                  style: TextStyle(fontSize: 18),
-                                  maxLines: 2,
-                                ),
-                              ),
-                            ),
-                            RaisedButton(
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (ctx) => Directionality(
-                                          textDirection:
-                                              translator.currentLanguage == "en"
-                                                  ? TextDirection.ltr
-                                                  : TextDirection.rtl,
-                                          child: AlertDialog(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(25.0))),
-                                            contentPadding:
-                                                EdgeInsets.only(top: 10.0),
-                                            title: Text(
-                                              translator.currentLanguage == "en"
-                                                  ? 'Discount coupon'
-                                                  : 'كوبون خصم',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(fontSize: 18),
-                                            ),
-                                            content: TimePickerSpinner(
-                                              is24HourMode: true,
-                                              normalTextStyle: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.indigo[200]),
-                                              highlightedTextStyle: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Colors.indigo),
-                                              spacing: 30,
-                                              itemHeight: 40,
-                                              isForce2Digits: true,
-                                              onTimeChange: (time) {
-                                                // _clinicData['startTime']=time.toIso8601String();
-                                                _dateTime =
-                                                    '${time.hour}:${time.minute}';
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Switch(
+                                              value: isSwitched,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  isSwitched = value;
+                                                  print(isSwitched);
+                                                });
                                               },
+                                              activeTrackColor: Colors.indigoAccent,
+                                              activeColor: Colors.indigo,
                                             ),
-                                            actions: <Widget>[
-                                              FlatButton(
-                                                child: Text(
-                                                  translator.currentLanguage ==
-                                                          "en"
-                                                      ? 'Cancel'
-                                                      : 'الغاء',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.indigo),
-                                                ),
-                                                onPressed: () {
-                                                  _dateTime = '';
-                                                  Navigator.of(ctx).pop();
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  isSwitched
+                                      ? Container(
+                                    height: 90,
+                                    padding: EdgeInsets.symmetric(vertical: 7.0),
+                                    child: TextFormField(
+                                      autofocus: false,
+                                      textInputAction: TextInputAction.newline,
+                                      decoration: InputDecoration(
+                                        labelText: translator.currentLanguage == "en"
+                                            ? "Accessories"
+                                            : 'مستلزمات',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        focusedErrorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        disabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(color: Colors.indigo),
+                                        ),
+                                      ),
+                                      keyboardType: TextInputType.text,
+                                      onChanged: (value) {
+                                        _paramedicsData['accessories'] = value.trim();
+                                      },
+                                      maxLines: 5,
+                                      minLines: 2,
+                                    ),
+                                  )
+                                      : SizedBox(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Add a picture with Roshta or the name of the analysis:'
+                                                  : 'اضافه صوره بالروشته او اسم التحليل:',
+                                              style: TextStyle(fontSize: 18),
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                        ),
+                                        enablePicture
+                                            ? SizedBox()
+                                            : Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Padding(
+                                              padding:
+                                              const EdgeInsets.symmetric(horizontal: 8.0),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  _openImagePicker();
                                                 },
+                                                child: Container(
+                                                  padding: EdgeInsets.all(4.0),
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.indigo,
+                                                      borderRadius: BorderRadius.circular(10)),
+                                                  child: Center(
+                                                    child: Text(
+                                                      translator.currentLanguage == "en"
+                                                          ? " Select Image "
+                                                          : ' اختر صوره ',
+                                                      style: Theme.of(context)
+                                                          .textTheme
+                                                          .display1
+                                                          .copyWith(
+                                                          color: Colors.white,
+                                                          fontSize: 17),
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                              FlatButton(
-                                                child: Text(
-                                                  translator.currentLanguage ==
-                                                          "en"
-                                                      ? 'ok'
-                                                      : 'موافق',
-                                                  style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Colors.indigo),
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  enablePicture
+                                      ? Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    child: Stack(
+                                      children: <Widget>[
+                                        ClipRRect(
+                                          //backgroundColor: Colors.white,
+                                          //backgroundImage:
+                                          borderRadius: BorderRadius.circular(10),
+                                          child: Image.file(
+                                            _imageFile,
+                                            fit: BoxFit.fill,
+                                            width: double.infinity,
+                                            height: 200,
+                                          ),
+                                        ),
+                                        Positioned(
+                                            top: 3.0,
+                                            right: 3.0,
+                                            child: IconButton(
+                                                icon: Icon(
+                                                  Icons.clear,
+                                                  color: Colors.indigo,
                                                 ),
                                                 onPressed: () {
                                                   setState(() {
-                                                    visitTime.add(_dateTime);
+                                                    _imageFile = null;
+                                                    enablePicture = false;
                                                   });
-                                                  Navigator.of(ctx).pop();
-                                                },
-                                              )
-                                            ],
+                                                }))
+                                      ],
+                                    ),
+                                  )
+                                      : SizedBox(),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Discount coupon: ${_paramedicsData['coupon']}'
+                                                  : ' كوبون خصم: ${_paramedicsData['coupon']}',
+                                              style: TextStyle(fontSize: 18),
+                                              maxLines: 2,
+                                            ),
                                           ),
-                                        ));
-                              },
-                              color: Colors.indigo,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Text(
-                                translator.currentLanguage == "en"
-                                    ? 'Add Time'
-                                    : 'اضافه وقت',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(
-                              bottom: 8.0, left: 15, right: 15, top: 6.0),
-                          child: GridView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: visitTime.length,
-                              gridDelegate:
-                                  SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 3,
-                                      childAspectRatio: 3,
-                                      crossAxisSpacing: 10,
-                                      mainAxisSpacing: 10),
-                              itemBuilder: (ctx, index) => InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        String deletedItem =
-                                            visitTime.removeAt(index);
-                                        setState(() {
-                                          _key.currentState
-                                            ..removeCurrentSnackBar()
-                                            ..showSnackBar(
-                                              SnackBar(
-                                                content: Text(translator
-                                                            .currentLanguage ==
-                                                        "en"
-                                                    ? "Removed $deletedItem"
-                                                    : 'حذف $deletedItem'),
-                                                action: SnackBarAction(
-                                                    label: translator
-                                                                .currentLanguage ==
-                                                            "en"
-                                                        ? "UNDO"
-                                                        : 'تراجع',
-                                                    onPressed: () => setState(
-                                                          () =>
-                                                              visitTime.insert(
-                                                                  index,
-                                                                  deletedItem),
-                                                        ) // this is what you needed
-                                                    ),
+                                        ),
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Switch(
+                                              value: enableCoupon,
+                                              onChanged: (value) async{
+                                                if (enableCoupon == false) {
+                                                  await showDialog(
+                                                      context: context,
+                                                      barrierDismissible: false,
+                                                      builder: (ctx) => Directionality(
+                                                        textDirection:
+                                                        translator.currentLanguage == "en"
+                                                            ? TextDirection.ltr
+                                                            : TextDirection.rtl,
+                                                        child: StatefulBuilder(
+                                                          builder: (context,setState)=> AlertDialog(
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.all(
+                                                                    Radius.circular(25.0))),
+                                                            contentPadding:
+                                                            EdgeInsets.only(top: 10.0),
+                                                            title: Text(
+                                                              translator.currentLanguage == "en"
+                                                                  ? 'Discount coupon'
+                                                                  : 'كوبون خصم',
+                                                              textAlign: TextAlign.center,
+                                                              style: TextStyle(fontSize: 18),
+                                                            ),
+                                                            content: Container(
+                                                              height: 60,
+                                                              child: Center(
+                                                                  child: Padding(
+                                                                      padding:
+                                                                      const EdgeInsets.all(8.0),
+                                                                      child: Container(
+                                                                        height: 60,
+                                                                        width:
+                                                                        MediaQuery.of(context)
+                                                                            .size
+                                                                            .width /
+                                                                            0.85,
+                                                                        child: TextFormField(
+                                                                          focusNode: couponFocusNode,
+                                                                          decoration:
+                                                                          InputDecoration(
+                                                                            labelText: translator
+                                                                                .currentLanguage ==
+                                                                                "en"
+                                                                                ? 'cpupon'
+                                                                                : 'كوبون',
+                                                                            labelStyle: TextStyle(
+                                                                                color:
+                                                                                Colors.indigo),
+                                                                            focusedBorder:
+                                                                            OutlineInputBorder(
+                                                                              borderRadius:
+                                                                              BorderRadius.all(
+                                                                                  Radius
+                                                                                      .circular(
+                                                                                      10.0)),
+                                                                              borderSide:
+                                                                              BorderSide(
+                                                                                color:
+                                                                                Colors.indigo,
+                                                                              ),
+                                                                            ),
+                                                                            disabledBorder:
+                                                                            OutlineInputBorder(
+                                                                              borderRadius:
+                                                                              BorderRadius.all(
+                                                                                  Radius
+                                                                                      .circular(
+                                                                                      10.0)),
+                                                                              borderSide:
+                                                                              BorderSide(
+                                                                                color:
+                                                                                Colors.indigo,
+                                                                              ),
+                                                                            ),
+                                                                            enabledBorder:
+                                                                            OutlineInputBorder(
+                                                                              borderRadius:
+                                                                              BorderRadius.all(
+                                                                                  Radius
+                                                                                      .circular(
+                                                                                      10.0)),
+                                                                              borderSide:
+                                                                              BorderSide(
+                                                                                  color: Colors
+                                                                                      .indigo),
+                                                                            ),
+                                                                          ),
+                                                                          keyboardType:
+                                                                          TextInputType.text,
+                                                                          onChanged: (val) {
+                                                                            _paramedicsData[
+                                                                            'coupon'] = val.trim();
+                                                                          },
+                                                                        ),
+                                                                      ))),
+                                                            ),
+                                                            actions: <Widget>[
+                                                              FlatButton(
+                                                                child: Text(
+                                                                  translator.currentLanguage == "en"
+                                                                      ? 'Cancel'
+                                                                      : 'الغاء',
+                                                                  style: TextStyle(
+                                                                      fontSize: 16,
+                                                                      color: Colors.indigo),
+                                                                ),
+                                                                onPressed: () {
+                                                                  _paramedicsData['coupon'] = '';
+                                                                  Navigator.of(ctx).pop();
+                                                                },
+                                                              ),
+
+                                                              isLoadingCoupon?CircularProgressIndicator(backgroundColor: Colors.indigo,) :FlatButton(
+                                                                child: Text(
+                                                                  translator.currentLanguage == "en"
+                                                                      ? 'ok'
+                                                                      : 'موافق',
+                                                                  style: TextStyle(
+                                                                      fontSize: 16,
+                                                                      color: Colors.indigo),
+                                                                ),
+                                                                onPressed: () async{
+                                                                  setState(() {
+                                                                    isLoadingCoupon =true;
+                                                                  });
+                                                                  String x = await _home.verifyCoupon(couponName: _paramedicsData['coupon']);
+                                                                  couponFocusNode.unfocus();
+                                                                  if(x == 'true'){
+                                                                    Toast.show(
+                                                                        translator.currentLanguage == "en"
+                                                                            ? "Scuessfully Discount"
+                                                                            : 'نجح الخصم',
+                                                                        context,
+                                                                        duration: Toast.LENGTH_SHORT,
+                                                                        gravity: Toast.BOTTOM);
+
+                                                                    Navigator.of(ctx).pop();
+                                                                  }else if(x== 'add service before discount'){
+                                                                    Toast.show(
+                                                                        translator.currentLanguage == "en"
+                                                                            ? 'add service before discount'
+                                                                            : 'اضف الخدمه قبل الخصم',
+                                                                        context,
+                                                                        duration: Toast.LENGTH_SHORT,
+                                                                        gravity: Toast.BOTTOM);
+                                                                  }else if(x == 'false'){
+                                                                    Toast.show(
+                                                                        translator.currentLanguage == "en"
+                                                                            ? "Invalid Coupon"
+                                                                            : 'الكوبون غير متاح',
+                                                                        context,
+                                                                        duration: Toast.LENGTH_SHORT,
+                                                                        gravity: Toast.BOTTOM);
+                                                                  }else{
+                                                                    Toast.show(
+                                                                        translator.currentLanguage == "en"
+                                                                            ? "Already Discount"
+                                                                            : 'تم الخصم بالفعل',
+                                                                        context,
+                                                                        duration: Toast.LENGTH_SHORT,
+                                                                        gravity: Toast.BOTTOM);
+                                                                  }
+                                                                  setState(() {
+                                                                    isLoadingCoupon =false;
+                                                                  });
+                                                                  print(value);
+                                                                  print(enableCoupon);
+                                                                  print('56145313');
+                                                                },
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ));
+                                                  setState(() {
+                                                    enableCoupon = value;
+                                                  });
+                                                  if( _paramedicsData['coupon'] == ''){
+                                                    print('oooo');
+                                                    setState(() {
+                                                      enableCoupon = false;
+                                                    });
+                                                  }
+                                                  print(value);
+                                                  print(enableCoupon);
+                                                } else {
+                                                  setState(() {
+                                                    enableCoupon = value;
+                                                    _paramedicsData['coupon'] = '';
+                                                  });
+                                                  await _home.unVerifyCoupon();
+                                                }
+                                              },
+                                              activeTrackColor: Colors.indigoAccent,
+                                              activeColor: Colors.indigo,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 7),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Schedule the service:'
+                                                  : 'جدوله الخدمه:',
+                                              style: TextStyle(fontSize: 18),
+                                              maxLines: 2,
+                                            ),
+                                          ),
+                                        ),
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            Switch(
+                                              value: enableScheduleTheService,
+                                              onChanged: (value) {
+                                                if (enableScheduleTheService == false) {
+                                                  setState(() {
+                                                    enableScheduleTheService = value;
+                                                  });
+                                                } else {
+                                                  setState(() {
+                                                    enableScheduleTheService = value;
+                                                    _paramedicsData['coupon'] = '';
+                                                  });
+                                                }
+                                              },
+                                              activeTrackColor: Colors.indigoAccent,
+                                              activeColor: Colors.indigo,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  enableScheduleTheService
+                                      ? Column(
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                const EdgeInsets.symmetric(vertical: 7),
+                                                child: Text(
+                                                  translator.currentLanguage == "en"
+                                                      ? 'The visit period:'
+                                                      : 'فتره الزياره:',
+                                                  style: TextStyle(fontSize: 18),
+                                                  maxLines: 2,
+                                                ),
                                               ),
-                                            );
-                                        });
-                                      });
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: _clicked[index]
-                                              ? Colors.grey
-                                              : Colors.indigo,
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      child: Center(
-                                        child: Text(
-                                          visitTime[index],
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 15),
+                                            ),
+                                            SizedBox(),
+                                          ],
                                         ),
                                       ),
+                                      Column(
+                                        children: <Widget>[
+                                          RaisedButton(
+                                            onPressed: () {
+                                              DatePicker.showDatePicker(context,
+                                                  showTitleActions: true,
+                                                  theme: DatePickerTheme(
+                                                    itemStyle: TextStyle(color: Colors.indigo),
+                                                    backgroundColor: Colors.white,
+                                                    headerColor: Colors.white,
+                                                    doneStyle:
+                                                    TextStyle(color: Colors.indigoAccent),
+                                                    cancelStyle:
+                                                    TextStyle(color: Colors.black87),
+                                                  ),
+                                                  minTime: DateTime.now(),
+                                                  maxTime: DateTime(2080, 6, 7),
+                                                  onChanged: (_) {}, onConfirm: (date) {
+                                                    print('confirm $date');
+                                                    setState(() {
+                                                      _paramedicsData['startDate'] =
+                                                      '${date.day}-${date.month}-${date.year}';
+                                                    });
+                                                  },
+                                                  currentTime: DateTime.now(),
+                                                  locale: translator.currentLanguage == "en"
+                                                      ? LocaleType.en
+                                                      : LocaleType.ar);
+                                            },
+                                            color: Colors.indigo,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10)),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'Start Date ${_paramedicsData['startDate']}'
+                                                  : ' تاريخ البدايه ${_paramedicsData['startDate']}',
+                                              style:
+                                              TextStyle(color: Colors.white, fontSize: 18),
+                                            ),
+                                          ),
+                                          RaisedButton(
+                                            onPressed: () {
+                                              DatePicker.showDatePicker(context,
+                                                  showTitleActions: true,
+                                                  theme: DatePickerTheme(
+                                                    itemStyle: TextStyle(color: Colors.indigo),
+                                                    backgroundColor: Colors.white,
+                                                    headerColor: Colors.white,
+                                                    doneStyle:
+                                                    TextStyle(color: Colors.indigoAccent),
+                                                    cancelStyle:
+                                                    TextStyle(color: Colors.black87),
+                                                  ),
+                                                  minTime: DateTime.now(),
+                                                  maxTime: DateTime(2080, 6, 7),
+                                                  onChanged: (_) {}, onConfirm: (date) {
+                                                    print('confirm $date');
+                                                    setState(() {
+                                                      _paramedicsData['endDate'] =
+                                                      '${date.day}-${date.month}-${date.year}';
+                                                    });
+                                                  },
+                                                  currentTime: DateTime.now(),
+                                                  locale: translator.currentLanguage == "en"
+                                                      ? LocaleType.en
+                                                      : LocaleType.ar);
+                                            },
+                                            color: Colors.indigo,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10)),
+                                            child: Text(
+                                              translator.currentLanguage == "en"
+                                                  ? 'End Date ${_paramedicsData['endDate']}'
+                                                  : ' تاريخ النهايه ${_paramedicsData['endDate']} ',
+                                              style:
+                                              TextStyle(color: Colors.white, fontSize: 18),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                const EdgeInsets.symmetric(vertical: 7),
+                                                child: Text(
+                                                  translator.currentLanguage == "en"
+                                                      ? 'Days of the visit:'
+                                                      : 'ايام الزياره:',
+                                                  style: TextStyle(fontSize: 18),
+                                                  maxLines: 2,
+                                                ),
+                                              ),
+                                            ),
+                                            Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Switch(
+                                                  value: _showWorkingDays,
+                                                  onChanged: (value) {
+                                                    if (_showWorkingDays) {
+                                                      setState(() {
+                                                        _showWorkingDays = value;
+                                                        _clicked = List<bool>.generate(
+                                                            7, (i) => false);
+                                                        _selectedWorkingDays.clear();
+                                                      });
+                                                    } else {
+                                                      setState(() {
+                                                        _showWorkingDays = value;
+                                                      });
+                                                    }
+                                                  },
+                                                  activeTrackColor: Colors.indigoAccent,
+                                                  activeColor: Colors.indigo,
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      _showWorkingDays
+                                          ? Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 8.0, left: 15, right: 15, top: 6.0),
+                                          child: GridView.builder(
+                                              shrinkWrap: true,
+                                              physics: NeverScrollableScrollPhysics(),
+                                              itemCount: workingDays.length,
+                                              gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 2,
+                                                  childAspectRatio: 3,
+                                                  crossAxisSpacing: 10,
+                                                  mainAxisSpacing: 10),
+                                              itemBuilder: (ctx, index) => InkWell(
+                                                onTap: () {
+                                                  getDays(index);
+                                                  print(_selectedWorkingDays);
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: _clicked[index]
+                                                          ? Colors.grey
+                                                          : Colors.indigo,
+                                                      borderRadius:
+                                                      BorderRadius.circular(10)),
+                                                  child: Center(
+                                                    child: Text(
+                                                      workingDays[index],
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 15),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )))
+                                          : SizedBox(),
+                                      Padding(
+                                        padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                const EdgeInsets.symmetric(vertical: 7),
+                                                child: Text(
+                                                  translator.currentLanguage == "en"
+                                                      ? 'Visit Time:'
+                                                      : 'وقت الزياره:',
+                                                  style: TextStyle(fontSize: 18),
+                                                  maxLines: 2,
+                                                ),
+                                              ),
+                                            ),
+                                            RaisedButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    barrierDismissible: false,
+                                                    builder: (ctx) => Directionality(
+                                                      textDirection:
+                                                      translator.currentLanguage == "en"
+                                                          ? TextDirection.ltr
+                                                          : TextDirection.rtl,
+                                                      child: AlertDialog(
+                                                        shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.all(
+                                                                Radius.circular(25.0))),
+                                                        contentPadding:
+                                                        EdgeInsets.only(top: 10.0),
+                                                        title: Text(
+                                                          translator.currentLanguage == "en"
+                                                              ? 'Discount coupon'
+                                                              : 'كوبون خصم',
+                                                          textAlign: TextAlign.center,
+                                                          style: TextStyle(fontSize: 18),
+                                                        ),
+                                                        content: TimePickerSpinner(
+                                                          is24HourMode: true,
+                                                          normalTextStyle: TextStyle(
+                                                              fontSize: 18,
+                                                              color: Colors.indigo[200]),
+                                                          highlightedTextStyle: TextStyle(
+                                                              fontSize: 18,
+                                                              color: Colors.indigo),
+                                                          spacing: 30,
+                                                          itemHeight: 40,
+                                                          isForce2Digits: true,
+                                                          onTimeChange: (time) {
+                                                            // _clinicData['startTime']=time.toIso8601String();
+                                                            _dateTime =
+                                                            '${time.hour}:${time.minute}';
+                                                          },
+                                                        ),
+                                                        actions: <Widget>[
+                                                          FlatButton(
+                                                            child: Text(
+                                                              translator.currentLanguage ==
+                                                                  "en"
+                                                                  ? 'Cancel'
+                                                                  : 'الغاء',
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: Colors.indigo),
+                                                            ),
+                                                            onPressed: () {
+                                                              _dateTime = '';
+                                                              Navigator.of(ctx).pop();
+                                                            },
+                                                          ),
+                                                          FlatButton(
+                                                            child: Text(
+                                                              translator.currentLanguage ==
+                                                                  "en"
+                                                                  ? 'ok'
+                                                                  : 'موافق',
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: Colors.indigo),
+                                                            ),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                visitTime.add(_dateTime);
+                                                              });
+                                                              Navigator.of(ctx).pop();
+                                                            },
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ));
+                                              },
+                                              color: Colors.indigo,
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(10)),
+                                              child: Text(
+                                                translator.currentLanguage == "en"
+                                                    ? 'Add Time'
+                                                    : 'اضافه وقت',
+                                                style: TextStyle(
+                                                    color: Colors.white, fontSize: 18),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                          padding: const EdgeInsets.only(
+                                              bottom: 8.0, left: 15, right: 15, top: 6.0),
+                                          child: GridView.builder(
+                                              shrinkWrap: true,
+                                              physics: NeverScrollableScrollPhysics(),
+                                              itemCount: visitTime.length,
+                                              gridDelegate:
+                                              SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount: 3,
+                                                  childAspectRatio: 3,
+                                                  crossAxisSpacing: 10,
+                                                  mainAxisSpacing: 10),
+                                              itemBuilder: (ctx, index) => InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    String deletedItem =
+                                                    visitTime.removeAt(index);
+                                                    setState(() {
+                                                      _key.currentState
+                                                        ..removeCurrentSnackBar()
+                                                        ..showSnackBar(
+                                                          SnackBar(
+                                                            content: Text(translator
+                                                                .currentLanguage ==
+                                                                "en"
+                                                                ? "Removed $deletedItem"
+                                                                : 'حذف $deletedItem'),
+                                                            action: SnackBarAction(
+                                                                label: translator
+                                                                    .currentLanguage ==
+                                                                    "en"
+                                                                    ? "UNDO"
+                                                                    : 'تراجع',
+                                                                onPressed: () => setState(
+                                                                      () =>
+                                                                      visitTime.insert(
+                                                                          index,
+                                                                          deletedItem),
+                                                                ) // this is what you needed
+                                                            ),
+                                                          ),
+                                                        );
+                                                    });
+                                                  });
+                                                },
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                      color: _clicked[index]
+                                                          ? Colors.grey
+                                                          : Colors.indigo,
+                                                      borderRadius:
+                                                      BorderRadius.circular(10)),
+                                                  child: Center(
+                                                    child: Text(
+                                                      visitTime[index],
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 15),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )))
+                                    ],
+                                  )
+                                      : SizedBox(),
+                                  Text(
+                                    translator.currentLanguage == "en"
+                                        ? 'Notes:'
+                                        : 'ملاحظات:',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                  Container(
+                                    height: 90,
+                                    padding: EdgeInsets.symmetric(vertical: 7.0),
+                                    child: TextFormField(
+                                      autofocus: false,
+                                      textInputAction: TextInputAction.newline,
+                                      decoration: InputDecoration(
+                                        labelText: translator.currentLanguage == "en"
+                                            ? "notes"
+                                            : 'ملاحظات',
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        focusedErrorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        disabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(
+                                            color: Colors.indigo,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                          borderSide: BorderSide(color: Colors.indigo),
+                                        ),
+                                      ),
+                                      keyboardType: TextInputType.text,
+                                      onChanged: (value) {
+                                        _paramedicsData['notes'] = value.trim();
+                                      },
+                                      maxLines: 5,
+                                      minLines: 2,
                                     ),
-                                  )))
-                    ],
-                  )
-                : SizedBox(),
-            Text(
-              translator.currentLanguage == "en"
-                  ? 'Notes:'
-                  : 'ملاحظات:',
-              style: TextStyle(fontSize: 18),
-            ),
-                Container(
-              height: 90,
-              padding: EdgeInsets.symmetric(vertical: 7.0),
-              child: TextFormField(
-                autofocus: false,
-                textInputAction: TextInputAction.newline,
-                decoration: InputDecoration(
-                  labelText: translator.currentLanguage == "en"
-                      ? "notes"
-                      : 'ملاحظات',
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.indigo,
-                    ),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.indigo,
-                    ),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.indigo,
-                    ),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(
-                      color: Colors.indigo,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(color: Colors.indigo),
-                  ),
-                ),
-                keyboardType: TextInputType.text,
-                onChanged: (value) {
-                  _paramedicsData['notes'] = value.trim();
-                },
-                maxLines: 5,
-                minLines: 2,
-              ),
-            )
+                                  )
 
 //            Padding(
 //              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
@@ -1989,39 +2107,10 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
 //                ],
 //              ),
 //            ),
-          ],
-        ),
-      ),
-    ];
-    return InfoWidget(
-      builder: (context, infoWidget) => Directionality(
-        textDirection: translator.currentLanguage == "en"
-            ? TextDirection.ltr
-            : TextDirection.rtl,
-        child: Scaffold(
-          key: _key,
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            centerTitle: true,
-            title: Text(
-              translator.currentLanguage == "en"
-                  ? 'New paramedics request'
-                  : 'طلب مسعف جديد',
-              style: infoWidget.titleButton,
-            ),
-          ),
-          body: SafeArea(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: _isLoading
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.indigo,
-                          ),
-                        )
-                      : Stepper(
-                          steps: steps,
+                                ],
+                              ),
+                            ),
+                          ],
                           currentStep: currentStep,
                           onStepContinue: nextStep,
                           onStepTapped: (step) => goTo(step),
