@@ -209,17 +209,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
+                            ? "Medical tests"
+                            : 'التحاليل الطبيه',
+                        isIcon: true,
+                        icon: Icons.exit_to_app,
+                        infoWidget: infoWidget,
+                        onTap: () async {
+                          Navigator.of(context).pop();
+                          setState(() {
+                            _page = 0;
+                          });
+                          _pageController.jumpToPage(_page);
+                        }),
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
                             ? "Paramedics"
                             : 'المسعفين',
                         isIcon: true,
                         icon: Icons.exit_to_app,
                         infoWidget: infoWidget,
                         onTap: () async {
-                          await Provider.of<Auth>(context, listen: false)
-                              .logout();
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => SignIn()));
+
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
@@ -236,6 +246,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
+                            ? "Analysis requests"
+                            : 'طلبات التحليل',
+                        isIcon: true,
+                        icon: Icons.exit_to_app,
+                        infoWidget: infoWidget,
+                        onTap: () async {
+//                          await Provider.of<Auth>(context, listen: false)
+//                              .logout();
+//                          Navigator.of(context).pushReplacement(
+//                              MaterialPageRoute(
+//                                  builder: (context) => SignIn()));
+                        }),
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
                             ? "Coupons and discounts"
                             : 'الكوبونات والخصومات',
                         isIcon: true,
@@ -249,20 +273,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => CouponsAndDiscounts()));
                         }),
 
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en"
-                            ? "Medical tests"
-                            : 'التحاليل الطبيه',
-                        isIcon: true,
-                        icon: Icons.exit_to_app,
-                        infoWidget: infoWidget,
-                        onTap: () async {
-                          await Provider.of<Auth>(context, listen: false)
-                              .logout();
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => SignIn()));
-                        }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
                             ? "Log Out"

@@ -1,11 +1,12 @@
 import 'dart:io';
-
+import 'package:path/path.dart' as path;
 import 'package:admin/models/coupon.dart';
 import 'package:admin/models/http_exception.dart';
 import 'package:admin/models/service.dart';
 import 'package:admin/models/user_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class Home with ChangeNotifier {
@@ -22,7 +23,7 @@ class Home with ChangeNotifier {
   List<Coupon> allCoupons = [];
 
   Future<bool> createAccountForParamedics(
-      {String email, String password}) async {
+      {String email, String password, String nationalId}) async {
     AuthResult auth;
     try {
       auth = await firebaseAuth.createUserWithEmailAndPassword(
@@ -35,6 +36,7 @@ class Home with ChangeNotifier {
         var x = email.split('@');
         if (!doc.exists) {
           await users.document(auth.user.uid).setData({
+            'nationalId': nationalId,
             'password': password,
             'email': email,
             'name': x[0] ?? 'Admin',
@@ -204,71 +206,62 @@ class Home with ChangeNotifier {
     notifyListeners();
   }
 
-  Future addPatientRequest({
-    String patientName,
-    String patientPhone,
-    String patientLocation,
-    String patientAge,
-    String patientGender,
-    String numOfPatients,
-    String serviceType,
-    String nurseGender,
-    String suppliesFromPharmacy,
-    File picture,
-    String discountCoupon,
-    String startVisitDate,
-    String endVisitDate,
-    String visitDays,
-    String visitTime,
-    String notes
-  }) async {
+  Future addPatientRequest(
+      {String analysisType,
+      String patientName,
+      String patientPhone,
+      String patientLocation,
+      String patientAge,
+      String patientGender,
+      String numOfPatients,
+      String serviceType,
+      String nurseGender,
+      String suppliesFromPharmacy,
+      File picture,
+      String discountCoupon,
+      String startVisitDate,
+      String endVisitDate,
+      String visitDays,
+      String visitTime,
+      String notes}) async {
+    String imgUrl;
     var users = databaseReference.collection("users");
     var docs =
         await users.where('phone', isEqualTo: patientPhone).getDocuments();
-    if(docs.documents.length !=0){
-      users
+    try {
+      var storageReference = FirebaseStorage.instance.ref().child(
+          '$serviceType/$patientName/$patientPhone/${path.basename(picture.path)}');
+      StorageUploadTask uploadTask = storageReference.putFile(picture);
+      await uploadTask.onComplete;
+      await storageReference.getDownloadURL().then((fileURL) async {
+        imgUrl = fileURL;
+      });
+    } catch (e) {
+      print(e);
+    }
+    DocumentReference x = await databaseReference.collection('requests').add({
+      'patientName': patientName,
+      'patientPhone': patientPhone,
+      'patientLocation': patientLocation,
+      'patientAge': patientAge,
+      'patientGender': patientGender,
+      'numOfPatients': numOfPatients,
+      'serviceType': serviceType,
+      'nurseGender': nurseGender,
+      'suppliesFromPharmacy': suppliesFromPharmacy,
+      'picture': imgUrl,
+      'discountCoupon': discountCoupon,
+      'startVisitDate': startVisitDate,
+      'endVisitDate': endVisitDate,
+      'visitDays': visitDays,
+      'visitTime': visitTime,
+    });
+    if (docs.documents.length != 0) {
+      await users
           .document(docs.documents[0].documentID)
           .collection('requests')
-          .document()
-          .setData({
-        'patientName':patientName,
-        'patientPhone':patientPhone,
-        'patientLocation':patientLocation,
-        'patientAge':patientAge,
-        'patientGender':patientGender,
-        'numOfPatients':numOfPatients,
-        'serviceType':serviceType,
-        'nurseGender':nurseGender,
-        'suppliesFromPharmacy':suppliesFromPharmacy,
-        'picture':picture,
-        'discountCoupon':discountCoupon,
-        'startVisitDate':startVisitDate,
-        'endVisitDate':endVisitDate,
-        'visitDays':visitDays,
-        'visitTime':visitTime,
-        'notes':notes
-      });
-    }else{
-      databaseReference.collection('requests')
-          .document()
-          .setData({
-        'patientName':patientName,
-        'patientPhone':patientPhone,
-        'patientLocation':patientLocation,
-        'patientAge':patientAge,
-        'patientGender':patientGender,
-        'numOfPatients':numOfPatients,
-        'serviceType':serviceType,
-        'nurseGender':nurseGender,
-        'suppliesFromPharmacy':suppliesFromPharmacy,
-        'picture':picture,
-        'discountCoupon':discountCoupon,
-        'startVisitDate':startVisitDate,
-        'endVisitDate':endVisitDate,
-        'visitDays':visitDays,
-        'visitTime':visitTime,
-      });
+          .document(x.documentID)
+          .setData({'docId': x.documentID});
     }
   }
-
 }

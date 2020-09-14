@@ -31,6 +31,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   bool _selectUserLocationFromMap = false;
   bool _isGenderSelected = false;
   bool _isServiceSelected = false;
+  bool _isAnalysisSelected = false;
   bool _isNurseTypeSelected = false;
   bool _isAgeSelected = false;
   bool _isNumOfUsersSelected = false;
@@ -72,6 +73,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
     'notes': '',
     'nurse type': '',
     'service type': '',
+    'analysis type': '',
     'numberOfUsersUseService': '1',
     'lat': '',
     'long': '',
@@ -92,7 +94,10 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
   final ImagePicker _picker = ImagePicker();
   List<Step> steps = [];
   Home _home;
-  List<String> allServices=[];
+  bool isAnalysisSelected = false;
+  List<String> allServices=translator.currentLanguage == "en"
+      ?['Analysis']:['تحاليل'];
+  List<String> allAnalysisType=[];
   getAllServices() async {
     if(_home.allService.length ==0){
       await _home.getAllServices();
@@ -468,6 +473,7 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
 
         await _home
             .addPatientRequest(
+          analysisType: _paramedicsData['analysis type'],
           notes: _paramedicsData['notes'],
           discountCoupon: _paramedicsData['coupon'],
           endVisitDate: _paramedicsData['endDate'],
@@ -992,10 +998,19 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                                       ))
                                   .toList(),
                               onSelected: (val) {
-                                setState(() {
-                                  _paramedicsData['service type'] = val.trim();
-                                  _isServiceSelected = true;
-                                });
+                                if(val == 'تحاليل' || val == 'Analysis'){
+                                  setState(() {
+                                    isAnalysisSelected = true;
+                                    _paramedicsData['service type'] = val.trim();
+                                    _isServiceSelected = true;
+                                  });
+                                }else {
+                                  setState(() {
+                                    _paramedicsData['service type'] =
+                                        val.trim();
+                                    _isServiceSelected = true;
+                                  });
+                                }
                               },
                               icon: Icon(
                                 Icons.keyboard_arrow_down,
@@ -1009,6 +1024,76 @@ class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
                 ],
               ),
             ),
+            isAnalysisSelected?
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0, top: 17),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 7),
+                    child: Text(
+                      translator.currentLanguage == "en"
+                          ? 'Analysis type:'
+                          : 'نوع التحليل:',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Material(
+                      shadowColor: Colors.blueAccent,
+                      elevation: 2.0,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      type: MaterialType.card,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 8.0),
+                            child: Text(
+                                _isAnalysisSelected == false
+                                    ? translator.currentLanguage == "en"
+                                        ? 'type'
+                                        : 'النوع'
+                                    : _paramedicsData['analysis type'],
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
+                          ),
+                          Container(
+                            height: 40,
+                            width: 35,
+                            child: PopupMenuButton(
+                              initialValue: translator.currentLanguage == "en"
+                                  ? 'Injection'
+                                  : 'حقنه',
+                              tooltip: 'Select Service',
+                              itemBuilder: (ctx) => allAnalysisType
+                                  .map((String val) => PopupMenuItem<String>(
+                                        value: val,
+                                        child: Text(val.toString()),
+                                      ))
+                                  .toList(),
+                              onSelected: (val) {
+                                setState(() {
+                                  _paramedicsData['analysis type'] = val.trim();
+                                  _isAnalysisSelected = true;
+                                });
+                              },
+                              icon: Icon(
+                                Icons.keyboard_arrow_down,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ):SizedBox(),
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0, top: 17),
               child: Row(
