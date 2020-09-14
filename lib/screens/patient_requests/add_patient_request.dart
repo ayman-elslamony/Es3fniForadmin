@@ -16,12 +16,12 @@ import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 import '../main_screen.dart';
 
-class AddParamedicsRequest extends StatefulWidget {
+class AddPatientRequest extends StatefulWidget {
   @override
-  _AddParamedicsRequestState createState() => _AddParamedicsRequestState();
+  _AddPatientRequestState createState() => _AddPatientRequestState();
 }
 
-class _AddParamedicsRequestState extends State<AddParamedicsRequest> {
+class _AddPatientRequestState extends State<AddPatientRequest> {
   GlobalKey<FormState> _newAccountKey = GlobalKey<FormState>();
   GlobalKey<ScaffoldState> _key = GlobalKey();
   bool _isLoading = false;
@@ -96,22 +96,9 @@ bool isLoadingCoupon =false;
   //List<Step> steps = [];
   Home _home;
   bool isAnalysisSelected = false;
-  List<String> allServices=translator.currentLanguage == "en"
-      ?['Analysis']:['تحاليل'];
-  List<String> allAnalysisType=[];
   getAllServicesAndAnalysis() async {
-    if(_home.allService.length ==0){
       await _home.getAllServices();
-      for(int i=0; i< _home.allService.length; i++){
-        allServices.add(_home.allService[i].serviceName);
-      }
-    }
-    if(_home.allAnalysis.length ==0){
       await _home.getAllAnalysis();
-      for(int i=0; i< _home.allAnalysis.length; i++){
-        allAnalysisType.add(_home.allAnalysis[i].analysisName);
-      }
-    }
   }
   @override
   void initState() {
@@ -1042,39 +1029,42 @@ bool isLoadingCoupon =false;
                                                 Container(
                                                   height: 40,
                                                   width: 35,
-                                                  child: PopupMenuButton(
-                                                    initialValue: translator.currentLanguage == "en"
-                                                        ? 'Injection'
-                                                        : 'حقنه',
-                                                    tooltip: 'Select Service',
-                                                    itemBuilder: (ctx) => allServices
-                                                        .map((String val) => PopupMenuItem<String>(
-                                                      value: val,
-                                                      child: Text(val.toString()),
-                                                    ))
-                                                        .toList(),
-                                                    onSelected: (val) {
-                                                      if(val == 'تحاليل' || val == 'Analysis'){
-                                                        setState(() {
+                                                  child: Consumer<Home>(
+                                                    builder: (context,data,_)=>
+                                                    PopupMenuButton(
+                                                      initialValue: translator.currentLanguage == "en"
+                                                          ? 'Injection'
+                                                          : 'حقنه',
+                                                      tooltip: 'Select Service',
+                                                      itemBuilder: (ctx) => data.allServicesType
+                                                          .map((String val) => PopupMenuItem<String>(
+                                                        value: val,
+                                                        child: Text(val.toString()),
+                                                      ))
+                                                          .toList(),
+                                                      onSelected: (val) {
+                                                        if(val == 'تحاليل' || val == 'Analysis'){
+                                                          setState(() {
+                                                            _home.resetPrice();
+                                                            isAnalysisSelected = true;
+                                                            _paramedicsData['service type'] = val.trim();
+                                                            _isServiceSelected = true;
+                                                          });
+                                                        }else {
                                                           _home.resetPrice();
-                                                          isAnalysisSelected = true;
-                                                          _paramedicsData['service type'] = val.trim();
-                                                          _isServiceSelected = true;
-                                                        });
-                                                      }else {
-                                                        _home.resetPrice();
-                                                        _home.addToPrice(type: '',serviceType:val);
-                                                        setState(() {
-                                                          isAnalysisSelected = false;
-                                                          _paramedicsData['analysis type']='';
-                                                          _paramedicsData['service type'] =
-                                                              val.trim();
-                                                          _isServiceSelected = true;
-                                                        });
-                                                      }
-                                                    },
-                                                    icon: Icon(
-                                                      Icons.keyboard_arrow_down,
+                                                          _home.addToPrice(type: '',serviceType:val);
+                                                          setState(() {
+                                                            isAnalysisSelected = false;
+                                                            _paramedicsData['analysis type']='';
+                                                            _paramedicsData['service type'] =
+                                                                val.trim();
+                                                            _isServiceSelected = true;
+                                                          });
+                                                        }
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.keyboard_arrow_down,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -1126,27 +1116,30 @@ bool isLoadingCoupon =false;
                                                 Container(
                                                   height: 40,
                                                   width: 35,
-                                                  child: PopupMenuButton(
-                                                    initialValue: translator.currentLanguage == "en"
-                                                        ? 'Injection'
-                                                        : 'حقنه',
-                                                    tooltip: 'Select Service',
-                                                    itemBuilder: (ctx) => allAnalysisType
-                                                        .map((String val) => PopupMenuItem<String>(
-                                                      value: val,
-                                                      child: Text(val.toString()),
-                                                    ))
-                                                        .toList(),
-                                                    onSelected: (val) {
-                                                      _home.resetPrice();
-                                                      _home.addToPrice(type: 'analysis',serviceType:val);
-                                                      setState(() {
-                                                        _paramedicsData['analysis type'] = val.trim();
-                                                        _isAnalysisSelected = true;
-                                                      });
-                                                    },
-                                                    icon: Icon(
-                                                      Icons.keyboard_arrow_down,
+                                                  child: Consumer<Home>(
+                                                    builder: (context,data,_)=>
+                                                    PopupMenuButton(
+                                                      initialValue: translator.currentLanguage == "en"
+                                                          ? 'Injection'
+                                                          : 'حقنه',
+                                                      tooltip: 'Select Service',
+                                                      itemBuilder: (ctx) => data.allAnalysisType
+                                                          .map((String val) => PopupMenuItem<String>(
+                                                        value: val,
+                                                        child: Text(val.toString()),
+                                                      ))
+                                                          .toList(),
+                                                      onSelected: (val) {
+                                                        _home.resetPrice();
+                                                        _home.addToPrice(type: 'analysis',serviceType:val.trim());
+                                                        setState(() {
+                                                          _paramedicsData['analysis type'] = val.trim();
+                                                          _isAnalysisSelected = true;
+                                                        });
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.keyboard_arrow_down,
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -1895,8 +1888,8 @@ bool isLoadingCoupon =false;
                                                         EdgeInsets.only(top: 10.0),
                                                         title: Text(
                                                           translator.currentLanguage == "en"
-                                                              ? 'Discount coupon'
-                                                              : 'كوبون خصم',
+                                                              ? 'Add time'
+                                                              : 'اضافه وقت',
                                                           textAlign: TextAlign.center,
                                                           style: TextStyle(fontSize: 18),
                                                         ),

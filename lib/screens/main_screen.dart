@@ -1,5 +1,4 @@
-import 'package:admin/screens/paramedics/paramedics.dart';
-import 'package:admin/screens/paramedics_requests/paramedics_requests.dart';
+import 'package:admin/screens/patient_requests/patient_requests.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:admin/providers/auth.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'analysis/analysis.dart';
+import 'analysis_requests/analysis_request.dart';
 import 'coupons_and_discounts/coupons_and_discounts.dart';
 import 'services_and_prices/services_and_prices.dart';
 
@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _page = 0;
   GlobalKey _bottomNavigationKey = GlobalKey();
   final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
-  List<String> type =  ['Paramedics requests', 'Paramedics',"Services and prices"];
+  List<String> type =  ['Patients requests', 'Analysis request'];
   PageController _pageController;
   String _searchContent;
   List<String> _suggestionList = List<String>();
@@ -37,8 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _auth = Provider.of<Auth>(context, listen: false);
 
     type = translator.currentLanguage == "en"
-        ? ['Paramedics requests', 'Paramedics',"Services and prices"]
-        : ['طلبات المسعفين',  'المسعفين','الخدمات والاسعار',];
+        ? ['Patients requests', 'Analysis request']
+        : ['طلبات المرضي','طلبات التحليل'];
   }
 
   @override
@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
-                            ? "Paramedics requests"
+                            ? "Patients requests"
                             : 'طلبات المسعفين',
                         imgPath: 'assets/icons/home.png',
                         infoWidget: infoWidget,
@@ -224,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
-                            ? "Paramedics"
+                            ? "Patients"
                             : 'المسعفين',
                         isIcon: true,
                         icon: Icons.exit_to_app,
@@ -298,20 +298,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 _page != 0
                     ? _iconNavBar(
                         infoWidget: infoWidget,
-                        iconPath: Icons.home,
+                        iconPath: Icons.remove_from_queue,
                         title: translator.currentLanguage == "en"
-                            ? "Paramedics requests"
-                            : 'طلبات المسعفين')
-                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.home),
+                            ? "Patients requests"
+                            : 'طلبات المرضي')
+                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.remove_from_queue),
                 _page != 1
                     ? _iconNavBar(
                         infoWidget: infoWidget,
-                        iconPath: Icons.people,
+                        iconPath: Icons.redeem,
                         title: translator.currentLanguage == "en"
-                            ? 'Paramedics'
-                            : 'المسعفين')
+                            ? 'Analysis requests'
+                            : 'طلبات التحليل')
                     : _iconNavBar(
-                        infoWidget: infoWidget, iconPath: Icons.people),
+                        infoWidget: infoWidget, iconPath: Icons.redeem),
 //                _page != 2
 //                    ? _iconNavBar(
 //                        infoWidget: infoWidget,
@@ -344,8 +344,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   navBarState.setPage(_page);
                 },
                 children: <Widget>[
-                  ParamedicsRequests(),
-                Paramedics(),
+                  PatientsRequests(),
+                  AnalysisRequests(),
                // ServicesAndPrices(),
                 ],
               ),
