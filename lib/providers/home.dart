@@ -408,13 +408,14 @@ class Home with ChangeNotifier {
     }
     if (analysisType == '') {
       DocumentReference x = await databaseReference.collection('requests').add({
-        'patientId':docs.documents[0].documentID??'',
+        'patientId': docs.documents[0].documentID ?? '',
         'patientName': patientName,
         'patientPhone': patientPhone,
         'patientLocation': patientLocation,
         'patientAge': patientAge,
         'patientGender': patientGender,
         'numOfPatients': numOfPatients,
+        'discountPercentage': coupon.discountPercentage,
         'serviceType': serviceType,
         'nurseGender': nurseGender,
         'suppliesFromPharmacy': suppliesFromPharmacy,
@@ -425,6 +426,8 @@ class Home with ChangeNotifier {
         'visitDays': visitDays,
         'visitTime': visitTime,
         'notes': notes,
+        'servicePrice':discountCoupon == ''
+            ? price.servicePrice.toString():priceBeforeDiscount.toString(),
         'priceBeforeDiscount': discountCoupon == ''
             ? (double.parse(numOfPatients) * price.servicePrice).toString()
             : (double.parse(numOfPatients) * priceBeforeDiscount).toString(),
@@ -441,7 +444,7 @@ class Home with ChangeNotifier {
     } else {
       DocumentReference x =
           await databaseReference.collection('analysis request').add({
-            'patientId':docs.documents[0].documentID??'',
+        'patientId': docs.documents[0].documentID ?? '',
         'patientName': patientName,
         'patientPhone': patientPhone,
         'patientLocation': patientLocation,
@@ -451,8 +454,11 @@ class Home with ChangeNotifier {
         'serviceType': serviceType,
         'analysisType': analysisType,
         'nurseGender': nurseGender,
+            'servicePrice':discountCoupon == ''
+                ? price.servicePrice.toString():priceBeforeDiscount.toString(),
         'suppliesFromPharmacy': suppliesFromPharmacy,
         'picture': imgUrl,
+        'discountPercentage': coupon.discountPercentage,
         'discountCoupon': discountCoupon,
         'startVisitDate': startVisitDate,
         'endVisitDate': endVisitDate,
@@ -475,70 +481,83 @@ class Home with ChangeNotifier {
     return true;
   }
 
-  Future getAllAnalysisRequests()async{
+  Future getAllAnalysisRequests() async {
     var requests = databaseReference.collection('analysis request');
-    QuerySnapshot docs = await requests
-        .getDocuments();
+    QuerySnapshot docs = await requests.getDocuments();
     if (docs.documents.length != 0) {
       allAnalysisRequests.clear();
       for (int i = 0; i < docs.documents.length; i++) {
         allAnalysisRequests.add(Requests(
-          patientId: docs.documents[i].data['patientId']??'',
-          docId: docs.documents[i].documentID,
-         visitTime: docs.documents[i].data['visitTime']??'',
-          visitDays: docs.documents[i].data['visitDays']??'',
-          suppliesFromPharmacy: docs.documents[i].data['suppliesFromPharmacy']??'',
-          startVisitDate: docs.documents[i].data['startVisitDate']??'',
-          serviceType: docs.documents[i].data['serviceType']??'',
-          picture: docs.documents[i].data['picture']??'',
-          patientPhone: docs.documents[i].data['patientPhone']??'',
-          patientName: docs.documents[i].data['patientName']??'',
-          patientLocation: docs.documents[i].data['patientLocation']??'',
-          patientGender: docs.documents[i].data['patientGender']??'',
-          patientAge: docs.documents[i].data['patientAge']??'',
-          nurseGender: docs.documents[i].data['nurseGender']??'',
-          numOfPatients: docs.documents[i].data['numOfPatients']??'',
-          endVisitDate: docs.documents[i].data['endVisitDate']??'',
-          discountCoupon: docs.documents[i].data['discountCoupon']??'',
-          priceBeforeDiscount: docs.documents[i].data['priceBeforeDiscount']??'',
-          analysisType: docs.documents[i].data['analysisType']??'',
-          notes: docs.documents[i].data['notes']??'',
-          priceAfterDiscount: docs.documents[i].data['priceAfterDiscount'].toString()??''
-        ));
+            patientId: docs.documents[i].data['patientId'] ?? '',
+            docId: docs.documents[i].documentID,
+            visitTime: docs.documents[i].data['visitTime'] ?? '',
+            visitDays: docs.documents[i].data['visitDays'] ?? '',
+            suppliesFromPharmacy:
+                docs.documents[i].data['suppliesFromPharmacy'] ?? '',
+            startVisitDate: docs.documents[i].data['startVisitDate'] ?? '',
+            serviceType: docs.documents[i].data['serviceType'] ?? '',
+            picture: docs.documents[i].data['picture'] ?? '',
+            patientPhone: docs.documents[i].data['patientPhone'] ?? '',
+            patientName: docs.documents[i].data['patientName'] ?? '',
+            patientLocation: docs.documents[i].data['patientLocation'] ?? '',
+            patientGender: docs.documents[i].data['patientGender'] ?? '',
+            discountPercentage:
+                docs.documents[i].data['discountPercentage'] ?? '',
+            patientAge: docs.documents[i].data['patientAge'] ?? '',
+            servicePrice: docs.documents[i].data['servicePrice'] ?? '',
+            nurseGender: docs.documents[i].data['nurseGender'] ?? '',
+            numOfPatients: docs.documents[i].data['numOfPatients'] ?? '',
+            endVisitDate: docs.documents[i].data['endVisitDate'] ?? '',
+            discountCoupon: docs.documents[i].data['discountCoupon'] ?? '',
+            priceBeforeDiscount:
+                docs.documents[i].data['priceBeforeDiscount'] ?? '',
+            analysisType: docs.documents[i].data['analysisType'] ?? '',
+            notes: docs.documents[i].data['notes'] ?? '',
+            priceAfterDiscount:
+                docs.documents[i].data['priceAfterDiscount'].toString() ?? ''));
       }
       notifyListeners();
     }
   }
-  Future getAllPatientsRequests()async{
+
+  Future getAllPatientsRequests() async {
     var requests = databaseReference.collection('requests');
-    QuerySnapshot docs = await requests
-        .getDocuments();
+    QuerySnapshot docs = await requests.getDocuments();
     if (docs.documents.length != 0) {
       allPatientsRequests.clear();
       for (int i = 0; i < docs.documents.length; i++) {
         allPatientsRequests.add(Requests(
-          patientId: docs.documents[i].data['patientId']??'',
-          docId: docs.documents[i].documentID,
-         visitTime: docs.documents[i].data['visitTime']=='[]'?'':docs.documents[i].data['visitTime']??'',
-          visitDays: docs.documents[i].data['visitDays']=='[]'?'':docs.documents[i].data['visitDays']??'',
-          suppliesFromPharmacy: docs.documents[i].data['suppliesFromPharmacy']??'',
-          startVisitDate: docs.documents[i].data['startVisitDate']??'',
-          serviceType: docs.documents[i].data['serviceType']??'',
-          picture: docs.documents[i].data['picture']??'',
-          patientPhone: docs.documents[i].data['patientPhone']??'',
-          patientName: docs.documents[i].data['patientName']??'',
-          patientLocation: docs.documents[i].data['patientLocation']??'',
-          patientGender: docs.documents[i].data['patientGender']??'',
-          patientAge: docs.documents[i].data['patientAge']??'',
-          nurseGender: docs.documents[i].data['nurseGender']??'',
-          numOfPatients: docs.documents[i].data['numOfPatients']??'',
-          endVisitDate: docs.documents[i].data['endVisitDate']??'',
-          discountCoupon: docs.documents[i].data['discountCoupon']??'',
-          priceBeforeDiscount: docs.documents[i].data['priceBeforeDiscount']??'',
-          analysisType: docs.documents[i].data['analysisType']??'',
-          notes: docs.documents[i].data['notes']??'',
-          priceAfterDiscount: docs.documents[i].data['priceAfterDiscount'].toString()??''
-        ));
+            patientId: docs.documents[i].data['patientId'] ?? '',
+            docId: docs.documents[i].documentID,
+            visitTime: docs.documents[i].data['visitTime'] == '[]'
+                ? ''
+                : docs.documents[i].data['visitTime'] ?? '',
+            visitDays: docs.documents[i].data['visitDays'] == '[]'
+                ? ''
+                : docs.documents[i].data['visitDays'] ?? '',
+            suppliesFromPharmacy:
+                docs.documents[i].data['suppliesFromPharmacy'] ?? '',
+            startVisitDate: docs.documents[i].data['startVisitDate'] ?? '',
+            serviceType: docs.documents[i].data['serviceType'] ?? '',
+            picture: docs.documents[i].data['picture'] ?? '',
+            patientPhone: docs.documents[i].data['patientPhone'] ?? '',
+            patientName: docs.documents[i].data['patientName'] ?? '',
+            patientLocation: docs.documents[i].data['patientLocation'] ?? '',
+            patientGender: docs.documents[i].data['patientGender'] ?? '',
+            patientAge: docs.documents[i].data['patientAge'] ?? '',
+            servicePrice: docs.documents[i].data['servicePrice'] ?? '',
+            discountPercentage:
+                docs.documents[i].data['discountPercentage'] ?? '',
+            nurseGender: docs.documents[i].data['nurseGender'] ?? '',
+            numOfPatients: docs.documents[i].data['numOfPatients'] ?? '',
+            endVisitDate: docs.documents[i].data['endVisitDate'] ?? '',
+            discountCoupon: docs.documents[i].data['discountCoupon'] ?? '',
+            priceBeforeDiscount:
+                docs.documents[i].data['priceBeforeDiscount'] ?? '',
+            analysisType: docs.documents[i].data['analysisType'] ?? '',
+            notes: docs.documents[i].data['notes'] ?? '',
+            priceAfterDiscount:
+                docs.documents[i].data['priceAfterDiscount'].toString() ?? ''));
       }
       notifyListeners();
     }
