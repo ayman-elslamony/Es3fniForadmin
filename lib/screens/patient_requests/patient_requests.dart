@@ -2,7 +2,7 @@ import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/requests.dart';
 import 'package:admin/providers/home.dart';
-import 'package:admin/screens/user_profile/show_profile.dart';
+import 'package:admin/screens/user_profile/show_and_edit_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';

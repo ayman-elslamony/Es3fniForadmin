@@ -1,4 +1,3 @@
-import 'package:admin/screens/paramedics/paramedics.dart';
 import 'package:admin/screens/patient_requests/add_patient_request.dart';
 import 'package:admin/screens/patient_requests/patient_requests.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
@@ -12,6 +11,8 @@ import 'package:provider/provider.dart';
 import 'analysis/analysis.dart';
 import 'analysis_requests/analysis_request.dart';
 import 'coupons_and_discounts/coupons_and_discounts.dart';
+import 'nurses/nurses.dart';
+import 'nurses/nurses_supplies.dart';
 import 'services_and_prices/services_and_prices.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -184,8 +185,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     UserAccountsDrawerHeader(
                       accountName:
                           Text("${_auth.userData.name.toUpperCase()}"),
-                      accountEmail: Text(translator.currentLanguage == "en"
-                          ?'Points supplied: ${_auth.userData.points}':' النقاط المورده: ${_auth.userData.points}'),
+                      accountEmail: InkWell(
+                        onTap: (){
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => NursesSupplies()));
+                        },
+                        child: Text(translator.currentLanguage == "en"
+                            ?'Points supplied: ${_auth.userData.points}':' النقاط المورده: ${_auth.userData.points}'),
+                      ),
                       currentAccountPicture: CircleAvatar(
                         backgroundColor:
                             Theme.of(context).platform == TargetPlatform.iOS
@@ -236,7 +244,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           Navigator.of(context).push(
                               MaterialPageRoute(
-                                  builder: (context) => Paramedics()));
+                                  builder: (context) => Nurses()));
+                        }),
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
+                            ? "Nurses supplies"
+                            : 'توريدات المسعفين',
+                        isIcon: true,
+                        icon: Icons.panorama_fish_eye,
+                        infoWidget: infoWidget,
+                        onTap: ()  {
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => NursesSupplies()));
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"

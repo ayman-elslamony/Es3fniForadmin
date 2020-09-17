@@ -2,7 +2,7 @@ import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/user_data.dart';
 import 'package:admin/providers/home.dart';
-import 'package:admin/screens/user_profile/show_profile.dart';
+import 'package:admin/screens/user_profile/show_and_edit_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
@@ -10,15 +10,16 @@ import 'package:shimmer/shimmer.dart';
 import 'package:toast/toast.dart';
 import '../../models/http_exception.dart';
 
-class Paramedics extends StatefulWidget {
+class Nurses extends StatefulWidget {
   @override
-  _ParamedicsState createState() => _ParamedicsState();
+  _NursesState createState() => _NursesState();
 }
 
-class _ParamedicsState extends State<Paramedics> {
+class _NursesState extends State<Nurses> {
   TextEditingController paramedicEmail = TextEditingController();
   TextEditingController password = TextEditingController();
   TextEditingController nationalId = TextEditingController();
+  TextEditingController name = TextEditingController();
   Home _home;
   bool loadingBody = true;
   final FocusNode _passwordNode = FocusNode();
@@ -33,7 +34,8 @@ class _ParamedicsState extends State<Paramedics> {
           Navigator.of(context)
               .push(MaterialPageRoute(builder: (context) => ShowUserProfile(userData: userData,)));
         }
-
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => ShowUserProfile(userData: userData,)));
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 6),
@@ -144,7 +146,8 @@ class _ParamedicsState extends State<Paramedics> {
       });
       try {
         bool auth = await Provider.of<Home>(context, listen: false)
-            .createAccountForParamedics(
+            .createAccountForNurse(
+          name: name.text.trim(),
           nationalId: nationalId.text.trim(),
                 email: paramedicEmail.text.trim(),
                 password: password.text.trim());
@@ -313,13 +316,75 @@ class _ParamedicsState extends State<Paramedics> {
                                   style: infoWidget.title,
                                 ),
                                 content: Container(
-                                  height: infoWidget.screenHeight * 0.35,
+                                  height: infoWidget.screenHeight * 0.46,
                                   child: Center(
                                     child: Form(
                                       key: _formKey,
                                       child: SingleChildScrollView(
                                         child: Column(
                                           children: <Widget>[
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal:8.0 ),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(vertical: 7.0),
+                                                height: 80,
+                                                child: TextFormField(
+                                                  autofocus: false,
+                                                   controller: nationalId,
+                                                  textInputAction: TextInputAction.next,
+                                                  decoration: InputDecoration(
+                                                    labelText: translator.currentLanguage == "en"
+                                                        ? "Nurse name"
+                                                        : 'اسم المسعف',
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                      borderSide: BorderSide(
+                                                        color: Colors.indigo,
+                                                      ),
+                                                    ),
+                                                    errorBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                      borderSide: BorderSide(
+                                                        color: Colors.indigo,
+                                                      ),
+                                                    ),
+                                                    focusedErrorBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                      borderSide: BorderSide(
+                                                        color: Colors.indigo,
+                                                      ),
+                                                    ),
+                                                    disabledBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                      borderSide: BorderSide(
+                                                        color: Colors.indigo,
+                                                      ),
+                                                    ),
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                      borderSide: BorderSide(color: Colors.indigo),
+                                                    ),
+                                                    labelStyle: TextStyle(
+                                                        color: Colors.indigo),
+                                                  ),
+                                                  keyboardType: TextInputType.phone,
+// ignore: missing_return
+                                                  validator: (String value) {
+                                                    if (value.trim().isEmpty) {
+                                                      return translator.currentLanguage == "en"
+                                                          ? "Please enter nurse name!"
+                                                          : 'من فضلك ادخل اسم المسعف';
+                                                    }
+                                                    if (value.trim().length < 3) {
+                                                      return translator.currentLanguage == "en"
+                                                          ? "Invalid Name!"
+                                                          : 'الاسم خطاء';
+                                                    }
+                                                  },
+
+                                                ),
+                                              ),
+                                            ),
                                             Padding(
                                               padding: const EdgeInsets.symmetric(horizontal:8.0 ),
                                               child: Container(

@@ -101,7 +101,112 @@ class Auth with ChangeNotifier {
     }
   }
 
-
+  Future<bool> editProfile({String type,String address,String phone,File image,String job,String social,String bio})async{
+//    FormData formData;
+//    var data;
+//    try{
+//      if(type =='bio'){
+//        formData = FormData.fromMap({
+//          'bio': bio,
+//        });
+//        data = await _netWork
+//            .updateData(url: 'doctor/$_userId', formData: formData, headers: {
+//          'Authorization': 'Bearer $_token',
+//        });
+//        print('data $data');
+//      }
+//      if(type == 'image'){
+//        String fileName = image.path
+//            .split('/')
+//            .last;
+//        if(_userType == 'doctor'){
+//          formData = FormData.fromMap({
+//            'doctorImage': await MultipartFile.fromFile(image.path,
+//                filename: fileName)
+//          });
+//        }else{
+//          formData = FormData.fromMap({
+//            'patientImage': await MultipartFile.fromFile(image.path,
+//                filename: fileName)
+//          });
+//        }
+//        data = await _netWork
+//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
+//          'Authorization': 'Bearer $_token',
+//        });
+//        print(data);
+//      }
+//      if(type == 'job'){
+//        formData = FormData.fromMap({
+//          'job': job,
+//        });
+//        data = await _netWork
+//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
+//          'Authorization': 'Bearer $_token',
+//        });
+//        print('data $data');
+//      }
+//      if(type == 'address'){
+//        String government = '';
+//        for (int i = 0; i < governorateList.length; i++) {
+//          if (address.contains(governorateList[i])) {
+//            government = governorateList[i];
+//          }
+//        }
+//        formData = FormData.fromMap({
+//          'address': address,
+//          'government': government,
+//        });
+//        data = await _netWork
+//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
+//          'Authorization': 'Bearer $_token',
+//        });
+//        print('data $data');
+//      }
+//      if(type == 'phone'){
+//        if(_userType == 'doctor') {
+//          formData = FormData.fromMap({
+//            'number': '0$phone',
+//          });
+//        }else{
+//          formData = FormData.fromMap({
+//            'phone': '0$phone',
+//          });
+//        }
+//        data = await _netWork
+//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
+//          'Authorization': 'Bearer $_token',
+//        });
+//        print('data $data');
+//      }
+//      if(type == 'social'){
+//        formData = FormData.fromMap({
+//          'status': social,
+//        });
+//        data = await _netWork
+//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
+//          'Authorization': 'Bearer $_token',
+//        });
+//        print('data $data');
+//      }
+//      if (data != null) {
+//        if(_userType =='doctor'){
+//          rgisterData = RegisterData.fromJson(data['doctor'], 'doctor');
+//        }else{
+//          rgisterData = RegisterData.fromJson(data['patient'], 'patient');
+//        }
+//        print('svfdsb');
+//        notifyListeners();
+//        return true;
+//      }else{
+//        return false;
+//      }
+//    }catch (e){
+//      print(e);
+//      return false;
+//    }
+    return true;
+  }
   Future<bool> logout() async {
     try {
       firebaseAuth.signOut();

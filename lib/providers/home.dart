@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:admin/models/analysis.dart';
 import 'package:admin/models/price.dart';
 import 'package:admin/models/requests.dart';
+import 'package:admin/models/supplying.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:path/path.dart' as path;
 import 'package:admin/models/coupon.dart';
@@ -28,6 +29,8 @@ class Home with ChangeNotifier {
       translator.currentLanguage == "en" ? ['Analysis'] : ['تحاليل'];
   List<String> allAnalysisType = [];
   List<UserData> allNurses = [];
+  List<UserData> allNursesSupplies = [];
+  List<Supplying> allSpecificNurseSupplies = [];
   List<Coupon> allCoupons = [];
   List<Requests> allAnalysisRequests = [];
   List<Requests> allPatientsRequests = [];
@@ -96,8 +99,8 @@ class Home with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> createAccountForParamedics(
-      {String email, String password, String nationalId}) async {
+  Future<bool> createAccountForNurse(
+      {String name,String email, String password, String nationalId}) async {
     AuthResult auth;
     try {
       auth = await firebaseAuth.createUserWithEmailAndPassword(
@@ -107,13 +110,12 @@ class Home with ChangeNotifier {
       if (auth.user != null) {
         var users = databaseReference.collection("nurses");
         DocumentSnapshot doc = await users.document(auth.user.uid).get();
-        var x = email.split('@');
         if (!doc.exists) {
           await users.document(auth.user.uid).setData({
             'nationalId': nationalId,
             'password': password,
             'email': email,
-            'name': x[0] ?? 'Admin',
+            'name': name,
             'points': '0'
           });
         }
@@ -147,6 +149,60 @@ class Home with ChangeNotifier {
             nationalId: docs.documents[i].data['nationalId'] ?? ''));
       }
     }
+    notifyListeners();
+  }
+  Future getAllNursesSupplies() async {
+    var nurses = databaseReference.collection("nurses");
+    var docs = await nurses.getDocuments();
+    if (docs.documents.length != 0) {
+      allNursesSupplies.clear();
+      for (int i = 0; i < docs.documents.length; i++) {
+        allNursesSupplies.add(UserData(
+            docId: docs.documents[i].documentID,
+            email: docs.documents[i].data['email'] ?? '',
+            password: docs.documents[i].data['password'] ?? '',
+            points: docs.documents[i].data['points'] ?? '',
+            name: docs.documents[i].data['name'] ?? '',
+            phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
+            imgUrl: docs.documents[i].data['imgUrl'] ?? '',
+            address: docs.documents[i].data['address'] ?? '',
+            birthDate: docs.documents[i].data['birthDate'] ?? '',
+            gender: docs.documents[i].data['gender'] ?? '',
+            nationalId: docs.documents[i].data['nationalId'] ?? ''));
+      }
+    }
+    notifyListeners();
+  }
+  Future getSpecificNurseSupplies() async {
+    var nurses = databaseReference.collection("nurses");
+    var docs = await nurses.getDocuments();
+    if (docs.documents.length != 0) {
+      allSpecificNurseSupplies.clear();
+      for (int i = 0; i < docs.documents.length; i++) {
+        allSpecificNurseSupplies.add(Supplying(
+        points: docs.documents[i].data['points'] ?? '',
+          date: docs.documents[i].data['date'] ?? '',
+          time: docs.documents[i].data['time'] ?? ''
+        ));
+      }
+
+    }
+    allSpecificNurseSupplies=[
+      Supplying(
+          time: '13:24',
+          date: '12-10-2020',
+          points: '100'
+      ),
+      Supplying(
+          time: '13:24',
+          date: '12-10-2020',
+          points: '10'
+      ),Supplying(
+          time: '13:24',
+          date: '12-10-2020',
+          points: '700'
+      ),
+    ];
     notifyListeners();
   }
 
