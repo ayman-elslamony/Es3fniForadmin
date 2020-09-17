@@ -34,7 +34,7 @@ class Home with ChangeNotifier {
 
   Price price = Price(allServiceType: [], servicePrice: 0.0);
   Coupon coupon =
-      Coupon(couponName: '', discountPercentage: '0.0', numberOfUses: '0');
+      Coupon(docId: '',couponName: '', discountPercentage: '0.0', numberOfUses: '0');
   double discount = 0.0;
   double priceBeforeDiscount = 0.0;
 
@@ -203,8 +203,8 @@ class Home with ChangeNotifier {
   Future getAllServices() async {
     var services = databaseReference.collection("services");
     var docs = await services.getDocuments();
+    allService.clear();
     if (docs.documents.length != 0) {
-      allService.clear();
       for (int i = 0; i < docs.documents.length; i++) {
         allService.add(Service(
           id: docs.documents[i].documentID,
@@ -280,7 +280,13 @@ class Home with ChangeNotifier {
     if (docs.documents.length == 0) {
       return 'false';
     } else {
-      if (price.isAddingDiscount == false && price.servicePrice != 0.0) {
+      List<String> date  = docs.documents[0].data['expiryDate'].toString().split('-');
+      print(date);
+      DateTime time =DateTime(int.parse(date[2]),
+          int.parse(date[1]),
+          int.parse(date[0])
+          );
+      if (price.isAddingDiscount == false && price.servicePrice != 0.0 && docs.documents[0].data['numberOfUses']!='0' && time.isAfter(DateTime.now())) {
         coupon = Coupon(
           docId: docs.documents[0].documentID,
           couponName: docs.documents[0].data['couponName'],
@@ -300,6 +306,8 @@ class Home with ChangeNotifier {
         return 'true';
       } else if (price.servicePrice == 0.0) {
         return 'add service before discount';
+      }else if(!time.isAfter(DateTime.now())|| docs.documents[0].data['numberOfUses']=='0'){
+        return 'Coupon not Avilable';
       } else {
         return 'already discount';
       }
@@ -392,6 +400,7 @@ class Home with ChangeNotifier {
       String notes}) async {
     String imgUrl = '';
     var users = databaseReference.collection("users");
+    var _coupons = databaseReference.collection("coupons");
     var docs =
         await users.where('phone', isEqualTo: patientPhone).getDocuments();
     if (picture != null) {
@@ -493,6 +502,15 @@ class Home with ChangeNotifier {
             .setData({'docId': x.documentID});
       }
      getAllAnalysisRequests();
+    }
+    if(coupon.docId != ''){
+      int x = int.parse(coupon.numberOfUses);
+      if(x != 0){
+        x =x-1;
+      }
+      _coupons.document(coupon.docId).updateData({
+        'numberOfUses': x,
+      });
     }
     return true;
   }

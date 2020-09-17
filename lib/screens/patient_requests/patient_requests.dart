@@ -65,12 +65,13 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                             style: infoWidget.titleButton
                                 .copyWith(color: Colors.indigo),
                           ),
-                          IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                color: Colors.indigo,
-                              ),
-                              onPressed: () {})
+//                          IconButton(
+//                              icon: Icon(
+//                                Icons.edit,
+//                                color: Colors.indigo,
+//                              ),
+//                              onPressed: () {})
+                          SizedBox(),
                         ],
                       ),
                       SizedBox(

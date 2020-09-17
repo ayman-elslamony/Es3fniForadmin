@@ -1597,6 +1597,14 @@ bool isLoadingCoupon =false;
                                                                         context,
                                                                         duration: Toast.LENGTH_SHORT,
                                                                         gravity: Toast.BOTTOM);
+                                                                  }else if(x== 'Coupon not Avilable'){
+                                                                    Toast.show(
+                                                                        translator.currentLanguage == "en"
+                                                                            ? 'Coupon not Avilable'
+                                                                            : 'الكود غير متاح',
+                                                                        context,
+                                                                        duration: Toast.LENGTH_SHORT,
+                                                                        gravity: Toast.BOTTOM);
                                                                   }else if(x == 'false'){
                                                                     Toast.show(
                                                                         translator.currentLanguage == "en"
