@@ -1,6 +1,7 @@
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/user_data.dart';
+import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
 import 'package:admin/screens/nurses/specific_nurse_supplies.dart';
 import 'package:admin/screens/user_profile/show_and_edit_profile.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:toast/toast.dart';
 
 class NursesSupplies extends StatefulWidget {
   @override
@@ -17,6 +17,7 @@ class NursesSupplies extends StatefulWidget {
 
 class _NursesSuppliesState extends State<NursesSupplies> {
   Home _home;
+  Auth _auth;
   bool loadingBody = true;
   Widget content({UserData userData, DeviceInfo infoWidget}) {
     return InkWell(
@@ -84,6 +85,7 @@ class _NursesSuppliesState extends State<NursesSupplies> {
 
   @override
   void initState() {
+    _auth = Provider.of<Auth>(context, listen: false);
     _home = Provider.of<Home>(context, listen: false);
     getAllNursesSupplies();
     super.initState();
@@ -112,6 +114,15 @@ class _NursesSuppliesState extends State<NursesSupplies> {
                       : 'توريدات المسعفين',
                   style: infoWidget.titleButton,
                 ),
+                actions: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 18, left: 10, right: 10),
+                    child: Text(
+                      _auth.userData.points,
+                      style: infoWidget.titleButton,
+                    ),
+                  ),
+                ],
               ),
               body: loadingBody
                   ? Padding(
