@@ -28,6 +28,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
+    precacheImage(AssetImage('assets/logo.png'), context);
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: Auth()),

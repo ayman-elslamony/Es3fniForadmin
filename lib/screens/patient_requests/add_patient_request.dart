@@ -34,7 +34,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
   bool _isAnalysisSelected = false;
   bool _isNurseTypeSelected = false;
   bool _isAgeSelected = false;
-  bool _isNumOfUsersSelected = false;
+  bool _isNumOfUsersSelected = true;
   bool isSwitched = false;
   bool enableCoupon = false;
   bool enableScheduleTheService = false;
@@ -259,6 +259,13 @@ bool isLoadingCoupon =false;
         title: Text(
           translator.currentLanguage == "en" ? 'Location' : 'الموقع',
           textAlign: TextAlign.center,
+          style:  TextStyle(
+              fontSize: MediaQuery.of(context).orientation ==
+                  Orientation.portrait
+                  ? MediaQuery.of(context).size.width * 0.038
+                  : MediaQuery.of(context).size.width * 0.024,
+              color: Colors.indigo,
+              fontWeight: FontWeight.bold),
         ),
         content: Padding(
           padding: const EdgeInsets.only(top: 10),
@@ -267,53 +274,53 @@ bool isLoadingCoupon =false;
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                InkWell(
-                  onTap: _getUserLocation,
-                  child: Material(
-                      color: Colors.indigo,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      type: MaterialType.card,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          translator.currentLanguage == "en"
-                              ? 'Get current Location'
-                              : 'الموقع الحالى',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      )),
-                ),
-                InkWell(
-                  onTap: () {
+                RaisedButton(
+                  onPressed: _getUserLocation,
+                    color: Colors.indigo,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)),),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Text(
+                        translator.currentLanguage == "en"
+                            ? 'Get current Location'
+                            : 'الموقع الحالى',
+                        style:  TextStyle(
+                            fontSize: MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                                ? MediaQuery.of(context).size.width * 0.035
+                                : MediaQuery.of(context).size.width * 0.024,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )),
+                RaisedButton(
+                  onPressed: () {
                     Navigator.of(context).pushReplacement(MaterialPageRoute(
                         builder: (ctx) => GetUserLocation(
-                              getAddress: selectLocationFromTheMap,
-                            )));
+                          getAddress: selectLocationFromTheMap,
+                        )));
                     setState(() {
                       _isEditLocationEnable = true;
                       _selectUserLocationFromMap = !_selectUserLocationFromMap;
                     });
                   },
-                  child: Material(
-                      color: Colors.indigo,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      type: MaterialType.card,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          translator.currentLanguage == "en"
-                              ? 'Select Location from Map'
-                              : 'اختر موقع من الخريطه',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      )),
-                ),
+                    color: Colors.indigo,
+                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)),),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Text(
+                        translator.currentLanguage == "en"
+                            ? 'Select Location from Map'
+                            : 'اختر موقع من الخريطه',
+                        style:  TextStyle(
+                            fontSize: MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                                ? MediaQuery.of(context).size.width * 0.035
+                                : MediaQuery.of(context).size.width * 0.024,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    )),
               ],
             ),
           ),
@@ -463,7 +470,7 @@ bool isLoadingCoupon =false;
         _isLoading = true;
       });
       try {
-
+        print('A');
         bool isSccuess =await _home
             .addPatientRequest(
           analysisType: _paramedicsData['analysis type'],
@@ -613,13 +620,13 @@ bool isLoadingCoupon =false;
             centerTitle: true,
             title: Text(
               translator.currentLanguage == "en"
-                  ? 'New paramedics request'
+                  ? 'New Patient request'
                   : 'طلب مسعف جديد',
               style: infoWidget.titleButton,
             ),
            actions: <Widget>[
              Padding(
-               padding: const EdgeInsets.only(top: 14,left: 8),
+               padding: const EdgeInsets.only(top: 18,left: 8,right: 8),
                child: Consumer<Home>(
                  builder: (context,data,_)=>Text(
                    translator.currentLanguage == "en"
@@ -654,9 +661,45 @@ bool isLoadingCoupon =false;
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    _createTextForm(
-                                        labelText: 'Patient name',
-                                        nextFocusNode: focusNode,
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 7.0),
+                                    height: 80,
+                                    child: TextFormField(
+                                      autofocus: false,
+                                      decoration: InputDecoration(
+                                          labelText: translator.currentLanguage == "en"
+                                              ? 'Patient name'
+                                              : 'اسم المريض',
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          focusedErrorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          disabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(
+                                              color: Colors.indigo,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                            borderSide: BorderSide(color: Colors.indigo),
+                                          ),
+                                          errorStyle: TextStyle(color: Colors.indigo)
+                                      ),
                                         // ignore: missing_return
                                         validator: (String val) {
                                           if (val.trim().isEmpty || val.trim().length < 2) {
@@ -669,12 +712,17 @@ bool isLoadingCoupon =false;
                                                 ? 'Invalid Name'
                                                 : 'الاسم خطا';
                                           }
-                                        }),
+                                        },
+
+                                      onChanged: (value) {
+                                        _paramedicsData['Patient name'] = value.trim();
+                                      },
+                                    ),
+                                  ),
                                     InternationalPhoneNumberInput(
                                       onInputChanged: (PhoneNumber number) {
                                         _paramedicsData['Phone number']= number.phoneNumber;
                                       },
-                                      focusNode: focusNode,
                                       ignoreBlank: true,
                                       autoValidate: false,
                                       selectorTextStyle: TextStyle(color: Colors.black),
@@ -725,10 +773,8 @@ bool isLoadingCoupon =false;
                                       height: 80,
                                       child: TextFormField(
                                         autofocus: false,
-                                        focusNode: locationFocusNode,
                                         style: TextStyle(fontSize: 15),
                                         controller: _locationTextEditingController,
-                                        textInputAction: TextInputAction.done,
                                         enabled: _isEditLocationEnable,
                                         decoration: InputDecoration(
                                           suffixIcon: InkWell(
@@ -779,7 +825,7 @@ bool isLoadingCoupon =false;
                                             padding: const EdgeInsets.symmetric(vertical: 7),
                                             child: Text(
                                               translator.currentLanguage == "en" ? 'number of users use service:' : 'عدد مستخدمى الخدمه: ',
-                                              style: TextStyle(fontSize: 18),
+                                              style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                             ),
                                           ),
                                           Padding(
@@ -802,9 +848,7 @@ bool isLoadingCoupon =false;
                                                             ? 'number'
                                                             : 'العدد'
                                                             : _paramedicsData['numberOfUsersUseService'],
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold)),
+                                                        style: infoWidget.titleButton.copyWith(color: Color(0xff484848))),
                                                   ),
                                                   Container(
                                                     height: 40,
@@ -847,7 +891,7 @@ bool isLoadingCoupon =false;
                                             padding: const EdgeInsets.symmetric(vertical: 7),
                                             child: Text(
                                               translator.currentLanguage == "en" ? 'Age:' : 'السن',
-                                              style: TextStyle(fontSize: 18),
+                                              style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                             ),
                                           ),
                                           Padding(
@@ -870,9 +914,7 @@ bool isLoadingCoupon =false;
                                                             ? 'Age'
                                                             : 'السن'
                                                             : _paramedicsData['age'],
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold)),
+                                                        style: infoWidget.titleButton.copyWith(color: Color(0xff484848))),
                                                   ),
                                                   Container(
                                                     height: 40,
@@ -917,7 +959,7 @@ bool isLoadingCoupon =false;
                                               translator.currentLanguage == "en"
                                                   ? 'Gender:'
                                                   : 'النوع:',
-                                              style: TextStyle(fontSize: 18),
+                                              style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                             ),
                                           ),
                                           Padding(
@@ -940,9 +982,7 @@ bool isLoadingCoupon =false;
                                                             ? 'gender'
                                                             : 'النوع'
                                                             : _paramedicsData['gender'],
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight: FontWeight.bold)),
+                                                        style: infoWidget.titleButton.copyWith(color: Color(0xff484848))),
                                                   ),
                                                   Container(
                                                     height: 40,
@@ -1000,7 +1040,7 @@ bool isLoadingCoupon =false;
                                             translator.currentLanguage == "en"
                                                 ? 'Service type:'
                                                 : 'نوع الخدمه:',
-                                            style: TextStyle(fontSize: 18),
+                                            style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                           ),
                                         ),
                                         Padding(
@@ -1023,8 +1063,7 @@ bool isLoadingCoupon =false;
                                                           ? 'type'
                                                           : 'النوع'
                                                           : _paramedicsData['service type'],
-                                                      style: TextStyle(
-                                                          fontSize: 16, fontWeight: FontWeight.bold)),
+                                                      style: infoWidget.titleButton.copyWith(color: Color(0xff484848))),
                                                 ),
                                                 Container(
                                                   height: 40,
@@ -1087,7 +1126,7 @@ bool isLoadingCoupon =false;
                                             translator.currentLanguage == "en"
                                                 ? 'Analysis type:'
                                                 : 'نوع التحليل:',
-                                            style: TextStyle(fontSize: 18),
+                                            style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                           ),
                                         ),
                                         Padding(
@@ -1110,8 +1149,7 @@ bool isLoadingCoupon =false;
                                                           ? 'type'
                                                           : 'النوع'
                                                           : _paramedicsData['analysis type'],
-                                                      style: TextStyle(
-                                                          fontSize: 16, fontWeight: FontWeight.bold)),
+                                                      style: infoWidget.titleButton.copyWith(color: Color(0xff484848))),
                                                 ),
                                                 Container(
                                                   height: 40,
@@ -1161,7 +1199,7 @@ bool isLoadingCoupon =false;
                                             translator.currentLanguage == "en"
                                                 ? 'Nurse Type:'
                                                 : 'نوع الممرض:',
-                                            style: TextStyle(fontSize: 18),
+                                            style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                           ),
                                         ),
                                         Padding(
@@ -1184,8 +1222,7 @@ bool isLoadingCoupon =false;
                                                           ? 'gender'
                                                           : 'النوع'
                                                           : _paramedicsData['nurse type'],
-                                                      style: TextStyle(
-                                                          fontSize: 16, fontWeight: FontWeight.bold)),
+                                                      style: infoWidget.titleButton.copyWith(color: Color(0xff484848))),
                                                 ),
                                                 Container(
                                                   height: 40,
@@ -1231,7 +1268,7 @@ bool isLoadingCoupon =false;
                                               translator.currentLanguage == "en"
                                                   ? 'You need supplies from the pharmacy:'
                                                   : 'تحتاج لمستلزمات من الصيدليه:',
-                                              style: TextStyle(fontSize: 18),
+                                              style:infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                               maxLines: 2,
                                             ),
                                           ),
@@ -1317,7 +1354,7 @@ bool isLoadingCoupon =false;
                                               translator.currentLanguage == "en"
                                                   ? 'Add a picture with Roshta or the name of the analysis:'
                                                   : 'اضافه صوره بالروشته او اسم التحليل:',
-                                              style: TextStyle(fontSize: 18),
+                                              style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                               maxLines: 2,
                                             ),
                                           ),
@@ -1336,7 +1373,7 @@ bool isLoadingCoupon =false;
                                                   _openImagePicker();
                                                 },
                                                 child: Container(
-                                                  padding: EdgeInsets.all(4.0),
+                                                  padding: EdgeInsets.all(8.0),
                                                   decoration: BoxDecoration(
                                                       color: Colors.indigo,
                                                       borderRadius: BorderRadius.circular(10)),
@@ -1345,12 +1382,7 @@ bool isLoadingCoupon =false;
                                                       translator.currentLanguage == "en"
                                                           ? " Select Image "
                                                           : ' اختر صوره ',
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .display1
-                                                          .copyWith(
-                                                          color: Colors.white,
-                                                          fontSize: 17),
+                                                      style: infoWidget.titleButton,
                                                     ),
                                                   ),
                                                 ),
@@ -1408,7 +1440,7 @@ bool isLoadingCoupon =false;
                                               translator.currentLanguage == "en"
                                                   ? 'Discount coupon: ${_paramedicsData['coupon']}'
                                                   : ' كوبون خصم: ${_paramedicsData['coupon']}',
-                                              style: TextStyle(fontSize: 18),
+                                              style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                               maxLines: 2,
                                             ),
                                           ),
@@ -1441,7 +1473,7 @@ bool isLoadingCoupon =false;
                                                                   ? 'Discount coupon'
                                                                   : 'كوبون خصم',
                                                               textAlign: TextAlign.center,
-                                                              style: TextStyle(fontSize: 18),
+                                                              style: infoWidget.titleButton.copyWith(color: Colors.indigo),
                                                             ),
                                                             content: Container(
                                                               height: 60,
@@ -1633,7 +1665,7 @@ bool isLoadingCoupon =false;
                                               translator.currentLanguage == "en"
                                                   ? 'Schedule the service:'
                                                   : 'جدوله الخدمه:',
-                                              style: TextStyle(fontSize: 18),
+                                              style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                               maxLines: 2,
                                             ),
                                           ),
@@ -1680,7 +1712,7 @@ bool isLoadingCoupon =false;
                                                   translator.currentLanguage == "en"
                                                       ? 'The visit period:'
                                                       : 'فتره الزياره:',
-                                                  style: TextStyle(fontSize: 18),
+                                                  style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -1726,7 +1758,7 @@ bool isLoadingCoupon =false;
                                                   ? 'Start Date ${_paramedicsData['startDate']}'
                                                   : ' تاريخ البدايه ${_paramedicsData['startDate']}',
                                               style:
-                                              TextStyle(color: Colors.white, fontSize: 18),
+                                              infoWidget.titleButton
                                             ),
                                           ),
                                           RaisedButton(
@@ -1764,7 +1796,7 @@ bool isLoadingCoupon =false;
                                                   ? 'End Date ${_paramedicsData['endDate']}'
                                                   : ' تاريخ النهايه ${_paramedicsData['endDate']} ',
                                               style:
-                                              TextStyle(color: Colors.white, fontSize: 18),
+                                              infoWidget.titleButton
                                             ),
                                           ),
                                         ],
@@ -1782,7 +1814,7 @@ bool isLoadingCoupon =false;
                                                   translator.currentLanguage == "en"
                                                       ? 'Days of the visit:'
                                                       : 'ايام الزياره:',
-                                                  style: TextStyle(fontSize: 18),
+                                                  style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -1844,9 +1876,7 @@ bool isLoadingCoupon =false;
                                                   child: Center(
                                                     child: Text(
                                                       workingDays[index],
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 15),
+                                                      style: _clicked[index]==false?infoWidget.subTitle.copyWith(color: Colors.white):infoWidget.subTitle.copyWith(color: Color(0xff484848)),
                                                     ),
                                                   ),
                                                 ),
@@ -1865,7 +1895,7 @@ bool isLoadingCoupon =false;
                                                   translator.currentLanguage == "en"
                                                       ? 'Visit Time:'
                                                       : 'وقت الزياره:',
-                                                  style: TextStyle(fontSize: 18),
+                                                  style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                                   maxLines: 2,
                                                 ),
                                               ),
@@ -1891,7 +1921,7 @@ bool isLoadingCoupon =false;
                                                               ? 'Add time'
                                                               : 'اضافه وقت',
                                                           textAlign: TextAlign.center,
-                                                          style: TextStyle(fontSize: 18),
+                                                          style: infoWidget.titleButton.copyWith(color: Colors.indigo),
                                                         ),
                                                         content: TimePickerSpinner(
                                                           is24HourMode: true,
@@ -1954,8 +1984,7 @@ bool isLoadingCoupon =false;
                                                 translator.currentLanguage == "en"
                                                     ? 'Add Time'
                                                     : 'اضافه وقت',
-                                                style: TextStyle(
-                                                    color: Colors.white, fontSize: 18),
+                                                style: infoWidget.titleButton,
                                               ),
                                             ),
                                           ],
@@ -2017,9 +2046,7 @@ bool isLoadingCoupon =false;
                                                   child: Center(
                                                     child: Text(
                                                       visitTime[index],
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 15),
+                                                      style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                                     ),
                                                   ),
                                                 ),
@@ -2031,7 +2058,7 @@ bool isLoadingCoupon =false;
                                     translator.currentLanguage == "en"
                                         ? 'Notes:'
                                         : 'ملاحظات:',
-                                    style: TextStyle(fontSize: 18),
+                                    style: infoWidget.titleButton.copyWith(color: Color(0xff484848)),
                                   ),
                                   Container(
                                     height: 90,

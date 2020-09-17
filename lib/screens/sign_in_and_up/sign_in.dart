@@ -116,12 +116,12 @@ class _SignInState extends State<SignIn> {
                             child: Center(
                                 child: Hero(
                                     tag: 'splash',
-                                    child: Image.asset('assets/Logo.png',
+                                    child: Image.asset('assets/logo.png',
                                         fit: BoxFit.fill,
-                                        width: infoWidget.orientation ==
+                                        width: MediaQuery.of(context).orientation ==
                                                 Orientation.landscape
-                                            ? infoWidget.localWidth * 0.2
-                                            : infoWidget.localWidth * 0.28)))),
+                                            ? MediaQuery.of(context).size.width* 0.2
+                                            : MediaQuery.of(context).size.width * 0.28)))),
                         SizedBox(
                           height: 15.0,
                         ),

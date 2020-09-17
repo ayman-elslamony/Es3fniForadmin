@@ -1,4 +1,5 @@
 import 'package:admin/screens/paramedics/paramedics.dart';
+import 'package:admin/screens/patient_requests/add_patient_request.dart';
 import 'package:admin/screens/patient_requests/patient_requests.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -200,7 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: translator.currentLanguage == "en"
                             ? "Patients requests"
                             : 'طلبات المسعفين',
-                        imgPath: 'assets/icons/home.png',
+                        isIcon: true,
+                        icon: Icons.remove_from_queue,
                         infoWidget: infoWidget,
                         onTap: () {
                           Navigator.of(context).pop();
@@ -214,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? "Analysis requests"
                             : 'طلبات التحليل',
                         isIcon: true,
-                        icon: Icons.exit_to_app,
+                        icon: Icons.redeem,
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).pop();
@@ -225,10 +227,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
-                            ? "Patients"
+                            ? "Nurses"
                             : 'المسعفين',
                         isIcon: true,
-                        icon: Icons.exit_to_app,
+                        icon: Icons.people,
                         infoWidget: infoWidget,
                         onTap: () async {
 
@@ -240,7 +242,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: translator.currentLanguage == "en"
                             ? "Services and prices"
                             : 'الخدمات والاسعار',
-                        imgPath: 'assets/icons/search.png',
+                        isIcon: true,
+                        icon: Icons.filter_frames,
                         infoWidget: infoWidget,
                         onTap: () {
                           Navigator.of(context).push(
@@ -252,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? "Medical tests"
                             : 'التحاليل الطبيه',
                         isIcon: true,
-                        icon: Icons.exit_to_app,
+                        icon: Icons.insert_chart,
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).push(
@@ -265,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? "Coupons and discounts"
                             : 'الكوبونات والخصومات',
                         isIcon: true,
-                        icon: Icons.exit_to_app,
+                        icon: Icons.casino,
                         infoWidget: infoWidget,
                         onTap: () async {
                           await Provider.of<Auth>(context, listen: false)
@@ -274,7 +277,27 @@ class _HomeScreenState extends State<HomeScreen> {
                               MaterialPageRoute(
                                   builder: (context) => CouponsAndDiscounts()));
                         }),
-
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
+                            ? "English":"العربية",
+                        isIcon: true,
+                        icon: Icons.language,
+                        infoWidget: infoWidget,
+                        onTap: () {
+                          translator.currentLanguage == "en"
+                              ? translator.setNewLanguage(
+                            context,
+                            newLanguage: 'ar',
+                            remember: true,
+                            restart: true,
+                          )
+                              : translator.setNewLanguage(
+                            context,
+                            newLanguage: 'en',
+                            remember: true,
+                            restart: true,
+                          );
+                        }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
                             ? "Log Out"
@@ -354,6 +377,20 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => AddPatientRequest()));
+              },
+              tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+              backgroundColor: Colors.indigo,
+            ),
+            floatingActionButtonLocation:
+            FloatingActionButtonLocation.endFloat,
           ),
         );
       },

@@ -33,7 +33,8 @@ class Home with ChangeNotifier {
   List<Requests> allPatientsRequests = [];
 
   Price price = Price(allServiceType: [], servicePrice: 0.0);
-  Coupon coupon;
+  Coupon coupon =
+      Coupon(couponName: '', discountPercentage: '0.0', numberOfUses: '0');
   double discount = 0.0;
   double priceBeforeDiscount = 0.0;
 
@@ -406,9 +407,12 @@ class Home with ChangeNotifier {
         print(e);
       }
     }
+    DateTime dateTime = DateTime.now().toUtc();
     if (analysisType == '') {
+      print('aaa');
       DocumentReference x = await databaseReference.collection('requests').add({
-        'patientId': docs.documents[0].documentID ?? '',
+        'patientId':
+            docs.documents.length != 0 ? docs.documents[0].documentID : '',
         'patientName': patientName,
         'patientPhone': patientPhone,
         'patientLocation': patientLocation,
@@ -426,8 +430,11 @@ class Home with ChangeNotifier {
         'visitDays': visitDays,
         'visitTime': visitTime,
         'notes': notes,
-        'servicePrice':discountCoupon == ''
-            ? price.servicePrice.toString():priceBeforeDiscount.toString(),
+        'date': '${dateTime.day}/${dateTime.month}/${dateTime.year}',
+        'time': '${dateTime.hour}:${dateTime.minute}',
+        'servicePrice': discountCoupon == ''
+            ? price.servicePrice.toString()
+            : priceBeforeDiscount.toString(),
         'priceBeforeDiscount': discountCoupon == ''
             ? (double.parse(numOfPatients) * price.servicePrice).toString()
             : (double.parse(numOfPatients) * priceBeforeDiscount).toString(),
@@ -441,10 +448,13 @@ class Home with ChangeNotifier {
             .document(x.documentID)
             .setData({'docId': x.documentID});
       }
+      print('bb');
+      getAllPatientsRequests();
     } else {
       DocumentReference x =
           await databaseReference.collection('analysis request').add({
-        'patientId': docs.documents[0].documentID ?? '',
+        'patientId':
+            docs.documents.length != 0 ? docs.documents[0].documentID : '',
         'patientName': patientName,
         'patientPhone': patientPhone,
         'patientLocation': patientLocation,
@@ -454,14 +464,19 @@ class Home with ChangeNotifier {
         'serviceType': serviceType,
         'analysisType': analysisType,
         'nurseGender': nurseGender,
-            'servicePrice':discountCoupon == ''
-                ? price.servicePrice.toString():priceBeforeDiscount.toString(),
+        'date': '${dateTime.day}/${dateTime.month}/${dateTime.year}',
+        'time': '${dateTime.hour}:${dateTime.minute}',
+        'servicePrice': discountCoupon == ''
+            ? price.servicePrice.toString()
+            : priceBeforeDiscount.toString(),
         'suppliesFromPharmacy': suppliesFromPharmacy,
         'picture': imgUrl,
         'discountPercentage': coupon.discountPercentage,
         'discountCoupon': discountCoupon,
         'startVisitDate': startVisitDate,
         'endVisitDate': endVisitDate,
+        'date': '${dateTime.day}/${dateTime.month}/${dateTime.year}',
+        'time': '${dateTime.hour}:${dateTime.minute}',
         'visitDays': visitDays,
         'visitTime': visitTime,
         'notes': notes,
@@ -477,6 +492,7 @@ class Home with ChangeNotifier {
             .document(x.documentID)
             .setData({'docId': x.documentID});
       }
+     getAllAnalysisRequests();
     }
     return true;
   }
@@ -484,8 +500,8 @@ class Home with ChangeNotifier {
   Future getAllAnalysisRequests() async {
     var requests = databaseReference.collection('analysis request');
     QuerySnapshot docs = await requests.getDocuments();
+    allAnalysisRequests.clear();
     if (docs.documents.length != 0) {
-      allAnalysisRequests.clear();
       for (int i = 0; i < docs.documents.length; i++) {
         allAnalysisRequests.add(Requests(
             patientId: docs.documents[i].data['patientId'] ?? '',
@@ -501,6 +517,8 @@ class Home with ChangeNotifier {
             patientName: docs.documents[i].data['patientName'] ?? '',
             patientLocation: docs.documents[i].data['patientLocation'] ?? '',
             patientGender: docs.documents[i].data['patientGender'] ?? '',
+            time: docs.documents[i].data['time'] ?? '',
+            date: docs.documents[i].data['date'] ?? '',
             discountPercentage:
                 docs.documents[i].data['discountPercentage'] ?? '',
             patientAge: docs.documents[i].data['patientAge'] ?? '',
@@ -523,8 +541,8 @@ class Home with ChangeNotifier {
   Future getAllPatientsRequests() async {
     var requests = databaseReference.collection('requests');
     QuerySnapshot docs = await requests.getDocuments();
+    allPatientsRequests.clear();
     if (docs.documents.length != 0) {
-      allPatientsRequests.clear();
       for (int i = 0; i < docs.documents.length; i++) {
         allPatientsRequests.add(Requests(
             patientId: docs.documents[i].data['patientId'] ?? '',
@@ -546,6 +564,8 @@ class Home with ChangeNotifier {
             patientGender: docs.documents[i].data['patientGender'] ?? '',
             patientAge: docs.documents[i].data['patientAge'] ?? '',
             servicePrice: docs.documents[i].data['servicePrice'] ?? '',
+            time: docs.documents[i].data['time'] ?? '',
+            date: docs.documents[i].data['date'] ?? '',
             discountPercentage:
                 docs.documents[i].data['discountPercentage'] ?? '',
             nurseGender: docs.documents[i].data['nurseGender'] ?? '',

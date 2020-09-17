@@ -22,16 +22,20 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
-    if (request.visitDays != '') {
+    if (request.visitDays != '[]') {
       var x = request.visitDays.replaceFirst('[', '');
       visitDays = x.replaceAll(']', '');
     }
-    if (request.visitTime != '') {
+    if (request.visitTime != '[]') {
       var x = request.visitTime.replaceFirst('[', '');
       visitTime = x.replaceAll(']', '');
     }
 
     print(request.patientName);
+    print(request.visitDays);
+    print(request.visitTime);
+    print(request.discountPercentage);
+
     return InkWell(
       onTap: () {
         showModalBottomSheet(
@@ -44,7 +48,8 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
               return Padding(
                 padding: const EdgeInsets.only(left: 15, right: 15),
                 child: Directionality(
-                  textDirection: TextDirection.rtl,
+                  textDirection: translator.currentLanguage == "en"
+                      ? TextDirection.ltr:TextDirection.rtl,
                   child: ListView(
                     children: <Widget>[
                       SizedBox(
@@ -55,7 +60,8 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                         children: <Widget>[
                           SizedBox(),
                           Text(
-                            'البيانات بالكامل',
+                            translator.currentLanguage == "en"
+                                ? 'All Information':'البيانات بالكامل',
                             style: infoWidget.titleButton
                                 .copyWith(color: Colors.indigo),
                           ),
@@ -85,24 +91,25 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                                 content: request.patientName,
                                 infoWidget: infoWidget)
                                 : SizedBox(),
-                            RaisedButton(
-                              onPressed:
-                                  (){
-                                Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile()));
-                              },
-                              color: Colors.white,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10, horizontal: 50),
-                                child: Text(
-                                  translator.currentLanguage == "en" ?'Show Profile':'رؤيه الحساب',
-                                  style: infoWidget.titleButton
-                                      .copyWith(color: Colors.indigo),
-                                ),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),side: BorderSide(color: Colors.indigoAccent)),
-                            )
+                            IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){}),
+//                                  RaisedButton(
+//                                    onPressed:
+//                                    (){
+//                                      Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile()));
+//                                    },
+//                                    color: Colors.white,
+//                                    child: Padding(
+//                                      padding: const EdgeInsets.symmetric(
+//                                          vertical: 10, horizontal: 50),
+//                                      child: Text(
+//                                        translator.currentLanguage == "en" ?'Show Profile':'رؤيه الحساب',
+//                                        style: infoWidget.titleButton
+//                                            .copyWith(color: Colors.indigo),
+//                                      ),
+//                                    ),
+//                                    shape: RoundedRectangleBorder(
+//                                        borderRadius: BorderRadius.circular(15),side: BorderSide(color: Colors.indigoAccent)),
+//                                  )
                           ],
                         ),
                       )
@@ -194,7 +201,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                           content: request.endVisitDate,
                           infoWidget: infoWidget)
                           : SizedBox(),
-                      request.visitDays != ''
+                      visitDays != ''
                           ? rowWidget(
                           title: translator.currentLanguage == "en"
                               ? 'Visit Days: '
@@ -202,7 +209,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                           content: visitDays,
                           infoWidget: infoWidget)
                           : SizedBox(),
-                      request.visitTime != ''
+                      visitTime != ''
                           ? rowWidget(
                           title: translator.currentLanguage == "en"
                               ? 'Visit Time: '
@@ -218,7 +225,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                           content: request.discountCoupon,
                           infoWidget: infoWidget)
                           : SizedBox(),
-                      request.discountPercentage != ''
+                      request.discountPercentage != '0.0'
                           ? rowWidget(
                           title: translator.currentLanguage == "en"
                               ? 'Discount Percentage: '
@@ -281,7 +288,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                       request.patientName != ''
                           ? Text(
                         translator.currentLanguage == 'en'
-                            ? 'Patient Name: ${request.serviceType}'
+                            ? 'Patient Name: ${request.patientName}'
                             : 'اسم المريض: ${request.patientName}',
                         style: infoWidget.titleButton
                             .copyWith(color: Colors.indigo),
@@ -322,6 +329,22 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                             : 'نوع التحليل: ${request.analysisType}',
                         style: infoWidget.titleButton
                             .copyWith(color: Colors.indigo),
+                      )
+                          : SizedBox(),
+                      request.date != ''
+                          ? Text(
+                        translator.currentLanguage == 'en'
+                            ? 'Dtate: ${request.date}'
+                            : 'التاريخ: ${request.date}',
+                        style: infoWidget.subTitle,
+                      )
+                          : SizedBox(),
+                      request.time != ''
+                          ? Text(
+                        translator.currentLanguage == 'en'
+                            ? 'Time: ${request.time}'
+                            : 'الوقت: ${request.time}',
+                        style: infoWidget.subTitle,
                       )
                           : SizedBox(),
                       request.priceBeforeDiscount != ''
@@ -406,7 +429,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.blue[100],
                     ),
-                    height: infoWidget.screenHeight *0.15,
+                    height: infoWidget.screenHeight * 0.27,
                   ),
                 ),
               ),
@@ -425,7 +448,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                   return Center(
                     child: Text(
                       translator.currentLanguage == "en"
-                          ? 'there is no any requests'
+                          ? 'There is no any requests'
                           : 'لا يوجد طلبات',
                       style: infoWidget.titleButton
                           .copyWith(color: Colors.indigo),
@@ -444,15 +467,6 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
               },
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: (){
-              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>AddPatientRequest()));
-            },
-            tooltip: translator.currentLanguage == "en"?'add':'اضافه',
-            child: Icon(Icons.add,color: Colors.white,),
-            backgroundColor: Colors.indigo,
-          ),
-          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         )
     );
   }
