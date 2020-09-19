@@ -73,6 +73,7 @@ class Auth with ChangeNotifier {
     }
     print('fdndfnmedf');
   }
+
   Future<bool> signInUsingEmail({String email,String password})async{
     AuthResult auth;
     try{

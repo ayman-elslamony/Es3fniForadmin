@@ -538,13 +538,17 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
       } else {
         if(_paramedicsData['service type'] == 'تحاليل' ||
             _paramedicsData['service type'] == 'Analysis'){
-          Toast.show(
-              translator.currentLanguage == "en"
-                  ? "Please enter analysis type"
-                  : 'من فضلك ادخل نوع التحليل',
-              context,
-              duration: Toast.LENGTH_SHORT,
-              gravity: Toast.BOTTOM);
+          if(_paramedicsData['analysis type']=='') {
+            Toast.show(
+                translator.currentLanguage == "en"
+                    ? "Please enter analysis type"
+                    : 'من فضلك ادخل نوع التحليل',
+                context,
+                duration: Toast.LENGTH_SHORT,
+                gravity: Toast.BOTTOM);
+          }else{
+            verifyUserData();
+          }
         }else {
           verifyUserData();
         }

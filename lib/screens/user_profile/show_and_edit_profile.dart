@@ -4,13 +4,14 @@ import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/user_data.dart';
 import 'package:admin/providers/auth.dart';
-import 'package:admin/screens/user_profile/widgets/widgets/editImage.dart';
-import 'package:admin/screens/user_profile/widgets/widgets/edit_address.dart';
+import 'package:admin/screens/user_profile/widgets/editImage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
+
+import 'widgets/edit_address.dart';
 
 class ShowUserProfile extends StatefulWidget {
   final UserData userData;

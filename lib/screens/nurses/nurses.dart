@@ -315,298 +315,300 @@ class _NursesState extends State<Nurses> {
                                   textAlign: TextAlign.center,
                                   style: infoWidget.title,
                                 ),
-                                content: Container(
-                                  height: infoWidget.screenHeight * 0.46,
-                                  child: Center(
-                                    child: Form(
-                                      key: _formKey,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal:8.0 ),
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(vertical: 7.0),
-                                                height: 80,
-                                                child: TextFormField(
-                                                  autofocus: false,
-                                                   controller: nationalId,
-                                                  textInputAction: TextInputAction.next,
-                                                  decoration: InputDecoration(
-                                                    labelText: translator.currentLanguage == "en"
-                                                        ? "Nurse name"
-                                                        : 'اسم المسعف',
-                                                    focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    errorBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    focusedErrorBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    disabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    enabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(color: Colors.indigo),
-                                                    ),
-                                                    labelStyle: TextStyle(
-                                                        color: Colors.indigo),
-                                                  ),
-                                                  keyboardType: TextInputType.phone,
-// ignore: missing_return
-                                                  validator: (String value) {
-                                                    if (value.trim().isEmpty) {
-                                                      return translator.currentLanguage == "en"
-                                                          ? "Please enter nurse name!"
-                                                          : 'من فضلك ادخل اسم المسعف';
-                                                    }
-                                                    if (value.trim().length < 3) {
-                                                      return translator.currentLanguage == "en"
-                                                          ? "Invalid Name!"
-                                                          : 'الاسم خطاء';
-                                                    }
-                                                  },
-
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.symmetric(horizontal:8.0 ),
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(vertical: 7.0),
-                                                height: 80,
-                                                child: TextFormField(
-                                                  autofocus: false,
-                                                   controller: nationalId,
-                                                  textInputAction: TextInputAction.next,
-                                                  decoration: InputDecoration(
-                                                    labelText: translator.currentLanguage == "en"
-                                                        ? "National Id"
-                                                        : 'الرقم القومى',
-                                                    focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    errorBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    focusedErrorBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    disabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    enabledBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                                      borderSide: BorderSide(color: Colors.indigo),
-                                                    ),
-                                                    labelStyle: TextStyle(
-                                                        color: Colors.indigo),
-                                                  ),
-                                                  keyboardType: TextInputType.phone,
-// ignore: missing_return
-                                                  validator: (String value) {
-                                                    if (value.trim().isEmpty) {
-                                                      return translator.currentLanguage == "en"
-                                                          ? "Please enter National Id!"
-                                                          : 'من فضلك ادخل الرقم القومى';
-                                                    }
-                                                    if (value.trim().length != 14) {
-                                                      return translator.currentLanguage == "en"
-                                                          ? "Invalid national id!"
-                                                          : 'الرقم خطاء';
-                                                    }
-                                                  },
-
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
+                                content: StatefulBuilder(
+                                  builder: (context,setState)=> Container(
+                                    height: infoWidget.screenHeight * 0.46,
+                                    child: Center(
+                                      child: Form(
+                                        key: _formKey,
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            children: <Widget>[
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal:8.0 ),
                                                 child: Container(
-                                                  height: 60,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      0.85,
+                                                  padding: EdgeInsets.symmetric(vertical: 7.0),
+                                                  height: 80,
                                                   child: TextFormField(
-                                                    controller: paramedicEmail,
                                                     autofocus: false,
+                                                     controller: name,
+                                                    textInputAction: TextInputAction.next,
                                                     decoration: InputDecoration(
-                                                      labelText: translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? 'Paramedic Email'
-                                                          : 'البريد الالكترونى للمسعف',
+                                                      labelText: translator.currentLanguage == "en"
+                                                          ? "Nurse name"
+                                                          : 'اسم المسعف',
+                                                      focusedBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      errorBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      focusedErrorBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      disabledBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(color: Colors.indigo),
+                                                      ),
                                                       labelStyle: TextStyle(
                                                           color: Colors.indigo),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                          color: Colors.indigo,
-                                                        ),
-                                                      ),
-                                                      disabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                          color: Colors.indigo,
-                                                        ),
-                                                      ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                            color: Colors.indigo),
-                                                      ),
                                                     ),
-                                                    // ignore: missing_return
-                                                    validator: (val) {
-                                                      if (val.isEmpty ||
-                                                          !val.contains('@')) {
-                                                        return translator
-                                                                    .currentLanguage ==
-                                                                "en"
-                                                            ? 'InvalidEmail'
-                                                            : 'البريد الالكترونى غير صحيح';
+                                                    keyboardType: TextInputType.phone,
+// ignore: missing_return
+                                                    validator: (String value) {
+                                                      if (value.trim().isEmpty) {
+                                                        return translator.currentLanguage == "en"
+                                                            ? "Please enter nurse name!"
+                                                            : 'من فضلك ادخل اسم المسعف';
+                                                      }
+                                                      if (value.trim().length < 3) {
+                                                        return translator.currentLanguage == "en"
+                                                            ? "Invalid Name!"
+                                                            : 'الاسم خطاء';
                                                       }
                                                     },
-                                                    onFieldSubmitted: (_) {
-                                                      FocusScope.of(context)
-                                                          .requestFocus(
-                                                              _passwordNode);
-                                                    },
-                                                    keyboardType:
-                                                        TextInputType.text,
+
                                                   ),
-                                                )),
-                                            Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal:8.0 ),
                                                 child: Container(
-                                                  height: 60,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      0.85,
+                                                  padding: EdgeInsets.symmetric(vertical: 7.0),
+                                                  height: 80,
                                                   child: TextFormField(
-                                                    controller: password,
                                                     autofocus: false,
-                                                    focusNode: _passwordNode,
+                                                     controller: nationalId,
+                                                    textInputAction: TextInputAction.next,
                                                     decoration: InputDecoration(
-                                                      suffixIcon: IconButton(
-                                                          icon: Icon(
-                                                            _showPassword
-                                                                ? Icons.visibility
-                                                                : Icons
-                                                                    .visibility_off,
-                                                            color: _showPassword
-                                                                ? Colors.indigo
-                                                                : Colors.grey,
+                                                      labelText: translator.currentLanguage == "en"
+                                                          ? "National Id"
+                                                          : 'الرقم القومى',
+                                                      focusedBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      errorBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      focusedErrorBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      disabledBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                                        borderSide: BorderSide(color: Colors.indigo),
+                                                      ),
+                                                      labelStyle: TextStyle(
+                                                          color: Colors.indigo),
+                                                    ),
+                                                    keyboardType: TextInputType.phone,
+// ignore: missing_return
+                                                    validator: (String value) {
+                                                      if (value.trim().isEmpty) {
+                                                        return translator.currentLanguage == "en"
+                                                            ? "Please enter National Id!"
+                                                            : 'من فضلك ادخل الرقم القومى';
+                                                      }
+                                                      if (value.trim().length != 14) {
+                                                        return translator.currentLanguage == "en"
+                                                            ? "Invalid national id!"
+                                                            : 'الرقم خطاء';
+                                                      }
+                                                    },
+
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    height: 60,
+                                                    width: MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        0.85,
+                                                    child: TextFormField(
+                                                      controller: paramedicEmail,
+                                                      autofocus: false,
+                                                      decoration: InputDecoration(
+                                                        labelText: translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? 'Paramedic Email'
+                                                            : 'البريد الالكترونى للمسعف',
+                                                        labelStyle: TextStyle(
+                                                            color: Colors.indigo),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
                                                           ),
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              _showPassword =
-                                                                  !_showPassword;
-                                                            });
-                                                          }),
-                                                      labelText: translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? 'Password'
-                                                          : 'كلمه المرور',
-                                                      labelStyle: TextStyle(
-                                                          color: Colors.indigo),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                          color: Colors.indigo,
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                              color: Colors.indigo),
                                                         ),
                                                       ),
-                                                      disabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                          color: Colors.indigo,
-                                                        ),
-                                                      ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                            color: Colors.indigo),
-                                                      ),
+                                                      // ignore: missing_return
+                                                      validator: (val) {
+                                                        if (val.isEmpty ||
+                                                            !val.contains('@')) {
+                                                          return translator
+                                                                      .currentLanguage ==
+                                                                  "en"
+                                                              ? 'InvalidEmail'
+                                                              : 'البريد الالكترونى غير صحيح';
+                                                        }
+                                                      },
+                                                      onFieldSubmitted: (_) {
+                                                        FocusScope.of(context)
+                                                            .requestFocus(
+                                                                _passwordNode);
+                                                      },
+                                                      keyboardType:
+                                                          TextInputType.text,
                                                     ),
-                                                    // ignore: missing_return
-                                                    validator: (val) {
-                                                      if (val.trim().isEmpty) {
-                                                        return translator
+                                                  )),
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    height: 60,
+                                                    width: MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        0.85,
+                                                    child: TextFormField(
+                                                      controller: password,
+                                                      autofocus: false,
+                                                      focusNode: _passwordNode,
+                                                      decoration: InputDecoration(
+                                                        suffixIcon: IconButton(
+                                                            icon: Icon(
+                                                              _showPassword
+                                                                  ? Icons.visibility
+                                                                  : Icons
+                                                                      .visibility_off,
+                                                              color: _showPassword
+                                                                  ? Colors.indigo
+                                                                  : Colors.grey,
+                                                            ),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _showPassword =
+                                                                    !_showPassword;
+                                                              });
+                                                            }),
+                                                        labelText: translator
                                                                     .currentLanguage ==
                                                                 "en"
-                                                            ? 'Invalid password'
-                                                            : 'كلمه المرور غير صحيحه';
-                                                      }
-                                                      if (val.trim().length < 4) {
-                                                        return translator
-                                                                    .currentLanguage ==
-                                                                "en"
-                                                            ? 'Short password'
-                                                            : 'كلمه المرور ضعيفه';
-                                                      }
-                                                    },
-                                                    keyboardType:
-                                                        TextInputType.text,
-                                                  ),
-                                                ))
-                                            //,Text('this is Your location',style: TextStyle(fontSize: 18,color: Colors.blue),),
-                                          ],
+                                                            ? 'Password'
+                                                            : 'كلمه المرور',
+                                                        labelStyle: TextStyle(
+                                                            color: Colors.indigo),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                              color: Colors.indigo),
+                                                        ),
+                                                      ),
+                                                      // ignore: missing_return
+                                                      validator: (val) {
+                                                        if (val.trim().isEmpty) {
+                                                          return translator
+                                                                      .currentLanguage ==
+                                                                  "en"
+                                                              ? 'Invalid password'
+                                                              : 'كلمه المرور غير صحيحه';
+                                                        }
+                                                        if (val.trim().length < 4) {
+                                                          return translator
+                                                                      .currentLanguage ==
+                                                                  "en"
+                                                              ? 'Short password'
+                                                              : 'كلمه المرور ضعيفه';
+                                                        }
+                                                      },
+                                                      keyboardType:
+                                                          TextInputType.text,
+                                                    ),
+                                                  ))
+                                              //,Text('this is Your location',style: TextStyle(fontSize: 18,color: Colors.blue),),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
