@@ -809,6 +809,9 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                 color: Colors.indigo),
                                           ),
                                         ),
+                                        onChanged: (val){
+                                          _paramedicsData['Location']=val.trim;
+                                        },
                                         keyboardType: TextInputType.text,
                                       ),
                                     ),

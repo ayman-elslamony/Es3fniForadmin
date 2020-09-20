@@ -260,6 +260,8 @@ class Home with ChangeNotifier {
     var services = databaseReference.collection("services");
     var docs = await services.getDocuments();
     allService.clear();
+    allServicesType =
+    translator.currentLanguage == "en" ? ['Analysis'] : ['تحاليل'];
     if (docs.documents.length != 0) {
       for (int i = 0; i < docs.documents.length; i++) {
         allService.add(Service(
@@ -308,6 +310,7 @@ class Home with ChangeNotifier {
     var docs = await analysis.getDocuments();
     if (docs.documents.length != 0) {
       allAnalysis.clear();
+      allAnalysisType.clear();
       for (int i = 0; i < docs.documents.length; i++) {
         allAnalysis.add(Analysis(
           id: docs.documents[i].documentID,
@@ -473,51 +476,11 @@ class Home with ChangeNotifier {
       }
     }
     DateTime dateTime = DateTime.now().toUtc();
-    if (analysisType == '') {
-      print('aaa');
-      DocumentReference x = await databaseReference.collection('requests').add({
-        'patientId':
-            docs.documents.length != 0 ? docs.documents[0].documentID : '',
-        'patientName': patientName,
-        'patientPhone': patientPhone,
-        'patientLocation': patientLocation,
-        'patientAge': patientAge,
-        'patientGender': patientGender,
-        'numOfPatients': numOfPatients,
-        'discountPercentage': coupon.discountPercentage,
-        'serviceType': serviceType,
-        'nurseGender': nurseGender,
-        'suppliesFromPharmacy': suppliesFromPharmacy,
-        'picture': imgUrl,
-        'discountCoupon': discountCoupon,
-        'startVisitDate': startVisitDate,
-        'endVisitDate': endVisitDate,
-        'visitDays': visitDays,
-        'visitTime': visitTime,
-        'notes': notes,
-        'date': '${dateTime.day}/${dateTime.month}/${dateTime.year}',
-        'time': '${dateTime.hour}:${dateTime.minute}',
-        'servicePrice': discountCoupon == ''
-            ? price.servicePrice.toString()
-            : priceBeforeDiscount.toString(),
-        'priceBeforeDiscount': discountCoupon == ''
-            ? (double.parse(numOfPatients) * price.servicePrice).toString()
-            : (double.parse(numOfPatients) * priceBeforeDiscount).toString(),
-        'priceAfterDiscount':
-            (double.parse(numOfPatients) * price.servicePrice).toString(),
-      });
-      if (docs.documents.length != 0) {
-        await users
-            .document(docs.documents[0].documentID)
-            .collection('requests')
-            .document(x.documentID)
-            .setData({'docId': x.documentID});
-      }
-      print('bb');
-      getAllPatientsRequests();
-    } else {
+
       DocumentReference x =
-          await databaseReference.collection('analysis request').add({
+          await databaseReference.collection('requests').add({
+            'nurseId':'',
+            'isRequestsArchived': 'false',
         'patientId':
             docs.documents.length != 0 ? docs.documents[0].documentID : '',
         'patientName': patientName,
@@ -553,10 +516,13 @@ class Home with ChangeNotifier {
       if (docs.documents.length != 0) {
         await users
             .document(docs.documents[0].documentID)
-            .collection('analysis request')
+            .collection('requests')
             .document(x.documentID)
             .setData({'docId': x.documentID});
       }
+    if (analysisType == '') {
+      getAllPatientsRequests();
+    } else {
      getAllAnalysisRequests();
     }
     if(coupon.docId != ''){
@@ -572,12 +538,16 @@ class Home with ChangeNotifier {
   }
 
   Future getAllAnalysisRequests() async {
-    var requests = databaseReference.collection('analysis request');
-    QuerySnapshot docs = await requests.getDocuments();
+    var requests = databaseReference.collection('requests');
+    QuerySnapshot docs = await requests.where('isRequestsArchived',isEqualTo: 'false').where('serviceType',whereIn: ['Analysis','تحاليل']).getDocuments();//where('analysisType',).getDocuments();
+    print(docs);
+    print('csdv xsvxs');
     allAnalysisRequests.clear();
     if (docs.documents.length != 0) {
       for (int i = 0; i < docs.documents.length; i++) {
         allAnalysisRequests.add(Requests(
+          isArchived: docs.documents[i].data['isRequestsArchived'] ?? '',
+          nurseId: docs.documents[i].data['nurseId'] ?? '',
             patientId: docs.documents[i].data['patientId'] ?? '',
             docId: docs.documents[i].documentID,
             visitTime: docs.documents[i].data['visitTime'] ?? '',
@@ -614,11 +584,12 @@ class Home with ChangeNotifier {
 
   Future getAllPatientsRequests() async {
     var requests = databaseReference.collection('requests');
-    QuerySnapshot docs = await requests.getDocuments();
+    QuerySnapshot docs = await requests.where('isRequestsArchived',isEqualTo: 'false').where('analysisType',isEqualTo: '').getDocuments();
     allPatientsRequests.clear();
     if (docs.documents.length != 0) {
       for (int i = 0; i < docs.documents.length; i++) {
         allPatientsRequests.add(Requests(
+            isArchived: docs.documents[i].data['isRequestsArchived'] ?? '',
             patientId: docs.documents[i].data['patientId'] ?? '',
             docId: docs.documents[i].documentID,
             visitTime: docs.documents[i].data['visitTime'] == '[]'
@@ -627,6 +598,7 @@ class Home with ChangeNotifier {
             visitDays: docs.documents[i].data['visitDays'] == '[]'
                 ? ''
                 : docs.documents[i].data['visitDays'] ?? '',
+            nurseId: docs.documents[i].data['nurseId'] ?? '',
             suppliesFromPharmacy:
                 docs.documents[i].data['suppliesFromPharmacy'] ?? '',
             startVisitDate: docs.documents[i].data['startVisitDate'] ?? '',
