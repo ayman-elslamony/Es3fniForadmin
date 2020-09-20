@@ -64,7 +64,7 @@ class _SpecificNursesSuppliesState extends State<SpecificNursesSupplies> {
     );
   }
   getSpecificNurseSupplies() async {
-    if (_home.allNurses.length == 0) {
+    if (_home.allSpecificNurseSupplies.length == 0) {
       await _home.getSpecificNurseSupplies();
     }
     setState(() {
