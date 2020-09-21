@@ -394,6 +394,13 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
         _isLoading = true;
       });
       try {
+        if(enableScheduleTheService == false){
+        _paramedicsData['startDate'] =
+        '';
+        _paramedicsData['endDate']='';
+        _selectedWorkingDays.clear();
+        visitTime.clear();
+      }
         print('A');
         bool isSccuess = await _home.addPatientRequest(
           analysisType: _paramedicsData['analysis type'],
