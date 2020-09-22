@@ -23,7 +23,7 @@ class _NursesSuppliesState extends State<NursesSupplies> {
     return InkWell(
       onTap: () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ShowUserProfile(userData: userData,)));
+            .push(MaterialPageRoute(builder: (context) => ShowAndEditUserProfile(userData: userData,)));
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 6),

@@ -10,12 +10,14 @@ class UserData {
   String birthDate;
   String gender;
   String imgUrl;
+  String aboutYou;
 bool loading;
   UserData(
       {this.docId,
       this.address,
       this.nationalId,
       this.email,
+        this.aboutYou,
       this.password,
       this.phoneNumber,
       this.name,

@@ -32,12 +32,12 @@ class _NursesState extends State<Nurses> {
       onTap: () {
         if (userData.nationalId != '' && userData.gender != '') {
           Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ShowUserProfile(
+              builder: (context) => ShowAndEditUserProfile(
                     userData: userData,
                   )));
         }
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ShowUserProfile(
+            builder: (context) => ShowAndEditUserProfile(
                   userData: userData,
                 )));
       },

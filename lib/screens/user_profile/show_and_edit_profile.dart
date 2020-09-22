@@ -13,15 +13,15 @@ import 'package:toast/toast.dart';
 
 import 'widgets/edit_address.dart';
 
-class ShowUserProfile extends StatefulWidget {
+class ShowAndEditUserProfile extends StatefulWidget {
   final UserData userData;
-  ShowUserProfile({this.userData});
+  ShowAndEditUserProfile({this.userData});
 
   @override
-  _ShowUserProfileState createState() => _ShowUserProfileState();
+  _ShowAndEditUserProfileState createState() => _ShowAndEditUserProfileState();
 }
 
-class _ShowUserProfileState extends State<ShowUserProfile> {
+class _ShowAndEditUserProfileState extends State<ShowAndEditUserProfile> {
   Auth _auth;
   File _imageFile;
   String address;
@@ -577,22 +577,16 @@ class _ShowUserProfileState extends State<ShowUserProfile> {
                     translator.currentLanguage == "en" ? '' : 'ذكر',
                     iconData: Icons.view_agenda,
                     infoWidget: infoWidget),
-
-                Row(
-                  children: <Widget>[
-                    personalInfo(
-                        context: context,
-                        enableEdit: false,
-                        title: translator.currentLanguage == "en"
-                            ? 'Points'
-                            : 'النقاط',
-                        subtitle:
-                        translator.currentLanguage == "en" ? '' : '50',
-                        iconData: Icons.trip_origin,
-                        infoWidget: infoWidget),
-
-                  ],
-                ),
+                personalInfo(
+                    context: context,
+                    enableEdit: false,
+                    title: translator.currentLanguage == "en"
+                        ? 'Points'
+                        : 'النقاط',
+                    subtitle:
+                    translator.currentLanguage == "en" ? '' : '50',
+                    iconData: Icons.trip_origin,
+                    infoWidget: infoWidget),
               ],
             )),
       ),
