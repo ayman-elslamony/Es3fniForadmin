@@ -23,22 +23,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  TextEditingController _textEditingController = TextEditingController();
   int _page = 0;
   GlobalKey _bottomNavigationKey = GlobalKey();
   final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
   List<String> type =  ['Patients requests', 'Analysis request'];
   PageController _pageController;
-  String _searchContent;
-  List<String> _suggestionList = List<String>();
   Auth _auth;
-
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     _auth = Provider.of<Auth>(context, listen: false);
-
     type = translator.currentLanguage == "en"
         ? ['Patients requests', 'Analysis request']
         : ['طلبات المرضي','طلبات التحليل'];
@@ -241,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.people,
                         infoWidget: infoWidget,
                         onTap: () async {
-
+                          Navigator.of(context).pop();
                           Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => Nurses()));
@@ -254,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.panorama_fish_eye,
                         infoWidget: infoWidget,
                         onTap: ()  {
+                          Navigator.of(context).pop();
                           Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => NursesSupplies()));
@@ -266,6 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.filter_frames,
                         infoWidget: infoWidget,
                         onTap: () {
+                          Navigator.of(context).pop();
                           Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => ServicesAndPrices()));
@@ -278,6 +275,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.insert_chart,
                         infoWidget: infoWidget,
                         onTap: () async {
+                          Navigator.of(context).pop();
                           Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => Analysiss()));
@@ -298,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => CouponsAndDiscounts()));
                         }),
                     _drawerListTile(
-                        name: translator.currentLanguage == "en"
+                        name: translator.currentLanguage != "en"
                             ? "English":"العربية",
                         isIcon: true,
                         icon: Icons.language,
@@ -397,20 +395,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => AddPatientRequest()));
-              },
-              tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
-              child: Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-              backgroundColor: Colors.indigo,
-            ),
-            floatingActionButtonLocation:
-            FloatingActionButtonLocation.endFloat,
+
           ),
         );
       },

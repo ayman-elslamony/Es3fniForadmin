@@ -172,6 +172,20 @@ class _AnalysissState extends State<Analysiss> {
                       : 'التحاليل الطبيه',
                   style: infoWidget.titleButton,
                 ),
+                shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40))),
+                leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      size: infoWidget.orientation == Orientation.portrait
+                          ? infoWidget.screenWidth * 0.05
+                          : infoWidget.screenWidth * 0.035,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
               ),
               body: loadingBody
                   ? Padding(

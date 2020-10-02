@@ -1,3 +1,4 @@
+import 'package:admin/screens/shared_widget/show_user_location.dart';
 import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
@@ -178,15 +179,20 @@ Widget  personalInfo(
                               translator.currentLanguage == "en" ? _userData.name : _userData.name,
                           iconData: Icons.person,
                           infoWidget: infoWidget),
-                      _userData.address==''?SizedBox():personalInfo(
-                          title: translator.currentLanguage == "en"
-                              ? 'Address'
-                              : 'العنوان',
-                          subtitle: translator.currentLanguage == "en"
-                              ? _userData.address
-                              : _userData.address,
-                          iconData: Icons.my_location,
-                          infoWidget: infoWidget),
+                      InkWell(
+                          onTap: _userData.lat !=''?(){
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowSpecificUserLocation(userData: _userData,)));
+                          }:null,
+                          child:
+                          personalInfo(
+                              title: translator.currentLanguage == "en"
+                                  ? 'Address'
+                                  : 'العنوان',
+                              subtitle: translator.currentLanguage == "en"
+                                  ? _userData.address
+                                  : _userData.address,
+                              iconData: Icons.my_location,
+                              infoWidget: infoWidget)),
                       _userData.phoneNumber==''?SizedBox():
                           InkWell(
                             onTap: (){

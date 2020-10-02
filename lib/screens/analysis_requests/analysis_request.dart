@@ -21,7 +21,9 @@ class AnalysisRequests extends StatefulWidget {
 class _AnalysisRequestsState extends State<AnalysisRequests> {
   Home _home;
   bool loadingBody = true;
+  bool _showFloating = true;
 
+  ScrollController _scrollController;
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
@@ -101,7 +103,8 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                                 : SizedBox(),
                             IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
                               Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                                type: 'Patient',
+                                type: translator.currentLanguage == "en"
+                                    ?'Patient':'مريض',
                                 userId: request.patientId,
                               )));
                             }),
@@ -395,12 +398,20 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                           ),
                           request.nurseId !=''?IconButton(padding: EdgeInsets.all(0.0),icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
                             Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                              type: 'Nurse',
+                              type: translator.currentLanguage == 'en'
+                                  ?'Nurse':'ممرض',
                               userId: request.nurseId,
                             ) ));
                           }):SizedBox()
                         ],
                       ),
+                      request.acceptTime==''?SizedBox():Text(
+                        translator.currentLanguage == 'en'
+                            ? 'Time of acceptance: ${request.acceptTime}'
+                            : ' وقت القبول: ${request.acceptTime}',
+                        style: infoWidget.subTitle
+                            .copyWith(color: Colors.indigo),
+                      )
                     ],
                   ),
                 ),
@@ -427,6 +438,10 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
       ],
     );
   }
+  bool get _isAppBarExpanded {
+    return _scrollController.hasClients &&
+        _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
+  }
   getAllAnalysisRequests() async {
     if(_home.allAnalysisRequests.length ==0){
       await _home.getAllAnalysisRequests();
@@ -439,6 +454,16 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
+    _scrollController = ScrollController()
+      ..addListener(() {
+        _isAppBarExpanded
+            ? setState(() {
+          _showFloating = true;
+        })
+            : setState(() {
+          _showFloating = false;
+        });
+      });
     getAllAnalysisRequests();
     super.initState();
   }
@@ -487,6 +512,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                   );
                 } else {
                   return ListView.builder(
+                    controller: _scrollController,
                       itemCount: data.allAnalysisRequests.length,
                       itemBuilder: (context, index) =>
                           content(
@@ -498,6 +524,20 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
               },
             ),
           ),
+          floatingActionButton: _showFloating?FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddPatientRequest()));
+            },
+            tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            backgroundColor: Colors.indigo,
+          ):SizedBox(),
+          floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat,
         )
     );
   }

@@ -21,7 +21,8 @@ class PatientsRequests extends StatefulWidget {
 class _PatientsRequestsState extends State<PatientsRequests> {
   Home _home;
   bool loadingBody = true;
-
+  bool _showFloating = true;
+  ScrollController _scrollController;
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
@@ -101,7 +102,8 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                                     : SizedBox(),
                                 IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
                                   Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                                    type: 'Patient',
+                                    type: translator.currentLanguage == "en"
+                                        ?'Patient':'مريض',
                                     userId: request.patientId,
                                   )));
                                 }),
@@ -395,12 +397,20 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                           ),
                           request.nurseId !=''?IconButton(padding: EdgeInsets.all(0.0),icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
                             Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                              type: 'Nurse',
+                              type: translator.currentLanguage == 'en'
+                                  ?'Nurse':'ممرض',
                               userId: request.nurseId,
                             ) ));
-                          }):SizedBox()
+                          }):SizedBox(),
                         ],
                       ),
+                      request.acceptTime==''?SizedBox():Text(
+                        translator.currentLanguage == 'en'
+                            ? 'Time of acceptance: ${request.acceptTime}'
+                            : ' وقت القبول: ${request.acceptTime}',
+                        style: infoWidget.subTitle
+                            .copyWith(color: Colors.indigo),
+                      )
                     ],
                   ),
                 ),
@@ -435,7 +445,10 @@ class _PatientsRequestsState extends State<PatientsRequests> {
       ],
     );
   }
-
+  bool get _isAppBarExpanded {
+    return _scrollController.hasClients &&
+        _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
+  }
   getAllPatientsRequests() async {
     if (_home.allPatientsRequests.length == 0) {
       await _home.getAllPatientsRequests();
@@ -448,6 +461,16 @@ class _PatientsRequestsState extends State<PatientsRequests> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
+    _scrollController = ScrollController()
+      ..addListener(() {
+        _isAppBarExpanded
+            ? setState(() {
+          _showFloating = true;
+        })
+            : setState(() {
+          _showFloating = false;
+        });
+      });
     getAllPatientsRequests();
     super.initState();
   }
@@ -497,6 +520,7 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                             );
                           } else {
                             return ListView.builder(
+                              controller: _scrollController,
                                 itemCount: data.allPatientsRequests.length,
                                 itemBuilder: (context, index) => content(
                                     infoWidget: infoWidget,
@@ -505,6 +529,20 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                         },
                       ),
                     ),
+          floatingActionButton:_showFloating?FloatingActionButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddPatientRequest()));
+            },
+            tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            backgroundColor: Colors.indigo,
+          ):SizedBox(),
+          floatingActionButtonLocation:
+          FloatingActionButtonLocation.endFloat,
             ));
   }
 }

@@ -172,12 +172,20 @@ crossAxisAlignment: CrossAxisAlignment.start,
                     ? "Coupons and discounts"
                     : 'الكوبونات والخصومات',
                   style: infoWidget.titleButton,),
-                leading: BackButton(
-                  color: Colors.white,
-                  onPressed: (){
-                    Navigator.of(context).pop();
-                  },
-                ),
+                shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40))),
+                leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      size: infoWidget.orientation == Orientation.portrait
+                          ? infoWidget.screenWidth * 0.05
+                          : infoWidget.screenWidth * 0.035,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }),
                 actions: <Widget>[
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -206,10 +214,6 @@ crossAxisAlignment: CrossAxisAlignment.start,
                     ),
                   )
                 ],
-                shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(30),
-                        bottomRight: Radius.circular(30))),
               ),
               body: loadingBody
                   ? Padding(

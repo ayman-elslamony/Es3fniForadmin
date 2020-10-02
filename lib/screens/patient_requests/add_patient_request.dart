@@ -41,14 +41,15 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
   bool enablePicture = false;
   bool _showWorkingDays = false;
   String _dateTime = '';
+  FocusNode locationFocusNode = FocusNode();
+  FocusNode notesFocusNode = FocusNode();
+  FocusNode nameFocusNode = FocusNode();
   List<String> _selectedWorkingDays = List<String>();
   List<bool> _clicked = List<bool>.generate(7, (i) => false);
   List<String> _sortedWorkingDays = List<String>.generate(7, (i) => '');
   List<bool> values = List.filled(7, false);
   FocusNode focusNode = FocusNode();
   FocusNode couponFocusNode = FocusNode();
-  FocusNode locationFocusNode = FocusNode();
-  FocusNode nameFocusNode = FocusNode();
   bool isLoadingCoupon = false;
   TextEditingController _locationTextEditingController =
       TextEditingController();
@@ -73,7 +74,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
     'coupon': '',
     'accessories': '',
     'notes': '',
-    'nurse type': 'Male',
+    'nurse type': translator.currentLanguage=='en'?'Male':'ذكر',
     'service type': '',
     'analysis type': '',
     'numberOfUsersUseService': '1',
@@ -95,8 +96,6 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
   List<String> visitTime = [];
   final FocusNode _phoneNumberNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
-
-  //List<Step> steps = [];
   Home _home;
   bool isAnalysisSelected = false;
 
@@ -566,7 +565,10 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChannels.textInput.invokeMethod('TextInput.hide');
+    notesFocusNode.unfocus();
+    focusNode.unfocus();
+    nameFocusNode.unfocus();
+    locationFocusNode.unfocus();
     return InfoWidget(
       builder: (context, infoWidget) => Directionality(
         textDirection: translator.currentLanguage == "en"
@@ -608,6 +610,25 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                           ),
                         )
                       : Stepper(
+                    controlsBuilder: (BuildContext context, {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+                      return Row(
+                        children: <Widget>[
+                          FlatButton(
+                            color: Colors.indigo,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            onPressed: onStepContinue,
+                            child: Text(translator.currentLanguage=='en'?'Continue':'التالى',style: infoWidget.subTitle.copyWith(color: Colors.white)),
+                          ),
+                          SizedBox(width: 8,)
+                          ,FlatButton(
+                            color: Colors.indigo,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            onPressed: onStepCancel,
+                            child:  Text(translator.currentLanguage=='en'?'Cancel':'الغاء',style: infoWidget.subTitle.copyWith(color: Colors.white),),
+                          ),
+                        ],
+                      );
+                    },
                           steps: [
                             Step(
                               title: Text(translator.currentLanguage == "en"
@@ -626,6 +647,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                       height: 80,
                                       child: TextFormField(
                                         autofocus: false,
+                                        focusNode: nameFocusNode,
                                         decoration: InputDecoration(
                                             labelText:
                                                 translator.currentLanguage ==
@@ -697,6 +719,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                         _paramedicsData['Phone number'] =
                                             number.phoneNumber;
                                       },
+                                      focusNode: focusNode,
                                       ignoreBlank: true,
                                       autoValidate: false,
                                       selectorTextStyle:
@@ -765,6 +788,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                       height: 80,
                                       child: TextFormField(
                                         autofocus: false,
+                                        focusNode: locationFocusNode,
                                         style: TextStyle(fontSize: 15),
                                         controller:
                                             _locationTextEditingController,
@@ -2451,6 +2475,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                         EdgeInsets.symmetric(vertical: 7.0),
                                     child: TextFormField(
                                       autofocus: false,
+                                      focusNode: notesFocusNode,
                                       textInputAction: TextInputAction.newline,
                                       decoration: InputDecoration(
                                         labelText:

@@ -130,48 +130,57 @@ class Home with ChangeNotifier {
   }
 
   Future getAllParamedics() async {
-    var nurses = databaseReference.collection("nurses");
-    var docs = await nurses.getDocuments();
-    if (docs.documents.length != 0) {
+    databaseReference.collection("nurses").snapshots().listen((docs){
       allNurses.clear();
-      for (int i = 0; i < docs.documents.length; i++) {
-        allNurses.add(UserData(
-            docId: docs.documents[i].documentID,
-            email: docs.documents[i].data['email'] ?? '',
-            password: docs.documents[i].data['password'] ?? '',
-            points: docs.documents[i].data['points'] ?? '',
-            name: docs.documents[i].data['name'] ?? '',
-            phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
-            imgUrl: docs.documents[i].data['imgUrl'] ?? '',
-            address: docs.documents[i].data['address'] ?? '',
-            birthDate: docs.documents[i].data['birthDate'] ?? '',
-            gender: docs.documents[i].data['gender'] ?? '',
-            nationalId: docs.documents[i].data['nationalId'] ?? ''));
+      if (docs.documents.length != 0) {
+        for (int i = 0; i < docs.documents.length; i++) {
+          allNurses.add(UserData(
+            isActive:  docs.documents[i].data['isActive'] ?? false,
+              lat:  docs.documents[i].data['lat'] ?? '',
+              lng:  docs.documents[i].data['lng'] ?? '',
+              aboutYou:  docs.documents[i].data['aboutYou'] ?? '',
+              docId: docs.documents[i].documentID,
+              email: docs.documents[i].data['email'] ?? '',
+              password: docs.documents[i].data['password'] ?? '',
+              points: docs.documents[i].data['points'] ?? '',
+              name: docs.documents[i].data['name'] ?? '',
+              phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
+              imgUrl: docs.documents[i].data['imgUrl'] ?? '',
+              address: docs.documents[i].data['address'] ?? '',
+              birthDate: docs.documents[i].data['birthDate'] ?? '',
+              gender: docs.documents[i].data['gender'] ?? '',
+              nationalId: docs.documents[i].data['nationalId'] ?? ''));
+        }
       }
-    }
-    notifyListeners();
+      notifyListeners();
+    });
   }
   Future getAllNursesSupplies() async {
-    var nurses = databaseReference.collection("nurses");
-    var docs = await nurses.getDocuments();
-    if (docs.documents.length != 0) {
+    databaseReference.collection("nurses").snapshots().listen((docs){
       allNursesSupplies.clear();
-      for (int i = 0; i < docs.documents.length; i++) {
-        allNursesSupplies.add(UserData(
-            docId: docs.documents[i].documentID,
-            email: docs.documents[i].data['email'] ?? '',
-            password: docs.documents[i].data['password'] ?? '',
-            points: docs.documents[i].data['points'] ?? '',
-            name: docs.documents[i].data['name'] ?? '',
-            phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
-            imgUrl: docs.documents[i].data['imgUrl'] ?? '',
-            address: docs.documents[i].data['address'] ?? '',
-            birthDate: docs.documents[i].data['birthDate'] ?? '',
-            gender: docs.documents[i].data['gender'] ?? '',
-            nationalId: docs.documents[i].data['nationalId'] ?? ''));
+      if (docs.documents.length != 0) {
+        for (int i = 0; i < docs.documents.length; i++) {
+          allNursesSupplies.add(UserData(
+              isActive:  docs.documents[i].data['isActive'] ?? false,
+              lat:  docs.documents[i].data['lat'] ?? '',
+              lng:  docs.documents[i].data['lng'] ?? '',
+              aboutYou:  docs.documents[i].data['aboutYou'] ?? '',
+              docId: docs.documents[i].documentID,
+              email: docs.documents[i].data['email'] ?? '',
+              password: docs.documents[i].data['password'] ?? '',
+              points: docs.documents[i].data['points'] ?? '',
+              name: docs.documents[i].data['name'] ?? '',
+              phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
+              imgUrl: docs.documents[i].data['imgUrl'] ?? '',
+              address: docs.documents[i].data['address'] ?? '',
+              birthDate: docs.documents[i].data['birthDate'] ?? '',
+              gender: docs.documents[i].data['gender'] ?? '',
+              nationalId: docs.documents[i].data['nationalId'] ?? ''));
+        }
       }
-    }
-    notifyListeners();
+      notifyListeners();
+    });
+
   }
   Future getSpecificNurseSupplies() async {
     var nurses = databaseReference.collection("nurses");
@@ -481,7 +490,6 @@ class Home with ChangeNotifier {
     print('docs.documents[0].documentID');
     print(docs.documents[0].documentID);
     DateTime dateTime = DateTime.now().toUtc();
-      DocumentReference x =
           await databaseReference.collection('requests').add({
         'nurseId':'',
         'patientId':
@@ -514,13 +522,7 @@ class Home with ChangeNotifier {
             : priceBeforeDiscount.toString(),
         'priceAfterDiscount': price.servicePrice,
       });
-      if (docs.documents.length != 0) {
-        await users
-            .document(docs.documents[0].documentID)
-            .collection('requests')
-            .document(x.documentID)
-            .setData({'docId': x.documentID});
-      }
+
     if(coupon.docId != ''){
       int x = int.parse(coupon.numberOfUses);
       if(x != 0){
@@ -542,6 +544,7 @@ class Home with ChangeNotifier {
       if (docs.documents.length != 0) {
         for (int i = 0; i < docs.documents.length; i++) {
           allAnalysisRequests.add(Requests(
+              acceptTime: docs.documents[i].data['acceptTime'] ?? '',
               nurseId: docs.documents[i].data['nurseId'] ?? '',
               patientId: docs.documents[i].data['patientId'] ?? '',
               docId: docs.documents[i].documentID,
@@ -584,7 +587,7 @@ class Home with ChangeNotifier {
     var nursesCollection = databaseReference.collection("nurses");
     var patientCollection = databaseReference.collection("users");
     UserData user;
-    if(type == 'Patient'){
+    if(type == 'Patient'||type == 'مريض'){
       DocumentSnapshot doc =await patientCollection.document(userId).get();
       user = UserData(
         name: doc.data['name'],
@@ -596,6 +599,8 @@ class Home with ChangeNotifier {
         phoneNumber: doc.data['phoneNumber'] ?? '',
         imgUrl: doc.data['imgUrl'] ?? '',
         email: doc.data['email'] ?? '',
+        lng: doc.data['lng'] ?? '',
+         lat: doc.data['lat'] ?? '',
         aboutYou: doc.data['aboutYou'] ?? '',
         points: doc.data['points'] ?? '',
       );
@@ -611,6 +616,8 @@ class Home with ChangeNotifier {
         phoneNumber: doc.data['phoneNumber'] ?? '',
         imgUrl: doc.data['imgUrl'] ?? '',
         email: doc.data['email'] ?? '',
+        lng: doc.data['lng'] ?? '',
+        lat: doc.data['lat'] ?? '',
         aboutYou: doc.data['aboutYou'] ?? '',
         points: doc.data['points'] ?? '',
       );
@@ -624,7 +631,7 @@ class Home with ChangeNotifier {
       if (docs.documents.length != 0) {
         for (int i = 0; i < docs.documents.length; i++) {
           allPatientsRequests.add(Requests(
-
+              acceptTime: docs.documents[i].data['acceptTime'] ?? '',
               patientId: docs.documents[i].data['patientId'] ?? '',
               docId: docs.documents[i].documentID,
               visitTime: docs.documents[i].data['visitTime'] == '[]'

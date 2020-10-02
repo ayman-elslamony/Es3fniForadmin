@@ -4,6 +4,7 @@ import 'package:admin/models/user_data.dart';
 import 'package:admin/providers/home.dart';
 import 'package:admin/screens/user_profile/show_and_edit_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -45,78 +46,94 @@ class _NursesState extends State<Nurses> {
         padding: const EdgeInsets.only(top: 6),
         child: Container(
           color: Colors.blue[100],
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
+          child: Stack(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text(
-                      translator.currentLanguage == 'en'
-                          ? 'Paramedic: ${userData.name}'
-                          : 'مسعف: ${userData.name}',
-                      style: infoWidget.title,
+                    Column(
+                      children: <Widget>[
+                        Text(
+                          translator.currentLanguage == 'en'
+                              ? 'Paramedic: ${userData.name}'
+                              : 'مسعف: ${userData.name}',
+                          style: infoWidget.title,
+                        ),
+                        Text(
+                          translator.currentLanguage == 'en'
+                              ? 'Number of points: ${userData.points}'
+                              : 'عدد النقاط: ${userData.points} ',
+                          style: infoWidget.subTitle,
+                        ),
+                      ],
                     ),
-                    Text(
-                      translator.currentLanguage == 'en'
-                          ? 'Number of points: ${userData.points}'
-                          : 'عدد النقاط: ${userData.points} ',
-                      style: infoWidget.subTitle,
-                    ),
+                    Column(
+                      children: <Widget>[
+                        userData.loading
+                            ? Center(
+                            child: CircularProgressIndicator(
+                              backgroundColor: Colors.indigo,
+                            ))
+                            : RaisedButton(
+                          onPressed: () async {
+                            setState(() {
+                              userData.loading = true;
+                            });
+                            print(userData.email);
+                            print(userData.password);
+                            bool x = await _home.deleteParamedic(
+                                userData: userData);
+                            if (x) {
+                              Toast.show(
+                                  translator.currentLanguage == "en"
+                                      ? "successfully deleted"
+                                      : 'نجح الحذف',
+                                  context,
+                                  duration: Toast.LENGTH_SHORT,
+                                  gravity: Toast.BOTTOM);
+                            } else {
+                              Toast.show(
+                                  translator.currentLanguage == "en"
+                                      ? "try again later"
+                                      : 'حاول مره اخرى',
+                                  context,
+                                  duration: Toast.LENGTH_SHORT,
+                                  gravity: Toast.BOTTOM);
+                            }
+                            setState(() {
+                              userData.loading = false;
+                            });
+                          },
+                          child: Text(
+                            translator.currentLanguage == 'en'
+                                ? 'delete'
+                                : 'حذف',
+                            style: infoWidget.titleButton,
+                          ),
+                          color: Colors.indigo,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        )
+                      ],
+                    )
                   ],
                 ),
-                Column(
-                  children: <Widget>[
-                    userData.loading
-                        ? Center(
-                            child: CircularProgressIndicator(
-                            backgroundColor: Colors.indigo,
-                          ))
-                        : RaisedButton(
-                            onPressed: () async {
-                              setState(() {
-                                userData.loading = true;
-                              });
-                              print(userData.email);
-                              print(userData.password);
-                              bool x = await _home.deleteParamedic(
-                                  userData: userData);
-                              if (x) {
-                                Toast.show(
-                                    translator.currentLanguage == "en"
-                                        ? "successfully deleted"
-                                        : 'نجح الحذف',
-                                    context,
-                                    duration: Toast.LENGTH_SHORT,
-                                    gravity: Toast.BOTTOM);
-                              } else {
-                                Toast.show(
-                                    translator.currentLanguage == "en"
-                                        ? "try again later"
-                                        : 'حاول مره اخرى',
-                                    context,
-                                    duration: Toast.LENGTH_SHORT,
-                                    gravity: Toast.BOTTOM);
-                              }
-                              setState(() {
-                                userData.loading = false;
-                              });
-                            },
-                            child: Text(
-                              translator.currentLanguage == 'en'
-                                  ? 'delete'
-                                  : 'حذف',
-                              style: infoWidget.titleButton,
-                            ),
-                            color: Colors.indigo,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          )
-                  ],
-                )
-              ],
-            ),
+              ),
+              Positioned(child: Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Container(
+                  width: infoWidget.screenWidth*0.05,
+                  height:infoWidget.screenWidth*0.05
+                  ,child: LoadingIndicator(
+                  color: userData.isActive==false?Colors.grey:Colors.red,
+                  indicatorType: Indicator.ballScale,
+                ),
+                ),
+              ),
+                top: 3.0,right: 3.0,)
+            ],
           ),
         ),
       ),
@@ -256,6 +273,21 @@ class _NursesState extends State<Nurses> {
                       : 'المسعفين',
                   style: infoWidget.titleButton,
                 ),
+                shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40))),
+                leading: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      size: infoWidget.orientation == Orientation.portrait
+                          ? infoWidget.screenWidth * 0.05
+                          : infoWidget.screenWidth * 0.035,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                    }),
               ),
               body: loadingBody
                   ? Padding(
