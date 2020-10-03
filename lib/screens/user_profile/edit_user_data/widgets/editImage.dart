@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 
 class EditImage extends StatefulWidget {
-    String imgUrl;
+     String imgUrl;
 final Function getImageFile;
   EditImage({this.imgUrl,this.getImageFile});
 

@@ -1,28 +1,26 @@
+
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/requests.dart';
+import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
-import 'package:admin/screens/patient_requests/add_patient_request.dart';
 import 'package:admin/screens/user_profile/show_profile.dart';
 import 'package:flutter/material.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
-class AnalysisRequests extends StatefulWidget {
+class ArchivedRequests extends StatefulWidget {
   @override
-  _AnalysisRequestsState createState() => _AnalysisRequestsState();
+  _ArchivedRequestsState createState() => _ArchivedRequestsState();
 }
 
-class _AnalysisRequestsState extends State<AnalysisRequests> {
+class _ArchivedRequestsState extends State<ArchivedRequests> {
   Home _home;
   bool loadingBody = true;
-  bool _showFloating = true;
 
-  ScrollController _scrollController;
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
@@ -54,7 +52,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                 child: Directionality(
                   textDirection: translator.currentLanguage == "en"
                       ? TextDirection.ltr:TextDirection.rtl,
-                  child: SizedBox(
+                  child: Container(
                     width: infoWidget.screenWidth,
                     height: infoWidget.screenHeight*0.55,
                     child: ListView(
@@ -86,29 +84,28 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                         ),
                         request.patientId != ''
                             ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            request.patientName != ''
-                                ? Expanded(
-
-                              child: rowWidget(
-                                  title:
-                                  translator.currentLanguage == "en"
-                                      ? 'Patient Name: '
-                                      : 'اسم المريض: ',
-                                  content: request.patientName,
-                                  infoWidget: infoWidget),
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                request.patientName != ''
+                                    ? Expanded(
+                                      child: rowWidget(
+                                      title:
+                                      translator.currentLanguage == "en"
+                                          ? 'Patient Name: '
+                                          : 'اسم المريض: ',
+                                      content: request.patientName,
+                                      infoWidget: infoWidget),
+                                    )
+                                    : SizedBox(),
+                                request.patientId !=''?IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
+                                    type: translator.currentLanguage == "en"
+                                        ?'Patient':'مريض',
+                                    userId: request.patientId,
+                                  ) ));
+                                }):SizedBox()
+                              ],
                             )
-                                : SizedBox(),
-                            IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                                type: translator.currentLanguage == "en"
-                                    ?'Patient':'مريض',
-                                userId: request.patientId,
-                              )));
-                            }),
-                          ],
-                        )
                             : request.patientName != ''
                             ? rowWidget(
                             title: translator.currentLanguage == "en"
@@ -122,13 +119,13 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                           onTap: (){
                             launch("tel://${request.patientPhone}");
                           },
-                          child: rowWidget(
+                              child: rowWidget(
                               title: translator.currentLanguage == "en"
                                   ? 'Patient Phone: '
                                   : 'رقم الهاتف: ',
                               content: request.patientPhone,
                               infoWidget: infoWidget),
-                        )
+                            )
                             : SizedBox(),
                         request.patientLocation != ''
                             ? rowWidget(
@@ -279,20 +276,9 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
           color: Colors.blue[100],
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child:Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Container(
-                    width: infoWidget.screenWidth*0.06,
-                    height:infoWidget.screenWidth*0.06
-                    ,child: LoadingIndicator(
-                    color: request.nurseId==''?Colors.red:Colors.indigo,
-                    indicatorType: Indicator.ballScale,
-                  ),
-                  ),
-                ),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -376,44 +362,38 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                         style: infoWidget.subTitle,
                       )
                           : SizedBox(),
-                      request.nurseId==''?Text(
-                        translator.currentLanguage == 'en'
-                            ? 'Status: pending'
-                            : 'الحاله: قيد الانتظار',
-                        style: infoWidget.titleButton
-                            .copyWith(color: Colors.red),
-                      )
-                          : Row(
+                      request.nurseId != ''
+                          ? Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Expanded(
                             child: Text(
                               translator.currentLanguage == 'en'
-                                  ? 'Status: Accepted'
-                                  : 'الحاله: تم القبول',
-                              style: infoWidget.titleButton
-                                  .copyWith(color: Colors.indigo),
+                                  ? 'Accepted By Nurse'
+                                  : 'تم القبول بواسطه ممرض',
+                              style: infoWidget.subTitle,
                             ),
                           ),
-                          request.nurseId !=''?IconButton(padding: EdgeInsets.all(0.0),icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
+                          IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
                             Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                              type: translator.currentLanguage == 'en'
+                              type: translator.currentLanguage == "en"
                                   ?'Nurse':'ممرض',
                               userId: request.nurseId,
                             ) ));
-                          }):SizedBox()
+                          })
                         ],
-                      ),
-                      request.acceptTime==''?SizedBox():Text(
-                        translator.currentLanguage == 'en'
-                            ? 'Time of acceptance: ${request.acceptTime}'
-                            : ' وقت القبول: ${request.acceptTime}',
-                        style: infoWidget.subTitle
-                            .copyWith(color: Colors.indigo),
                       )
+                          : SizedBox(),
                     ],
                   ),
                 ),
+                Column(
+                  children: <Widget>[
+//                  RaisedButton(onPressed: (){},
+//                  child: Text(translator.currentLanguage =='en'?'delete':'حذف',
+//                    style: infoWidget.titleButton,),color: Colors.indigo,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),)
+                  ],
+                )
               ],
             ),
           ),
@@ -421,29 +401,35 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
       ),
     );
   }
-  Widget  rowWidget({String title,String content,DeviceInfo infoWidget}){
+  Widget rowWidget({String title, String content, DeviceInfo infoWidget}) {
     return Column(
       children: <Widget>[
         Row(
           children: <Widget>[
-            Text(title,style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+            Text(
+              title,
+              style: infoWidget.titleButton.copyWith(color: Colors.indigo),
             ),
             Expanded(
-              child: Text(content,style: infoWidget.subTitle,maxLines: 2,
+              child: Text(
+                content,
+                style: infoWidget.subTitle,
+                maxLines: 2,
               ),
             ),
           ],
-        ) ,SizedBox(height: 5,),
+        ),
+        SizedBox(
+          height: 5,
+        ),
       ],
     );
   }
-  bool get _isAppBarExpanded {
-    return _scrollController.hasClients &&
-        _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
-  }
-  getAllAnalysisRequests() async {
-    if(_home.allAnalysisRequests.length ==0){
-      await _home.getAllAnalysisRequests();
+
+  getAllArchivedRequests() async {
+    print('dvdxvx');
+    if (_home.allArchivedRequests.length == 0) {
+      await _home.getAllArchivedRequests();
     }
     setState(() {
       loadingBody = false;
@@ -453,91 +439,90 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
-    _scrollController = ScrollController()
-      ..addListener(() {
-        _isAppBarExpanded
-            ? setState(() {
-          _showFloating = true;
-        })
-            : setState(() {
-          _showFloating = false;
-        });
-      });
-    getAllAnalysisRequests();
+
+    getAllArchivedRequests();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return InfoWidget(
-        builder: (context,infoWidget)=>Scaffold(
-          body:  loadingBody
-              ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: ListView.builder(
-              itemBuilder: (context, _) => Shimmer.fromColors(
-                baseColor: Colors.black12.withOpacity(0.1),
-                highlightColor: Colors.black.withOpacity(0.2),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.blue[100],
+        builder: (context, infoWidget) => Directionality(
+          textDirection: translator.currentLanguage == "en"
+              ? TextDirection.ltr
+              : TextDirection.rtl,
+          child: Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: Text(
+                translator.currentLanguage == "en"
+                    ? "Archived Requests"
+                    : 'الطلبات المؤرشفه',
+                style: infoWidget.titleButton,
+              ),
+              leading: IconButton(icon: Icon(
+                Icons.arrow_back_ios,
+                size: infoWidget.orientation == Orientation.portrait
+                    ? infoWidget.screenWidth * 0.05
+                    : infoWidget.screenWidth * 0.035,
+              ),color: Colors.white, onPressed: () {
+                Navigator.of(context).pop();
+              },),
+              shape: ContinuousRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30))),
+            ),
+            body: loadingBody
+                ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: ListView.builder(
+                itemBuilder: (context, _) => Shimmer.fromColors(
+                  baseColor: Colors.black12.withOpacity(0.1),
+                  highlightColor: Colors.black.withOpacity(0.2),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.blue[100],
+                      ),
+                      height: infoWidget.screenHeight * 0.27,
                     ),
-                    height: infoWidget.screenHeight * 0.27,
                   ),
                 ),
+                itemCount: 5,
               ),
-              itemCount: 5,
-            ),
-          )
-              : RefreshIndicator(
-            color: Colors.indigo,
-            backgroundColor: Colors.white,
-            onRefresh: ()async{
-              _home.getAllAnalysisRequests();
-            },
-            child: Consumer<Home>(
-              builder: (context, data, _) {
-                if (data.allAnalysisRequests.length == 0) {
-                  return Center(
-                    child: Text(
-                      translator.currentLanguage == "en"
-                          ? 'There is no any requests'
-                          : 'لا يوجد طلبات',
-                      style: infoWidget.titleButton
-                          .copyWith(color: Colors.indigo),
-                    ),
-                  );
-                } else {
-                  return ListView.builder(
-                    controller: _scrollController,
-                      itemCount: data.allAnalysisRequests.length,
-                      itemBuilder: (context, index) =>
-                          content(
-                              infoWidget: infoWidget,
-                              request: data.allAnalysisRequests[index])
-
-                  );
-                }
+            )
+                : RefreshIndicator(
+              color: Colors.indigo,
+              backgroundColor: Colors.white,
+              onRefresh: () async {
+                _home.getAllArchivedRequests();
               },
+              child: Consumer<Home>(
+                builder: (context, data, _) {
+                  if (data.allArchivedRequests.length == 0) {
+                    return Center(
+                      child: Text(
+                        translator.currentLanguage == "en"
+                            ? 'There is no any archived requests'
+                            : 'لا يوجد طلبات مؤرشفه',
+                        style: infoWidget.titleButton
+                            .copyWith(color: Colors.indigo),
+                      ),
+                    );
+                  } else {
+                    return ListView.builder(
+                        itemCount: data.allArchivedRequests.length,
+                        itemBuilder: (context, index) => content(
+                            infoWidget: infoWidget,
+                            request: data.allArchivedRequests[index]));
+                  }
+                },
+              ),
             ),
           ),
-          floatingActionButton: _showFloating?FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AddPatientRequest()));
-            },
-            tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            backgroundColor: Colors.indigo,
-          ):SizedBox(),
-          floatingActionButtonLocation:
-          FloatingActionButtonLocation.endFloat,
-        )
-    );
+        ));
   }
 }

@@ -22,7 +22,7 @@ class Home with ChangeNotifier {
   Home(
     this.authToken,
   );
-
+  List<Requests> allArchivedRequests = [];
   List<Service> allService = [];
   List<Analysis> allAnalysis = [];
   List<String> allServicesType =
@@ -155,6 +155,9 @@ class Home with ChangeNotifier {
       notifyListeners();
     });
   }
+
+
+
   Future getAllNursesSupplies() async {
     databaseReference.collection("nurses").snapshots().listen((docs){
       allNursesSupplies.clear();
@@ -214,7 +217,62 @@ class Home with ChangeNotifier {
     ];
     notifyListeners();
   }
+  Future nurseSupplying({String nurseId,String points})async{
 
+  }
+
+
+  Future getAllArchivedRequests() async {
+    var requests = databaseReference.collection('archived requests');
+    QuerySnapshot docs = await requests
+        .getDocuments();
+    allArchivedRequests.clear();
+    print('A');
+    if (docs.documents.length != 0) {
+      print('B');
+      for (int i = 0; i < docs.documents.length; i++) {
+        allArchivedRequests.add(Requests(
+            acceptTime: docs.documents[i].data['acceptTime'] ?? '',
+            nurseId: docs.documents[i].data['nurseId'] ?? '',
+            patientId: docs.documents[i].data['patientId'] ?? '',
+            docId: docs.documents[i].documentID,
+            visitTime: docs.documents[i].data['visitTime'] == '[]'
+                ? ''
+                : docs.documents[i].data['visitTime'] ?? '',
+            visitDays: docs.documents[i].data['visitDays'] == '[]'
+                ? ''
+                : docs.documents[i].data['visitDays'] ?? '',
+            suppliesFromPharmacy:
+            docs.documents[i].data['suppliesFromPharmacy'] ?? '',
+            startVisitDate: docs.documents[i].data['startVisitDate'] ?? '',
+            serviceType: docs.documents[i].data['serviceType'] ?? '',
+            picture: docs.documents[i].data['picture'] ?? '',
+            patientPhone: docs.documents[i].data['patientPhone'] ?? '',
+            patientName: docs.documents[i].data['patientName'] ?? '',
+            patientLocation: docs.documents[i].data['patientLocation'] ?? '',
+            patientGender: docs.documents[i].data['patientGender'] ?? '',
+            patientAge: docs.documents[i].data['patientAge'] ?? '',
+            servicePrice: docs.documents[i].data['servicePrice'] ?? '',
+            time: docs.documents[i].data['time'] ?? '',
+            date: docs.documents[i].data['date'] ?? '',
+            discountPercentage:
+            docs.documents[i].data['discountPercentage'] ?? '',
+            nurseGender: docs.documents[i].data['nurseGender'] ?? '',
+            numOfPatients: docs.documents[i].data['numOfPatients'] ?? '',
+            endVisitDate: docs.documents[i].data['endVisitDate'] ?? '',
+            discountCoupon: docs.documents[i].data['discountCoupon'] ?? '',
+            priceBeforeDiscount:
+            docs.documents[i].data['priceBeforeDiscount'] ?? '',
+            analysisType: docs.documents[i].data['analysisType'] ?? '',
+            notes: docs.documents[i].data['notes'] ?? '',
+            priceAfterDiscount:
+            docs.documents[i].data['priceAfterDiscount'].toString() ?? ''));
+      }
+      print('dfbfdsndd');
+      print(allArchivedRequests.length);
+      notifyListeners();
+    }
+  }
   Future<bool> deleteParamedic({UserData userData}) async {
     String userId;
     if (userData.email != null && userData.password != null) {
@@ -242,7 +300,6 @@ class Home with ChangeNotifier {
       return false;
     }
   }
-
   Future<String> addServices({String serviceName, String price}) async {
     var services = databaseReference.collection("services");
     String isValid = 'yes';
@@ -264,7 +321,6 @@ class Home with ChangeNotifier {
     }
     return isValid;
   }
-
   Future getAllServices() async {
     var services = databaseReference.collection("services");
     var docs = await services.getDocuments();
@@ -283,7 +339,6 @@ class Home with ChangeNotifier {
     }
     notifyListeners();
   }
-
   Future<bool> deleteService({String serviceId}) async {
     var services = databaseReference.collection("services");
     await services.document(serviceId).delete();
@@ -534,7 +589,85 @@ class Home with ChangeNotifier {
     }
     return true;
   }
-
+  Future<bool> editProfile(
+      {String type,
+        String nurseId,
+        String address,
+        String lat,String lng,String userName,
+        String phone,
+        File picture,
+        String aboutYou}) async {
+    print('iam here');
+    print(lat);
+    print(lng);
+    var nurseData = databaseReference.collection("nurses");
+    try {
+      if (type == 'image') {
+        String imgUrl = '';
+        if (picture != null) {
+          try {
+            var storageReference = FirebaseStorage.instance
+                .ref()
+                .child('$userName/${path.basename(picture.path)}');
+            StorageUploadTask uploadTask = storageReference.putFile(picture);
+            await uploadTask.onComplete;
+            await storageReference.getDownloadURL().then((fileURL) async {
+              imgUrl = fileURL;
+            });
+          } catch (e) {
+            print(e);
+          }
+        }
+          nurseData.document(nurseId).setData({
+            'imgUrl': imgUrl,
+          }, merge: true);
+      }
+      if (type == 'Another Info') {
+        nurseData.document(nurseId).setData({'aboutYou': aboutYou}, merge: true);
+      }
+      if (type == 'Address') {
+          nurseData.document(nurseId).setData({
+            'address': address,
+            'lat':lat??'',
+            'lng':lng??''
+          }, merge: true);
+      }
+      if (type == 'Phone Number') {
+        nurseData.document(nurseId).setData({
+          'phoneNumber': phone,
+        }, merge: true);
+      }
+      if (type == 'Name') {
+        nurseData.document(nurseId).setData({
+          'name': userName,
+        }, merge: true);
+      }
+//      DocumentSnapshot doc;
+//        doc = await nurseData.document(nurseId).get();
+//      UserData _userData = UserData(
+//        name: doc.data['name'],
+//        docId: doc.documentID,
+//        nationalId: doc.data['nationalId'] ?? '',
+//        gender: doc.data['gender'] ?? '',
+//        birthDate: doc.data['birthDate'] ?? '',
+//        address: doc.data['address'] ?? '',
+//        phoneNumber: doc.data['phoneNumber'] ?? '',
+//        imgUrl: doc.data['imgUrl'] ?? '',
+//        email: doc.data['email'] ?? '',
+//        lat: doc.data['lat'] ?? '',
+//        lng: doc.data['lng'] ?? '',
+//        aboutYou: doc.data['aboutYou'] ?? '',
+//        points: doc.data['points'] ?? '',
+//      );
+//     int index= allNurses.indexWhere((x)=>x.docId == nurseId);
+//     allNurses.insert(index, _userData);
+//      notifyListeners();
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
   Future getAllAnalysisRequests() async {
     var requests = databaseReference.collection('requests');
     requests.where('serviceType',whereIn: ['Analysis','تحاليل']).snapshots().listen((docs){

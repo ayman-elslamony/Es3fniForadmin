@@ -1,4 +1,5 @@
 import 'package:admin/screens/patient_requests/add_patient_request.dart';
+import 'package:admin/screens/patient_requests/archived_requests.dart';
 import 'package:admin/screens/patient_requests/patient_requests.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -230,6 +231,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
+                            ? "Archived requests"
+                            : 'الطلبات المؤرشفه',
+                        isIcon: true,
+                        icon: Icons.archive,
+                        infoWidget: infoWidget,
+                        onTap: () async {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ArchivedRequests()));
+                        }),
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
                             ? "Nurses"
                             : 'المسعفين',
                         isIcon: true,
@@ -289,8 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.casino,
                         infoWidget: infoWidget,
                         onTap: () async {
-                          await Provider.of<Auth>(context, listen: false)
-                              .logout();
+                          Navigator.of(context).pop();
                           Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (context) => CouponsAndDiscounts()));
@@ -357,15 +369,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             : 'طلبات التحليل')
                     : _iconNavBar(
                         infoWidget: infoWidget, iconPath: Icons.redeem),
-//                _page != 2
-//                    ? _iconNavBar(
-//                        infoWidget: infoWidget,
-//                        iconPath: Icons.person,
-//                        title: translator.currentLanguage == "en"
-//                            ? 'Services and prices'
-//                            : 'الخدمات والاسعار')
-//                    : _iconNavBar(
-//                        infoWidget: infoWidget, iconPath: Icons.person),
               ],
               onTap: (index) {
                 setState(() {

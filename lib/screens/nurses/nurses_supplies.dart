@@ -4,7 +4,7 @@ import 'package:admin/models/user_data.dart';
 import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
 import 'package:admin/screens/nurses/specific_nurse_supplies.dart';
-import 'package:admin/screens/user_profile/show_and_edit_profile.dart';
+import 'package:admin/screens/user_profile/edit_user_data/edit_user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +23,7 @@ class _NursesSuppliesState extends State<NursesSupplies> {
     return InkWell(
       onTap: () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => ShowAndEditUserProfile(userData: userData,)));
+            .push(MaterialPageRoute(builder: (context) => EditProfile(userData: userData,)));
       },
       child: Padding(
         padding: const EdgeInsets.only(top: 6),
