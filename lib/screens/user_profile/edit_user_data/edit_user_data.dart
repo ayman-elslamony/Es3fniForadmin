@@ -933,7 +933,7 @@ class _EditProfileState extends State<EditProfile> {
                               if (x) {
                                 Toast.show(
                                     translator.currentLanguage == "en"
-                                        ? "Successfully سupplying"
+                                        ? "Successfully applying"
                                         : 'نجح التوريد',
                                     context,
                                     duration: Toast.LENGTH_SHORT,

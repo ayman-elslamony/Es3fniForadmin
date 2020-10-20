@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:admin/core/ui_components/info_widget.dart';
-import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
+import 'package:admin/screens/shared_widget/flutter_time_picker_spinner.dart';
 import 'package:admin/screens/shared_widget/map.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
-import '../main_screen.dart';
 
 class AddPatientRequest extends StatefulWidget {
   @override
@@ -401,6 +399,12 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
         visitTime.clear();
       }
         print('A');
+        List<String> visitsTime=[];
+        if(visitTime.length !=0) {
+          for (int i = 0; i < visitTime.length; i++) {
+            visitsTime.add(_home.convertTimeTo24Hour(time: visitTime[i]));
+          }
+        }
         bool isSccuess = await _home.addPatientRequest(
           analysisType: _paramedicsData['analysis type'],
           notes: _paramedicsData['notes'],
@@ -1843,7 +1847,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                                                 setState(() {
                                                                                   isLoadingCoupon = true;
                                                                                 });
-                                                                                String x = await _home.verifyCoupon(couponName: _paramedicsData['coupon']);
+                                                                                String x = await _home.verifyCoupon(phoneNumber: _paramedicsData['Phone number'],couponName: _paramedicsData['coupon']);
                                                                                 couponFocusNode.unfocus();
                                                                                 if (x == 'true') {
                                                                                   Toast.show(translator.currentLanguage == "en" ? "Scuessfully Discount" : 'نجح الخصم', context, duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
@@ -1851,6 +1855,10 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                                                   Navigator.of(ctx).pop();
                                                                                 } else if (x == 'add service before discount') {
                                                                                   Toast.show(translator.currentLanguage == "en" ? 'add service before discount' : 'اضف الخدمه قبل الخصم', context, duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+                                                                                }else if (x == 'isUserBefore') {
+                                                                                  Toast.show(translator.currentLanguage == "en" ? 'this coupon is used before' : 'تم استخدام الكوبون من قبل', context, duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
+                                                                                }else if (x == 'add Phone') {
+                                                                                  Toast.show(translator.currentLanguage == "en" ? 'add patient phone number before use coupon' : 'اضف رقم الهاتف الخاص بالمريض قبل استخدام الكوبون', context, duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
                                                                                 } else if (x == 'Coupon not Avilable') {
                                                                                   Toast.show(translator.currentLanguage == "en" ? 'Coupon not Avilable' : 'الكود غير متاح', context, duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
                                                                                 } else if (x == 'false') {
@@ -2022,7 +2030,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                       setState(() {
                                                         _paramedicsData[
                                                                 'startDate'] =
-                                                            '${date.day}-${date.month}-${date.year}';
+                                                            '${date.year}-${date.month}-${date.day}';
                                                       });
                                                     },
                                                         currentTime:
@@ -2076,7 +2084,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                       setState(() {
                                                         _paramedicsData[
                                                                 'endDate'] =
-                                                            '${date.day}-${date.month}-${date.year}';
+                                                            '${date.year}-${date.month}-${date.day}';
                                                       });
                                                     },
                                                         currentTime:
@@ -2293,29 +2301,27 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                                                 Colors.indigo),
                                                                   ),
                                                                   content:
-                                                                      TimePickerSpinner(
-                                                                    is24HourMode:
-                                                                        true,
+                                                                  TimePickerSpinner(
+                                                                    is24HourMode: false,
                                                                     normalTextStyle: TextStyle(
                                                                         fontSize:
-                                                                            18,
+                                                                        18,
                                                                         color: Colors
                                                                             .indigo[200]),
                                                                     highlightedTextStyle: TextStyle(
                                                                         fontSize:
-                                                                            18,
+                                                                        18,
                                                                         color: Colors
                                                                             .indigo),
                                                                     spacing: 30,
                                                                     itemHeight:
-                                                                        40,
-                                                                    isForce2Digits:
-                                                                        true,
+                                                                    40,
                                                                     onTimeChange:
                                                                         (time) {
+                                                                      print(time);
                                                                       // _clinicData['startTime']=time.toIso8601String();
                                                                       _dateTime =
-                                                                          '${time.hour}:${time.minute}';
+                                                                          _home.convertTimeToAMOrPM(time: '${time.hour}:${time.minute}');
                                                                     },
                                                                   ),
                                                                   actions: <
