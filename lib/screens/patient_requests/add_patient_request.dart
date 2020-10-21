@@ -95,7 +95,6 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
   final FocusNode _phoneNumberNode = FocusNode();
   final ImagePicker _picker = ImagePicker();
   Home _home;
-  bool isAnalysisSelected = false;
 
   getAllServicesAndAnalysis() async {
     await _home.getAllServices();
@@ -1238,8 +1237,6 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                             val == 'Analysis') {
                                                           setState(() {
                                                             _home.resetPrice();
-                                                            isAnalysisSelected =
-                                                                true;
                                                             _paramedicsData[
                                                                 'analysis type'] = '';
                                                             _paramedicsData[
@@ -1254,7 +1251,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                               type: '',
                                                               serviceType: val);
                                                           setState(() {
-                                                            isAnalysisSelected =
+                                                            _isServiceSelected =
                                                                 false;
                                                             _paramedicsData[
                                                                 'analysis type'] = '';
@@ -1280,7 +1277,10 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                       ],
                                     ),
                                   ),
-                                  isAnalysisSelected
+                                  _paramedicsData[
+                                  'service type']=='تحاليل' ||
+                                      _paramedicsData[
+                                      'service type'] == 'Analysis'
                                       ? Padding(
                                           padding: const EdgeInsets.only(
                                               bottom: 8.0, top: 17),
@@ -2443,12 +2443,9 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                               },
                                                               child: Container(
                                                                 decoration: BoxDecoration(
-                                                                    color: _clicked[
-                                                                            index]
-                                                                        ? Colors
+                                                                    color:Colors
                                                                             .grey
-                                                                        : Colors
-                                                                            .indigo,
+                                                                        ,
                                                                     borderRadius:
                                                                         BorderRadius.circular(
                                                                             10)),

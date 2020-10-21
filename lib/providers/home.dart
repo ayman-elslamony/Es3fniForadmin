@@ -438,14 +438,14 @@ class Home with ChangeNotifier {
           DateTime(int.parse(date[0]), int.parse(date[1]), int.parse(date[2]));
           if (price.isAddingDiscount == false &&
               price.servicePrice != 0.0 &&
-              docs.documents[0].data['numberOfUses'] != '0' &&
+              docs.documents[0].data['numberOfUses'].toString() != '0' &&
               time.isAfter(DateTime.now())) {
             coupon = Coupon(
               docId: docs.documents[0].documentID,
               couponName: docs.documents[0].data['couponName'],
               discountPercentage: docs.documents[0].data['discountPercentage'],
               expiryDate: docs.documents[0].data['expiryDate'],
-              numberOfUses: docs.documents[0].data['numberOfUses'],
+              numberOfUses: docs.documents[0].data['numberOfUses'].toString(),
             );
             double prices = price.servicePrice;
             priceBeforeDiscount = price.servicePrice;
@@ -896,7 +896,7 @@ class Home with ChangeNotifier {
     }
     print('docs.documents[0].documentID');
     print(docs.documents[0].documentID);
-    DateTime dateTime = DateTime.now().toUtc();
+    DateTime dateTime = DateTime.now();
     await databaseReference.collection('requests').add({
       'nurseId': '',
       'patientId':
@@ -936,7 +936,7 @@ class Home with ChangeNotifier {
         x = x - 1;
       }
       _coupons.document(coupon.docId).updateData({
-        'numberOfUses': x,
+        'numberOfUses': x.toString(),
       });
       if (docs.documents.length != 0) {
         await users
