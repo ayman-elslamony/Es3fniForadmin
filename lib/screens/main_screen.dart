@@ -1,14 +1,20 @@
+import 'dart:convert';
+
+import 'package:admin/providers/home.dart';
 import 'package:admin/screens/patient_requests/add_patient_request.dart';
 import 'package:admin/screens/patient_requests/archived_requests.dart';
 import 'package:admin/screens/patient_requests/patient_requests.dart';
+import 'package:admin/screens/shared_widget/edit_address.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/providers/auth.dart';
+import 'package:hawk_fab_menu/hawk_fab_menu.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'analysis/analysis.dart';
 import 'analysis_requests/analysis_request.dart';
 import 'coupons_and_discounts/coupons_and_discounts.dart';
@@ -30,16 +36,24 @@ class _HomeScreenState extends State<HomeScreen> {
   List<String> type =  ['Patients requests', 'Analysis request'];
   PageController _pageController;
   Auth _auth;
+  Home _home;
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     _auth = Provider.of<Auth>(context, listen: false);
+    _home = Provider.of<Home>(context, listen: false);
     type = translator.currentLanguage == "en"
         ? ['Patients requests', 'Analysis request']
         : ['طلبات المرضي','طلبات التحليل'];
   }
+  getAddress(String add,String lat,String lng) {
+    _auth.address = add;
+    _auth.lat =double.parse(lat);
+    _auth.lng =double.parse(lng);
 
+
+  }
   @override
   void dispose() {
     _pageController.dispose();
@@ -378,24 +392,136 @@ class _HomeScreenState extends State<HomeScreen> {
                 //_textEditingController.clear();
               },
             ),
-            body: Padding(
-              padding: const EdgeInsets.only(bottom: 14.0),
-              child: PageView(
-                physics: NeverScrollableScrollPhysics(),
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _page = index;
-                  });
-                  final CurvedNavigationBarState navBarState =
-                      _bottomNavigationKey.currentState;
-                  navBarState.setPage(_page);
-                },
-                children: <Widget>[
-                  PatientsRequests(),
-                  AnalysisRequests(),
-               // ServicesAndPrices(),
-                ],
+            body: HawkFabMenu(
+              icon: AnimatedIcons.menu_close,
+              fabColor: Colors.indigo,
+              iconColor: Colors.white,
+              items: [
+                HawkFabMenuItem(
+                  label: translator.currentLanguage == "en" ? 'add' : 'اضافه',
+                  ontap:() {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => AddPatientRequest()));
+                  },
+                  icon: Icon(Icons.add,color: Colors.white,),
+                  color: Colors.indigo,
+                  labelColor: Colors.white,
+                  labelBackgroundColor: Colors.indigo
+                ),
+                HawkFabMenuItem(
+                  label: translator.currentLanguage == "en" ? 'Filters' : 'فلتره',
+                  ontap:() {
+                    showModalBottomSheet(
+                      isDismissible: false,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(10),
+                                topLeft: Radius.circular(10))),
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Directionality(
+                            textDirection: translator.currentLanguage=='en'?TextDirection.ltr:TextDirection.rtl,
+                            child: StatefulBuilder(
+                              builder: (context, setState) => Container(
+                                height: MediaQuery.of(context).orientation ==
+                                    Orientation.portrait
+                                    ? MediaQuery.of(context).size.height * 0.3
+                                    : MediaQuery.of(context).size.height * 0.28,
+                                padding: EdgeInsets.all(10.0),
+                                child: Column(children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      SizedBox(width:1.0,),
+                                      Text(
+                                          translator.currentLanguage == "en"
+                                              ? 'Filter Requests'
+                                              : 'فلتره الطلبات',
+                                          style: TextStyle(
+                                              fontSize: MediaQuery.of(context)
+                                                  .orientation ==
+                                                  Orientation.portrait
+                                                  ? MediaQuery.of(context).size.width *
+                                                  0.04
+                                                  : MediaQuery.of(context).size.width *
+                                                  0.03,
+                                              color: Colors.indigo,
+                                              fontWeight: FontWeight.bold)),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        child: InkWell(onTap: ()async{
+                                          Navigator.of(context).pop();
+                                          final prefs = await SharedPreferences.getInstance();
+                                          final _radiusForAllRequests = json.encode({
+                                            'radiusForAllRequests': _home.radiusForAllRequests.toString(),
+                                          });
+                                          prefs.setString('radiusForAllRequests', _radiusForAllRequests);
+                                          final _location = json.encode({
+                                            'lat': _auth.lat.toString(),
+                                            'lng': _auth.lng.toString(),
+                                            'address':_auth.address
+                                          });
+                                          prefs.setString('location', _location);
+                                          setState(() {
+                                          });
+                                        }, child: Text(translator.currentLanguage == "en" ?'Save':'حفظ',style: infoWidget.subTitle.copyWith(color: Colors.indigo),)),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10.0,
+                                  ),
+                                  Consumer<Home>(
+                                    builder: (context,data,_)=>
+                                        Slider(
+                                          value: data.radiusForAllRequests,
+                                          onChanged: _home.changeRadiusForAllRequests,
+                                          min: 0.0,
+                                          max: 100.0,
+                                          divisions: 10,
+                                          label: '${data.radiusForAllRequests.floor()} KM',
+                                          inactiveColor: Colors.blue[100],
+                                          activeColor: Colors.indigo,
+                                        ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: EditAddress(
+                                      getAddress: getAddress,
+                                      address: _auth.address,
+                                    ),
+                                  ),
+                                ]),
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                  icon: Icon(Icons.filter_list,color: Colors.white,),
+                  color: Colors.indigo,
+                  labelColor: Colors.white,
+                  labelBackgroundColor: Colors.indigo
+                ),
+              ],
+              body: Padding(
+                padding: const EdgeInsets.only(bottom: 14.0),
+                child: PageView(
+                  physics: NeverScrollableScrollPhysics(),
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _page = index;
+                    });
+                    final CurvedNavigationBarState navBarState =
+                        _bottomNavigationKey.currentState;
+                    navBarState.setPage(_page);
+                  },
+                  children: <Widget>[
+                    PatientsRequests(),
+                    AnalysisRequests(),
+                  ],
+                ),
               ),
             ),
 

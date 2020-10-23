@@ -523,20 +523,6 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
               },
             ),
           ),
-          floatingActionButton: _showFloating?FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AddPatientRequest()));
-            },
-            tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            backgroundColor: Colors.indigo,
-          ):SizedBox(),
-          floatingActionButtonLocation:
-          FloatingActionButtonLocation.endFloat,
         )
     );
   }

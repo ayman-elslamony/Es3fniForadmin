@@ -439,7 +439,6 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
-
     getAllArchivedRequests();
     super.initState();
   }

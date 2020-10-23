@@ -1,12 +1,16 @@
+import 'dart:convert';
+
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/requests.dart';
+import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
 import 'package:admin/screens/user_profile/show_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,7 +23,8 @@ class PatientsRequests extends StatefulWidget {
 
 class _PatientsRequestsState extends State<PatientsRequests> {
   Home _home;
-  bool loadingBody = true;
+  Auth _auth;
+  bool loadingBody = false;
   bool _showFloating = true;
   ScrollController _scrollController;
   Widget content({Requests request, DeviceInfo infoWidget}) {
@@ -449,17 +454,35 @@ class _PatientsRequestsState extends State<PatientsRequests> {
         _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
   }
   getAllPatientsRequests() async {
+
     if (_home.allPatientsRequests.length == 0) {
-      await _home.getAllPatientsRequests();
+      setState(() {
+        loadingBody = true;
+      });
+      final prefs = await SharedPreferences.getInstance();
+      if(_home.radiusForAllRequests==1.0){
+        if (prefs.containsKey('radiusForAllRequests')) {
+          print('bdfbdf');
+          final _radiusForAllRequests = await json
+              .decode(prefs.getString('radiusForAllRequests')) as Map<String, Object>;
+          print(_radiusForAllRequests['radiusForAllRequests']);
+          _home.radiusForAllRequests =double.parse(_radiusForAllRequests['radiusForAllRequests']);
+        }else{
+          _home.radiusForAllRequests = 3.0;
+        }
+      }
+      await _home.getAllPatientsRequests(lat: _auth.lat,long: _auth.lng);
+      setState(() {
+        loadingBody = false;
+      });
     }
-    setState(() {
-      loadingBody = false;
-    });
+
   }
 
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
+    _auth= Provider.of<Auth>(context, listen: false);
     _scrollController = ScrollController()
       ..addListener(() {
         _isAppBarExpanded
@@ -528,20 +551,6 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                         },
                       ),
                     ),
-          floatingActionButton:_showFloating?FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AddPatientRequest()));
-            },
-            tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            backgroundColor: Colors.indigo,
-          ):SizedBox(),
-          floatingActionButtonLocation:
-          FloatingActionButtonLocation.endFloat,
             ));
   }
 }

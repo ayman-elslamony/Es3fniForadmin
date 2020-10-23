@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/providers/auth.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
@@ -674,6 +675,10 @@ class _EditProfileState extends State<EditProfile> {
                     }),
                 actions: <Widget>[
                   PopupMenuButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: Colors.indigo)
+                    ),
                     initialValue: '',
                     tooltip:
                         translator.currentLanguage == "en" ? 'Select' : 'اختار',
@@ -826,6 +831,26 @@ class _EditProfileState extends State<EditProfile> {
                         : widget.userData.address,
                     iconData: Icons.my_location,
                     infoWidget: infoWidget),
+                widget.userData.specialization== ''
+                    ? SizedBox()
+                    : personalInfo(
+                    title: translator.currentLanguage == "en"
+                        ? 'Specialization'
+                        : 'التخصص',
+                    subtitle:  widget.userData.specialization,
+                    iconData: Icons.school,
+                    enableEdit: false,
+                    infoWidget: infoWidget),
+                widget.userData.specializationBranch== ''
+                    ? SizedBox()
+                    : personalInfo(
+                    title: translator.currentLanguage == "en"
+                        ? 'Specialization type'
+                        : 'نوع التخصص',
+                    subtitle:  widget.userData.specializationBranch,
+                    iconData: Icons.info,
+                    enableEdit: false,
+                    infoWidget: infoWidget),
                 widget.userData.phoneNumber == ''
                     ? SizedBox()
                     : personalInfo(
@@ -853,6 +878,33 @@ class _EditProfileState extends State<EditProfile> {
                     enableEdit: false,
                     context: context,
                     infoWidget: infoWidget),
+                widget.userData.rating!='0.0'?ListTile(
+                  title: Text(
+                    translator.currentLanguage == "en" ? 'Rating' : 'التقيم',
+                    style:
+                    infoWidget.titleButton.copyWith(color: Colors.indigo),
+                  ),
+                  leading: Icon(
+                    Icons.stars,
+                    color: Colors.indigo,
+                  ),
+                  subtitle:   RatingBar(
+                    onRatingUpdate: (_){},
+                    ignoreGestures: true,
+                    initialRating:double.parse(widget.userData.rating),
+                    minRating: 1,
+                    unratedColor: Colors.grey,
+                    itemSize: infoWidget.screenWidth*0.067,
+                    direction: Axis.horizontal,
+                    allowHalfRating: false,
+                    itemCount: 5,
+                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) => Icon(
+                      Icons.stars,
+                      color: Colors.indigo,
+                    ),
+                  ),
+                ):SizedBox(),
                 widget.userData.nationalId == ''
                     ? SizedBox()
                     : personalInfo(

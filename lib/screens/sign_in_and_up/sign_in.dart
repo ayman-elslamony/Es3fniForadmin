@@ -49,7 +49,7 @@ class _SignInState extends State<SignIn> {
               email: email.trim(), password: password.trim());
           if (auth == true) {
             Toast.show(
-                "successfully Sign In", context, duration: Toast.LENGTH_SHORT,
+                translator.currentLanguage=='en'?"successfully Sign In":'نجح تسجيل الدخول', context, duration: Toast.LENGTH_SHORT,
                 gravity: Toast.BOTTOM);
             Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => HomeScreen()));

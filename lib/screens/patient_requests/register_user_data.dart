@@ -395,6 +395,10 @@ class _RegisterUserDataState extends State<RegisterUserData> {
               height: 40,
               width: 35,
               child: PopupMenuButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    side: BorderSide(color: Colors.indigo)
+                ),
                 initialValue: initialValue,
                 tooltip: 'Select Birth',
                 itemBuilder: (ctx) => list
@@ -870,6 +874,10 @@ class _RegisterUserDataState extends State<RegisterUserData> {
                             height: 40,
                             width: 35,
                             child: PopupMenuButton(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                  side: BorderSide(color: Colors.indigo)
+                              ),
                               initialValue: 'Male',
                               tooltip: 'Select Gender',
                               itemBuilder: (ctx) => ['Male', 'Female']
@@ -933,6 +941,10 @@ class _RegisterUserDataState extends State<RegisterUserData> {
                           height: 40,
                           width: 35,
                           child: PopupMenuButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(color: Colors.indigo)
+                            ),
                             initialValue: 'Single',
                             tooltip: 'Select social status',
                             itemBuilder: (ctx) => materialStatus

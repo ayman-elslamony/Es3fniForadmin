@@ -26,21 +26,16 @@ class _NursesState extends State<Nurses> {
   final FocusNode _passwordNode = FocusNode();
   bool _showPassword = false;
   bool _isSpecializationSelected = false;
+  bool _showSpecialization = false;
+
   String _specializationBranch = '';
+  String _specializationType = '';
+
   String errorMessage;
   final GlobalKey<FormState> _formKey = GlobalKey();
-  List<String> _specialization = [
-    'Human medicine',
-    'Physiotherapy',
-    'otherwise',
-  ];
-  List<String> _humanMedicineBranch = ['Ophthalmology', 'Cardiology', '', '', '', '', '', '', '', '', '', ''];
-  List<String> _physiotherapyBranch = [
-    'Human medicine',
-    'Physiotherapy',
-    'otherwise',
-  ];
-  String _specializationType = '';
+  List<String> _specialization = [];
+  List<String> _humanMedicineBranch = [];
+  List<String> _physiotherapyBranch = [];
 
   Widget content({UserData userData, DeviceInfo infoWidget}) {
     return InkWell(
@@ -187,7 +182,9 @@ class _NursesState extends State<Nurses> {
                 name: name.text.trim(),
                 nationalId: nationalId.text.trim(),
                 email: paramedicEmail.text.trim(),
-                password: password.text.trim());
+                password: password.text.trim(),
+                specialization: _specializationType,
+                specializationBranch: _specializationBranch);
         print('welcome');
         if (auth == true) {
           Toast.show(
@@ -254,28 +251,55 @@ class _NursesState extends State<Nurses> {
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
     _humanMedicineBranch = translator.currentLanguage == 'en'
-        ? ['Ophthalmology', 'Cardiology', '', '', '', '', '', '', '', '', '', '']
+        ? [
+            'Cardiology',
+            'Orthopedics',
+            'Urology and Urology surgery',
+            'Pulmonology',
+            'Obstetrics and Gynecology',
+            'Ear,nose and throat',
+            'Neurology',
+            'Pediatric',
+            'Internal Medicine',
+            'Dermatology',
+            'Ophthalmology',
+            'Radiology',
+            'otherwise'
+          ]
         : [
-      'عيون',
-      'الأمراض القلبية والأوعية الدموية',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      ''
-    ];
+            'الأمراض القلبية والأوعية الدموية',
+            'عظام والجراحه العظميه',
+            'مسالك بوليه وجراحتها',
+            'صدر وجهاز تنفسي',
+            'النساء والتوليد',
+            'انف واذن وحنجره',
+            'مخ واعصاب',
+            'الاطفال',
+            'باطنه',
+            'جلديه',
+            'عيون',
+            'اشعه',
+            'غير ذلك'
+          ];
+
+    _physiotherapyBranch = translator.currentLanguage == 'en'
+        ? [
+            'Dermatology',
+            'surgery',
+            'Pediatric',
+            'Neurology',
+            'Orthopedics',
+            'Obstetrics and Gynecology',
+            'otherwise',
+          ]
+        : ['جلديه', 'جراحه', 'اطفال', 'اعصاب', 'عظام', 'نسا', 'غير ذلك'];
     _specialization = translator.currentLanguage == 'en'
         ? [
             'Human medicine',
             'Physiotherapy',
             'otherwise',
           ]
-        : ['طب بشرى', 'علاج طبيعى','غير ذلك'];
+        : ['طب بشرى', 'علاج طبيعى', 'غير ذلك'];
     getAllParamedics();
     super.initState();
   }
@@ -292,320 +316,152 @@ class _NursesState extends State<Nurses> {
   Widget build(BuildContext context) {
     return InfoWidget(
       builder: (context, infoWidget) {
-        return Directionality(
-          textDirection: translator.currentLanguage == "en"
-              ? TextDirection.ltr
-              : TextDirection.rtl,
-          child: RefreshIndicator(
-            color: Colors.indigo,
-            backgroundColor: Colors.white,
-            onRefresh: () async {
-              await _home.getAllParamedics();
-            },
-            child: Scaffold(
-              appBar: AppBar(
-                centerTitle: true,
-                title: Text(
-                  translator.currentLanguage == "en"
-                      ? "Paramedics"
-                      : 'المسعفين',
-                  style: infoWidget.titleButton,
+        return SafeArea(
+          child: Directionality(
+            textDirection: translator.currentLanguage == "en"
+                ? TextDirection.ltr
+                : TextDirection.rtl,
+            child: RefreshIndicator(
+              color: Colors.indigo,
+              backgroundColor: Colors.white,
+              onRefresh: () async {
+                await _home.getAllParamedics();
+              },
+              child: Scaffold(
+                appBar: AppBar(
+                  centerTitle: true,
+                  title: Text(
+                    translator.currentLanguage == "en"
+                        ? "Paramedics"
+                        : 'المسعفين',
+                    style: infoWidget.titleButton,
+                  ),
+                  shape: ContinuousRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(40),
+                          bottomRight: Radius.circular(40))),
+                  leading: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        size: infoWidget.orientation == Orientation.portrait
+                            ? infoWidget.screenWidth * 0.05
+                            : infoWidget.screenWidth * 0.035,
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      }),
                 ),
-                shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40))),
-                leading: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      size: infoWidget.orientation == Orientation.portrait
-                          ? infoWidget.screenWidth * 0.05
-                          : infoWidget.screenWidth * 0.035,
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    }),
-              ),
-              body: loadingBody
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: ListView.builder(
-                        itemBuilder: (context, _) => Shimmer.fromColors(
-                          baseColor: Colors.black12.withOpacity(0.1),
-                          highlightColor: Colors.black.withOpacity(0.2),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.blue[100],
+                body: loadingBody
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: ListView.builder(
+                          itemBuilder: (context, _) => Shimmer.fromColors(
+                            baseColor: Colors.black12.withOpacity(0.1),
+                            highlightColor: Colors.black.withOpacity(0.2),
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 6),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.blue[100],
+                                ),
+                                height: infoWidget.screenHeight * 0.15,
                               ),
-                              height: infoWidget.screenHeight * 0.15,
                             ),
                           ),
+                          itemCount: 5,
                         ),
-                        itemCount: 5,
-                      ),
-                    )
-                  : Consumer<Home>(
-                      builder: (context, data, _) {
-                        if (data.allNurses.length == 0) {
-                          return Center(
-                            child: Text(
-                              translator.currentLanguage == "en"
-                                  ? 'there is no any nursses'
-                                  : 'لا يوجد مسعفين',
-                              style: infoWidget.titleButton
-                                  .copyWith(color: Colors.indigo),
-                            ),
-                          );
-                        } else {
-                          return ListView.builder(
-                              itemCount: data.allNurses.length,
-                              itemBuilder: (context, index) => content(
-                                  infoWidget: infoWidget,
-                                  userData: data.allNurses[index]));
-                        }
-                      },
-                    ),
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      builder: (ctx) => Directionality(
-                            textDirection: translator.currentLanguage == "en"
-                                ? TextDirection.ltr
-                                : TextDirection.rtl,
-                            child: AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25.0))),
-                              contentPadding: EdgeInsets.only(top: 10.0),
-                              title: Text(
+                      )
+                    : Consumer<Home>(
+                        builder: (context, data, _) {
+                          if (data.allNurses.length == 0) {
+                            return Center(
+                              child: Text(
                                 translator.currentLanguage == "en"
-                                    ? 'add Paramedic'
-                                    : 'اضافه مسعف',
-                                textAlign: TextAlign.center,
-                                style: infoWidget.title,
+                                    ? 'there is no any nursses'
+                                    : 'لا يوجد مسعفين',
+                                style: infoWidget.titleButton
+                                    .copyWith(color: Colors.indigo),
                               ),
-                              content: StatefulBuilder(
-                                builder: (context, setState) => Container(
-                                  height: infoWidget.screenHeight * 0.46,
-                                  child: Center(
-                                    child: Form(
-                                      key: _formKey,
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0),
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 7.0),
-                                                height: 80,
-                                                child: TextFormField(
-                                                  autofocus: false,
-                                                  controller: name,
-                                                  textInputAction:
-                                                      TextInputAction.next,
-                                                  decoration: InputDecoration(
-                                                    labelText: translator
-                                                                .currentLanguage ==
-                                                            "en"
-                                                        ? "Nurse name"
-                                                        : 'اسم المسعف',
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    errorBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    focusedErrorBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    disabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                          color: Colors.indigo),
-                                                    ),
-                                                    labelStyle: TextStyle(
-                                                        color: Colors.indigo),
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.text,
-// ignore: missing_return
-                                                  validator: (String value) {
-                                                    if (value.trim().isEmpty) {
-                                                      return translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? "Please enter nurse name!"
-                                                          : 'من فضلك ادخل اسم المسعف';
-                                                    }
-                                                    if (value.trim().length <
-                                                        3) {
-                                                      return translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? "Invalid Name!"
-                                                          : 'الاسم خطاء';
-                                                    }
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8.0),
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 7.0),
-                                                height: 80,
-                                                child: TextFormField(
-                                                  autofocus: false,
-                                                  controller: nationalId,
-                                                  textInputAction:
-                                                      TextInputAction.next,
-                                                  decoration: InputDecoration(
-                                                    labelText: translator
-                                                                .currentLanguage ==
-                                                            "en"
-                                                        ? "National Id"
-                                                        : 'الرقم القومى',
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    errorBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    focusedErrorBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    disabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                        color: Colors.indigo,
-                                                      ),
-                                                    ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                      borderSide: BorderSide(
-                                                          color: Colors.indigo),
-                                                    ),
-                                                    labelStyle: TextStyle(
-                                                        color: Colors.indigo),
-                                                  ),
-                                                  keyboardType:
-                                                      TextInputType.phone,
-// ignore: missing_return
-                                                  validator: (String value) {
-                                                    if (value.trim().isEmpty) {
-                                                      return translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? "Please enter National Id!"
-                                                          : 'من فضلك ادخل الرقم القومى';
-                                                    }
-                                                    if (value.trim().length !=
-                                                        14) {
-                                                      return translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? "Invalid national id!"
-                                                          : 'الرقم خطاء';
-                                                    }
-                                                  },
-                                                ),
-                                              ),
-                                            ),
-                                            Padding(
+                            );
+                          } else {
+                            return ListView.builder(
+                                itemCount: data.allNurses.length,
+                                itemBuilder: (context, index) => content(
+                                    infoWidget: infoWidget,
+                                    userData: data.allNurses[index]));
+                          }
+                        },
+                      ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (ctx) => Directionality(
+                              textDirection: translator.currentLanguage == "en"
+                                  ? TextDirection.ltr
+                                  : TextDirection.rtl,
+                              child: AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(25.0))),
+                                contentPadding: EdgeInsets.only(top: 10.0),
+                                title: Text(
+                                  translator.currentLanguage == "en"
+                                      ? 'add Paramedic'
+                                      : 'اضافه مسعف',
+                                  textAlign: TextAlign.center,
+                                  style: infoWidget.title,
+                                ),
+                                content: StatefulBuilder(
+                                  builder: (context, setState) => Container(
+                                    height: infoWidget.screenHeight * 0.46,
+                                    child: Center(
+                                      child: Form(
+                                        key: _formKey,
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            children: <Widget>[
+                                              Padding(
                                                 padding:
-                                                    const EdgeInsets.all(8.0),
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8.0),
                                                 child: Container(
-                                                  height: 60,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      0.85,
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 7.0),
+                                                  height: 80,
                                                   child: TextFormField(
-                                                    controller: paramedicEmail,
                                                     autofocus: false,
+                                                    controller: name,
+                                                    textInputAction:
+                                                        TextInputAction.next,
                                                     decoration: InputDecoration(
                                                       labelText: translator
                                                                   .currentLanguage ==
                                                               "en"
-                                                          ? 'Paramedic Email'
-                                                          : 'البريد الالكترونى للمسعف',
-                                                      labelStyle: TextStyle(
-                                                          color: Colors.indigo),
+                                                          ? "Nurse name"
+                                                          : 'اسم المسعف',
                                                       focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      errorBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      focusedErrorBorder:
                                                           OutlineInputBorder(
                                                         borderRadius:
                                                             BorderRadius.all(
@@ -625,6 +481,8 @@ class _NursesState extends State<Nurses> {
                                                           color: Colors.indigo,
                                                         ),
                                                       ),
+                                                      errorStyle: TextStyle(
+                                                          color: Colors.indigo),
                                                       enabledBorder:
                                                           OutlineInputBorder(
                                                         borderRadius:
@@ -632,445 +490,690 @@ class _NursesState extends State<Nurses> {
                                                                 Radius.circular(
                                                                     10.0)),
                                                         borderSide: BorderSide(
-                                                            color:
-                                                                Colors.indigo),
+                                                            color: Colors.indigo),
                                                       ),
+                                                      labelStyle: TextStyle(
+                                                          color: Colors.indigo),
                                                     ),
-                                                    // ignore: missing_return
-                                                    validator: (val) {
-                                                      if (val.isEmpty ||
-                                                          !val.contains('@')) {
+                                                    keyboardType:
+                                                        TextInputType.text,
+// ignore: missing_return
+                                                    validator: (String value) {
+                                                      if (value.trim().isEmpty) {
                                                         return translator
                                                                     .currentLanguage ==
                                                                 "en"
-                                                            ? 'InvalidEmail'
-                                                            : 'البريد الالكترونى غير صحيح';
+                                                            ? "Please enter nurse name!"
+                                                            : 'من فضلك ادخل اسم المسعف';
+                                                      }
+                                                      if (value.trim().length <
+                                                          3) {
+                                                        return translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? "Invalid Name!"
+                                                            : 'الاسم خطاء';
                                                       }
                                                     },
-                                                    onFieldSubmitted: (_) {
-                                                      FocusScope.of(context)
-                                                          .requestFocus(
-                                                              _passwordNode);
-                                                    },
-                                                    keyboardType:
-                                                        TextInputType.text,
                                                   ),
-                                                )),
-                                            Padding(
+                                                ),
+                                              ),
+                                              Padding(
                                                 padding:
-                                                    const EdgeInsets.all(8.0),
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8.0),
                                                 child: Container(
-                                                  height: 60,
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width /
-                                                      0.85,
+                                                  padding: EdgeInsets.symmetric(
+                                                      vertical: 7.0),
+                                                  height: 80,
                                                   child: TextFormField(
-                                                    controller: password,
                                                     autofocus: false,
-                                                    focusNode: _passwordNode,
+                                                    controller: nationalId,
+                                                    textInputAction:
+                                                        TextInputAction.next,
                                                     decoration: InputDecoration(
-                                                      suffixIcon: IconButton(
-                                                          icon: Icon(
-                                                            _showPassword
-                                                                ? Icons
-                                                                    .visibility
-                                                                : Icons
-                                                                    .visibility_off,
-                                                            color: _showPassword
-                                                                ? Colors.indigo
-                                                                : Colors.grey,
+                                                      labelText: translator
+                                                                  .currentLanguage ==
+                                                              "en"
+                                                          ? "National Id"
+                                                          : 'الرقم القومى',
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      errorBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      focusedErrorBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      disabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.indigo,
+                                                        ),
+                                                      ),
+                                                      errorStyle: TextStyle(
+                                                          color: Colors.indigo),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.all(
+                                                                Radius.circular(
+                                                                    10.0)),
+                                                        borderSide: BorderSide(
+                                                            color: Colors.indigo),
+                                                      ),
+                                                      labelStyle: TextStyle(
+                                                          color: Colors.indigo),
+                                                    ),
+                                                    keyboardType:
+                                                        TextInputType.phone,
+// ignore: missing_return
+                                                    validator: (String value) {
+                                                      if (value.trim().isEmpty) {
+                                                        return translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? "Please enter National Id!"
+                                                            : 'من فضلك ادخل الرقم القومى';
+                                                      }
+                                                      if (value.trim().length !=
+                                                          14) {
+                                                        return translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? "Invalid national id!"
+                                                            : 'الرقم خطاء';
+                                                      }
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    height: 60,
+                                                    width: MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        0.85,
+                                                    child: TextFormField(
+                                                      controller: paramedicEmail,
+                                                      autofocus: false,
+                                                      decoration: InputDecoration(
+                                                        labelText: translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? 'Paramedic Email'
+                                                            : 'البريد الالكترونى للمسعف',
+                                                        labelStyle: TextStyle(
+                                                            color: Colors.indigo),
+                                                        errorStyle: TextStyle(
+                                                            color: Colors.indigo),
+                                                        errorBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
                                                           ),
-                                                          onPressed: () {
-                                                            setState(() {
-                                                              _showPassword =
-                                                                  !_showPassword;
-                                                            });
-                                                          }),
-                                                      labelText: translator
-                                                                  .currentLanguage ==
-                                                              "en"
-                                                          ? 'Password'
-                                                          : 'كلمه المرور',
-                                                      labelStyle: TextStyle(
-                                                          color: Colors.indigo),
-                                                      focusedBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                          color: Colors.indigo,
+                                                        ),
+                                                        focusedErrorBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                              color:
+                                                                  Colors.indigo),
                                                         ),
                                                       ),
-                                                      disabledBorder:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius.all(
-                                                                Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                          color: Colors.indigo,
+                                                      // ignore: missing_return
+                                                      validator: (val) {
+                                                        if (val.isEmpty ||
+                                                            !val.contains('@')) {
+                                                          return translator
+                                                                      .currentLanguage ==
+                                                                  "en"
+                                                              ? 'InvalidEmail'
+                                                              : 'البريد الالكترونى غير صحيح';
+                                                        }
+                                                      },
+                                                      onFieldSubmitted: (_) {
+                                                        FocusScope.of(context)
+                                                            .requestFocus(
+                                                                _passwordNode);
+                                                      },
+                                                      keyboardType:
+                                                          TextInputType.text,
+                                                    ),
+                                                  )),
+                                              Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Container(
+                                                    height: 60,
+                                                    width: MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        0.85,
+                                                    child: TextFormField(
+                                                      controller: password,
+                                                      autofocus: false,
+                                                      focusNode: _passwordNode,
+                                                      decoration: InputDecoration(
+                                                        suffixIcon: IconButton(
+                                                            icon: Icon(
+                                                              _showPassword
+                                                                  ? Icons
+                                                                      .visibility
+                                                                  : Icons
+                                                                      .visibility_off,
+                                                              color: _showPassword
+                                                                  ? Colors.indigo
+                                                                  : Colors.grey,
+                                                            ),
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _showPassword =
+                                                                    !_showPassword;
+                                                              });
+                                                            }),
+                                                        labelText: translator
+                                                                    .currentLanguage ==
+                                                                "en"
+                                                            ? 'Password'
+                                                            : 'كلمه المرور',
+                                                        labelStyle: TextStyle(
+                                                            color: Colors.indigo),
+                                                        errorStyle: TextStyle(
+                                                            color: Colors.indigo),
+                                                        errorBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        focusedErrorBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        disabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                            color: Colors.indigo,
+                                                          ),
+                                                        ),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius.circular(
+                                                                      10.0)),
+                                                          borderSide: BorderSide(
+                                                              color:
+                                                                  Colors.indigo),
                                                         ),
                                                       ),
-                                                      enabledBorder:
-                                                          OutlineInputBorder(
+                                                      // ignore: missing_return
+                                                      validator: (val) {
+                                                        if (val.trim().isEmpty) {
+                                                          return translator
+                                                                      .currentLanguage ==
+                                                                  "en"
+                                                              ? 'Invalid password'
+                                                              : 'كلمه المرور غير صحيحه';
+                                                        }
+                                                        if (val.trim().length <
+                                                            4) {
+                                                          return translator
+                                                                      .currentLanguage ==
+                                                                  "en"
+                                                              ? 'Short password'
+                                                              : 'كلمه المرور ضعيفه';
+                                                        }
+                                                      },
+                                                      keyboardType:
+                                                          TextInputType.text,
+                                                    ),
+                                                  )),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 8.0, top: 17),
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          vertical: 7,
+                                                          horizontal: 8),
+                                                      child: Text(
+                                                        translator.currentLanguage ==
+                                                                "en"
+                                                            ? 'Specialization:'
+                                                            : 'التخصص:',
+                                                        style: infoWidget
+                                                            .titleButton
+                                                            .copyWith(
+                                                                color: Color(
+                                                                    0xff484848)),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding: const EdgeInsets
+                                                              .symmetric(
+                                                          horizontal: 20.0),
+                                                      child: Material(
+                                                        shadowColor:
+                                                            Colors.blueAccent,
+                                                        elevation: 2.0,
                                                         borderRadius:
                                                             BorderRadius.all(
                                                                 Radius.circular(
-                                                                    10.0)),
-                                                        borderSide: BorderSide(
-                                                            color:
-                                                                Colors.indigo),
+                                                                    10)),
+                                                        type: MaterialType.card,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceEvenly,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: <Widget>[
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                          .only(
+                                                                      left: 8.0,
+                                                                      right: 8.0),
+                                                              child: Text(
+                                                                  _isSpecializationSelected ==
+                                                                          false
+                                                                      ? translator.currentLanguage ==
+                                                                              "en"
+                                                                          ? 'Specialization'
+                                                                          : 'التخصص'
+                                                                      : _specializationType,
+                                                                  style: infoWidget
+                                                                      .titleButton
+                                                                      .copyWith(
+                                                                          color: Color(
+                                                                              0xff484848))),
+                                                            ),
+                                                            Container(
+                                                                height: 40,
+                                                                width: 35,
+                                                                child:
+                                                                    PopupMenuButton(
+                                                                      shape: RoundedRectangleBorder(
+                                                                        borderRadius: BorderRadius.circular(20),
+                                                                        side: BorderSide(color: Colors.indigo)
+                                                                      ),
+                                                                  initialValue: translator
+                                                                              .currentLanguage ==
+                                                                          "en"
+                                                                      ? 'otherwise'
+                                                                      : 'غير ذلك',
+                                                                  tooltip:
+                                                                      'Select Specialization',
+                                                                  itemBuilder: (ctx) =>
+                                                                      _specialization
+                                                                          .map((String
+                                                                                  val) =>
+                                                                              PopupMenuItem<String>(
+                                                                                value: val,
+                                                                                child: Text(val.toString()),
+                                                                              ))
+                                                                          .toList(),
+                                                                  onSelected:
+                                                                      (val) {
+                                                                    if (val ==
+                                                                            'otherwise' ||
+                                                                        val ==
+                                                                            'غير ذلك') {
+                                                                      setState(
+                                                                          () {
+                                                                            _showSpecialization = false;
+                                                                        _specializationType =
+                                                                            '';
+                                                                        _specializationBranch =
+                                                                            '';
+                                                                        _isSpecializationSelected =
+                                                                            false;
+                                                                      });
+                                                                    } else {
+                                                                      setState(
+                                                                          () {
+                                                                        _specializationType =
+                                                                            val;
+                                                                        _isSpecializationSelected =
+                                                                            true;
+                                                                        _showSpecialization =
+                                                                            true;
+                                                                      });
+                                                                    }
+                                                                  },
+                                                                  icon: Icon(
+                                                                    Icons
+                                                                        .keyboard_arrow_down,
+                                                                  ),
+                                                                )),
+                                                          ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                    // ignore: missing_return
-                                                    validator: (val) {
-                                                      if (val.trim().isEmpty) {
-                                                        return translator
-                                                                    .currentLanguage ==
-                                                                "en"
-                                                            ? 'Invalid password'
-                                                            : 'كلمه المرور غير صحيحه';
-                                                      }
-                                                      if (val.trim().length <
-                                                          4) {
-                                                        return translator
-                                                                    .currentLanguage ==
-                                                                "en"
-                                                            ? 'Short password'
-                                                            : 'كلمه المرور ضعيفه';
-                                                      }
-                                                    },
-                                                    keyboardType:
-                                                        TextInputType.text,
-                                                  ),
-                                                )),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  bottom: 8.0, top: 17),
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(vertical: 7),
-                                                    child: Text(
-                                                      translator.currentLanguage ==
-                                                              "en"
-                                                          ? 'Specialization:'
-                                                          : 'التخصص:',
-                                                      style: infoWidget
-                                                          .titleButton
-                                                          .copyWith(
-                                                              color: Color(
-                                                                  0xff484848)),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                            .symmetric(
-                                                        horizontal: 20.0),
-                                                    child: Material(
-                                                      shadowColor:
-                                                          Colors.blueAccent,
-                                                      elevation: 2.0,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10)),
-                                                      type: MaterialType.card,
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              _showSpecialization
+                                                  ? Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              bottom: 8.0,
+                                                              top: 17),
                                                       child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
-                                                                .center,
+                                                                .start,
                                                         children: <Widget>[
                                                           Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                        .only(
-                                                                    left: 8.0,
-                                                                    right: 8.0),
+                                                                        .symmetric(
+                                                                    vertical: 7,
+                                                                    horizontal:
+                                                                        8),
                                                             child: Text(
-                                                                _isSpecializationSelected ==
-                                                                        false
-                                                                    ? translator.currentLanguage ==
-                                                                            "en"
-                                                                        ? 'Specialization:'
-                                                                        : 'التخصص:'
-                                                                    : _specializationType,
-                                                                style: infoWidget
-                                                                    .titleButton
-                                                                    .copyWith(
-                                                                        color: Color(
-                                                                            0xff484848))),
-                                                          ),
-                                                          Container(
-                                                              height: 40,
-                                                              width: 35,
-                                                              child:
-                                                                  PopupMenuButton(
-                                                                initialValue: translator
-                                                                            .currentLanguage ==
-                                                                        "en"
-                                                                    ? 'otherwise'
-                                                                    : 'غير ذلك',
-                                                                tooltip:
-                                                                    'Select Specialization',
-                                                                itemBuilder: (ctx) =>
-                                                                    _specialization
-                                                                        .map((String
-                                                                                val) =>
-                                                                            PopupMenuItem<String>(
-                                                                              value: val,
-                                                                              child: Text(val.toString()),
-                                                                            ))
-                                                                        .toList(),
-                                                                onSelected:
-                                                                    (val) {
-                                                                  if (val ==
-                                                                          'otherwise' ||
-                                                                      val ==
-                                                                          'غير ذلك') {
-                                                                    setState(
-                                                                        () {
-                                                                      _specializationType =
-                                                                          '';
-                                                                      _isSpecializationSelected =
-                                                                          false;
-                                                                    });
-                                                                  } else {
-                                                                    setState(
-                                                                        () {
-                                                                      _specializationType =
-                                                                          val;
-                                                                      _isSpecializationSelected =
-                                                                          true;
-                                                                    });
-                                                                  }
-                                                                },
-                                                                icon: Icon(
-                                                                  Icons
-                                                                      .keyboard_arrow_down,
-                                                                ),
-                                                              )),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                            _isSpecializationSelected
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            bottom: 8.0,
-                                                            top: 17),
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: <Widget>[
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  vertical: 7),
-                                                          child: Text(
-                                                            translator.currentLanguage ==
-                                                                    "en"
-                                                                ? 'Specialization type:'
-                                                                : 'نوع التخصص:',
-                                                            style: infoWidget
-                                                                .titleButton
-                                                                .copyWith(
-                                                                    color: Color(
-                                                                        0xff484848)),
-                                                          ),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                      .symmetric(
-                                                                  horizontal:
-                                                                      20.0),
-                                                          child: Material(
-                                                            shadowColor: Colors
-                                                                .blueAccent,
-                                                            elevation: 2.0,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            10)),
-                                                            type: MaterialType
-                                                                .card,
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .spaceEvenly,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .center,
-                                                              children: <
-                                                                  Widget>[
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                          .only(
-                                                                      left: 8.0,
-                                                                      right:
-                                                                          8.0),
-                                                                  child: Text(
-                                                                      _specializationBranch ==
-                                                                              ''
-                                                                          ? translator.currentLanguage == "en"
-                                                                              ? 'Specialization type:'
-                                                                              : 'نوع التخصص:'
-                                                                          : _specializationBranch,
-                                                                      style: infoWidget
-                                                                          .titleButton
-                                                                          .copyWith(
-                                                                              color: Color(0xff484848))),
-                                                                ),
-                                                                Container(
-                                                                    height: 40,
-                                                                    width: 35,
-                                                                    child: _specializationType ==
-                                                                                'Human medicine' ||
-                                                                            _specializationType ==
-                                                                                'علاج طبيعى'
-                                                                        ? PopupMenuButton(
-                                                                            initialValue: translator.currentLanguage == "en"
-                                                                                ? 'otherwise'
-                                                                                : 'غير ذلك',
-                                                                            tooltip: translator.currentLanguage == "en"
-                                                                                ? 'Specialization type:'
-                                                                                : 'نوع التخصص:',
-//
-                                                                            itemBuilder: (ctx) => _humanMedicineBranch
-                                                                                .map((String val) => PopupMenuItem<String>(
-                                                                                      value: val,
-                                                                                      child: Text(val.toString()),
-                                                                                    ))
-                                                                                .toList(),
-                                                                            onSelected:
-                                                                                (val) {
-                                                                              if (val == 'otherwise' || val == 'غير ذلك') {
-                                                                                setState(() {
-                                                                                  _specializationBranch = '';
-                                                                                });
-                                                                              } else {
-                                                                                setState(() {
-                                                                                  _specializationBranch = val.trim();
-                                                                                });
-                                                                              }
-                                                                            },
-                                                                            icon:
-                                                                                Icon(
-                                                                              Icons.keyboard_arrow_down,
-                                                                            ),
-                                                                          )
-                                                                        : PopupMenuButton(
-                                                                            initialValue: translator.currentLanguage == "en"
-                                                                                ? 'otherwise'
-                                                                                : 'غير ذلك',
-                                                                            tooltip: translator.currentLanguage == "en"
-                                                                                ? 'Specialization type:'
-                                                                                : 'نوع التخصص:',
-//
-                                                                            itemBuilder: (ctx) => _physiotherapyBranch
-                                                                                .map((String val) => PopupMenuItem<String>(
-                                                                                      value: val,
-                                                                                      child: Text(val.toString()),
-                                                                                    ))
-                                                                                .toList(),
-                                                                            onSelected:
-                                                                                (val) {
-                                                                              if (val == 'otherwise' || val == 'غير ذلك') {
-                                                                                setState(() {
-                                                                                  _specializationBranch = '';
-                                                                                });
-                                                                              } else {
-                                                                                setState(() {
-                                                                                  _specializationBranch = val.trim();
-                                                                                });
-                                                                              }
-                                                                            },
-                                                                            icon:
-                                                                                Icon(
-                                                                              Icons.keyboard_arrow_down,
-                                                                            ),
-                                                                          )),
-                                                              ],
+                                                              translator.currentLanguage ==
+                                                                      "en"
+                                                                  ? 'Specialization type:'
+                                                                  : 'نوع التخصص:',
+                                                              style: infoWidget
+                                                                  .titleButton
+                                                                  .copyWith(
+                                                                      color: Color(
+                                                                          0xff484848)),
                                                             ),
                                                           ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  )
-                                                : SizedBox(),
-                                            //,Text('this is Your location',style: TextStyle(fontSize: 18,color: Colors.blue),),
-                                          ],
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .symmetric(
+                                                                    horizontal:
+                                                                        20.0),
+                                                            child: Material(
+                                                              shadowColor: Colors
+                                                                  .blueAccent,
+                                                              elevation: 2.0,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(Radius
+                                                                          .circular(
+                                                                              10)),
+                                                              type: MaterialType
+                                                                  .card,
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .spaceEvenly,
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                children: <
+                                                                    Widget>[
+                                                                  ConstrainedBox(
+                                                                    constraints: BoxConstraints(
+                                                                      maxWidth: infoWidget.screenWidth*0.35,
+                                                                      minWidth: infoWidget.screenWidth*0.012,
+                                                                    ),
+                                                                    child: Padding(
+                                                                      padding: const EdgeInsets
+                                                                              .only(
+                                                                          left: 8.0,
+                                                                          right:
+                                                                              8.0),
+                                                                      child: Text(
+                                                                          _specializationBranch ==
+                                                                                  ''
+                                                                              ? translator.currentLanguage == "en"
+                                                                                  ? 'Specialization type'
+                                                                                  : 'نوع التخصص'
+                                                                              : _specializationBranch,
+                                                                          style: infoWidget
+                                                                              .titleButton
+                                                                              .copyWith(
+                                                                                  color: Color(0xff484848))),
+                                                                    ),
+                                                                  ),
+                                                                  Container(
+                                                                      height: 40,
+                                                                      width: 35,
+                                                                      child: _specializationType ==
+                                                                                  'Human medicine' ||
+                                                                              _specializationType ==
+                                                                                  'علاج طبيعى'
+                                                                          ? PopupMenuButton(
+                                                                        shape: RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.circular(20),
+                                                                            side: BorderSide(color: Colors.indigo)
+                                                                        ),
+                                                                              initialValue: translator.currentLanguage == "en"
+                                                                                  ? 'otherwise'
+                                                                                  : 'غير ذلك',
+                                                                              tooltip: translator.currentLanguage == "en"
+                                                                                  ? 'Specialization type:'
+                                                                                  : 'نوع التخصص:',
+//
+                                                                              itemBuilder: (ctx) => _humanMedicineBranch
+                                                                                  .map((String val) => PopupMenuItem<String>(
+                                                                                        value: val,
+                                                                                        child: Text(val.toString()),
+                                                                                      ))
+                                                                                  .toList(),
+                                                                              onSelected:
+                                                                                  (val) {
+                                                                                if (val == 'otherwise' || val == 'غير ذلك') {
+                                                                                  setState(() {
+                                                                                    _showSpecialization = false;
+                                                                                    _specializationBranch = '';
+                                                                                  });
+                                                                                } else {
+                                                                                  setState(() {
+                                                                                    _specializationBranch = val.trim();
+                                                                                  });
+                                                                                }
+                                                                              },
+                                                                              icon:
+                                                                                  Icon(
+                                                                                Icons.keyboard_arrow_down,
+                                                                              ),
+                                                                            )
+                                                                          : PopupMenuButton(
+                                                                        shape: RoundedRectangleBorder(
+                                                                            borderRadius: BorderRadius.circular(20),
+                                                                            side: BorderSide(color: Colors.indigo)
+                                                                        ),
+                                                                              initialValue: translator.currentLanguage == "en"
+                                                                                  ? 'otherwise'
+                                                                                  : 'غير ذلك',
+                                                                              tooltip: translator.currentLanguage == "en"
+                                                                                  ? 'Specialization type'
+                                                                                  : 'نوع التخصص',
+//
+                                                                              itemBuilder: (ctx) => _physiotherapyBranch
+                                                                                  .map((String val) => PopupMenuItem<String>(
+                                                                                        value: val,
+                                                                                        child: Text(val.toString()),
+                                                                                      ))
+                                                                                  .toList(),
+                                                                              onSelected:
+                                                                                  (val) {
+                                                                                if (val == 'otherwise' || val == 'غير ذلك') {
+                                                                                  setState(() {
+                                                                                    _showSpecialization = false;
+                                                                                    _specializationBranch = '';
+                                                                                  });
+                                                                                } else {
+                                                                                  setState(() {
+                                                                                    _specializationBranch = val.trim();
+                                                                                  });
+                                                                                }
+                                                                              },
+                                                                              icon:
+                                                                                  Icon(
+                                                                                Icons.keyboard_arrow_down,
+                                                                              ),
+                                                                            )),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    )
+                                                  : SizedBox(),
+                                              //,Text('this is Your location',style: TextStyle(fontSize: 18,color: Colors.blue),),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text(
-                                    translator.currentLanguage == "en"
-                                        ? 'Cancel'
-                                        : 'الغاء',
-                                    style: infoWidget.subTitle
-                                        .copyWith(color: Colors.indigo),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text(
+                                      translator.currentLanguage == "en"
+                                          ? 'Cancel'
+                                          : 'الغاء',
+                                      style: infoWidget.subTitle
+                                          .copyWith(color: Colors.indigo),
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                    },
                                   ),
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                ),
-                                _isLoading
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          CircularProgressIndicator(
-                                            backgroundColor: Colors.indigo,
-                                          )
-                                        ],
-                                      )
-                                    : FlatButton(
-                                        child: Text(
-                                          translator.currentLanguage == "en"
-                                              ? 'Add'
-                                              : 'اضافه',
-                                          style: infoWidget.subTitle
-                                              .copyWith(color: Colors.indigo),
-                                        ),
-                                        onPressed: _submitForm,
-                                      )
-                              ],
-                            ),
-                          ));
-                },
-                tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
-                child: Icon(
-                  Icons.add,
-                  color: Colors.white,
+                                  _isLoading
+                                      ? Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            CircularProgressIndicator(
+                                              backgroundColor: Colors.indigo,
+                                            )
+                                          ],
+                                        )
+                                      : FlatButton(
+                                          child: Text(
+                                            translator.currentLanguage == "en"
+                                                ? 'Add'
+                                                : 'اضافه',
+                                            style: infoWidget.subTitle
+                                                .copyWith(color: Colors.indigo),
+                                          ),
+                                          onPressed: _submitForm,
+                                        )
+                                ],
+                              ),
+                            ));
+                  },
+                  tooltip: translator.currentLanguage == "en" ? 'add' : 'اضافه',
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: Colors.indigo,
                 ),
-                backgroundColor: Colors.indigo,
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.endFloat,
               ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.endFloat,
             ),
           ),
         );

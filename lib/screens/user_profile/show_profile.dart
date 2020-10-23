@@ -4,6 +4,7 @@ import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/user_data.dart';
 import 'package:admin/providers/home.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -193,6 +194,24 @@ Widget  personalInfo(
                                   : _userData.address,
                               iconData: Icons.my_location,
                               infoWidget: infoWidget)),
+                      _userData.specialization== ''
+                          ? SizedBox()
+                          : personalInfo(
+                          title: translator.currentLanguage == "en"
+                              ? 'Specialization'
+                              : 'التخصص',
+                          subtitle:  _userData.specialization,
+                          iconData: Icons.school,
+                          infoWidget: infoWidget),
+                      _userData.specializationBranch== ''
+                          ? SizedBox()
+                          : personalInfo(
+                          title: translator.currentLanguage == "en"
+                              ? 'Specialization'
+                              : 'التخصص',
+                          subtitle:  _userData.specializationBranch,
+                          iconData: Icons.info,
+                          infoWidget: infoWidget),
                       _userData.phoneNumber==''?SizedBox():
                           InkWell(
                             onTap: (){
@@ -225,6 +244,33 @@ Widget  personalInfo(
                               translator.currentLanguage == "en" ? _userData.gender : _userData.gender,
                           iconData: Icons.view_agenda,
                           infoWidget: infoWidget),
+                      _userData.rating!='0.0'?ListTile(
+              title: Text(
+                translator.currentLanguage == "en" ? 'Rating' : 'التقيم',
+                style:
+                infoWidget.titleButton.copyWith(color: Colors.indigo),
+              ),
+              leading: Icon(
+                Icons.stars,
+                color: Colors.indigo,
+              ),
+              subtitle:   RatingBar(
+                onRatingUpdate: (_){},
+                ignoreGestures: true,
+                initialRating:double.parse(_userData.rating),
+                minRating: 1,
+                unratedColor: Colors.grey,
+                itemSize: infoWidget.screenWidth*0.067,
+                direction: Axis.horizontal,
+                allowHalfRating: false,
+                itemCount: 5,
+                itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                itemBuilder: (context, _) => Icon(
+                  Icons.stars,
+                  color: Colors.indigo,
+                ),
+              ),
+            ):SizedBox(),
                       _userData.aboutYou==''?SizedBox(): personalInfo(
                           title: translator.currentLanguage == "en"
                               ? 'Another Info'

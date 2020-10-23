@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/models/http_exception.dart';
@@ -21,6 +23,10 @@ class Auth with ChangeNotifier {
    String userId = '';
   String signInType = '';
    UserData _userData;
+
+   double lat= 30.033333;
+   double lng=31.233334;
+  String address;
 
   UserData get userData => _userData;
   bool get isAuth {
@@ -93,6 +99,35 @@ class Auth with ChangeNotifier {
             'password': password,
           });
           prefs.setString('signInUsingEmail', _signInUsingEmail);
+        }
+        if(lat==30.033333 && lng == 31.233334){
+          if(prefs.containsKey('location')){
+            final _location = await json
+                .decode(prefs.getString('location')) as Map<String, Object>;
+            lat = double.parse(_location['lat']);
+            lng = double.parse(_location['lng']);
+            address = _location['address'];
+          }else{
+//            try {
+//              Position position = await getCurrentPosition(
+//                  desiredAccuracy: LocationAccuracy.high);
+//              lat = position.latitude;
+//              lng = position.longitude;
+//              final coordinates = new Coordinates(position.latitude, position.longitude);
+//              var addresses =
+//              await Geocoder.local.findAddressesFromCoordinates(coordinates);
+//              address =addresses.first.addressLine;
+//              final _location = json.encode({
+//                'lat': lat.toString(),
+//                'lng': lng.toString(),
+//                'address':address
+//              });
+//              prefs.setString('location', _location);
+//            }catch(e){
+              lat= 30.033333;
+              lng= 31.233334;
+              address ='Cairo';
+          }
         }
       }
       notifyListeners();
