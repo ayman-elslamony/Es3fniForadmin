@@ -1,18 +1,19 @@
 import 'dart:io';
 import 'package:admin/models/user_data.dart';
+import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
+import 'package:admin/screens/shared_widget/zoom_in_and_out_to_image.dart';
 import 'package:admin/screens/user_profile/edit_user_data/widgets/editImage.dart';
 import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
-import 'package:admin/providers/auth.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:toast/toast.dart';
 import 'widgets/edit_address.dart';
-import 'widgets/edit_personal_info_card.dart';
+
 
 class EditProfile extends StatefulWidget {
    final UserData userData;
@@ -25,6 +26,7 @@ class EditProfile extends StatefulWidget {
 
 class _EditProfileState extends State<EditProfile> {
   Home _home;
+  Auth _auth;
   File _imageFile;
   String address;
   TextEditingController name= TextEditingController();
@@ -50,6 +52,7 @@ class _EditProfileState extends State<EditProfile> {
   void initState() {
     super.initState();
     _home = Provider.of<Home>(context, listen: false);
+    _auth = Provider.of<Auth>(context, listen: false);
     address = widget.userData.address;
     addList = translator.currentLanguage == "en"
           ? ['Add Name','Add Image', 'Add Phone', 'Add Address', 'Add Another Info']
@@ -254,7 +257,7 @@ class _EditProfileState extends State<EditProfile> {
                     key: formKeyForName,
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                          vertical: 7.0),
+                          vertical: 7.0,horizontal: 7.0),
                       height: 80,
                       child: TextFormField(
                         autofocus: false,
@@ -718,87 +721,102 @@ class _EditProfileState extends State<EditProfile> {
                 Padding(
                   padding: const EdgeInsets.only(
                       top: 8.0, left: 2.0, right: 2.0),
-                  child: Container(
-                    height: 140,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(15),
-                        topLeft: Radius.circular(15),
+                  child: InkWell(
+                    onTap: (){
+                      if(widget.userData.imgUrl !='') {
+                        Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) =>
+                                ShowImage(
+                                  title: translator.currentLanguage ==
+                                      "en" ? 'personal picture'
+                                      : 'الصوره الشخصيه',
+                                  imgUrl: widget.userData.imgUrl,
+                                  isImgUrlAsset: false,
+                                )));
+                      }
+                    },
+                    child: Container(
+                      height: 140,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(15),
+                          topLeft: Radius.circular(15),
+                        ),
+                        color: Colors.indigo,
                       ),
-                      color: Colors.indigo,
-                    ),
-                    child: Center(
-                      child: Stack(
-                        children: <Widget>[
-                          SizedBox(
-                            width: 160,
-                            height: 130,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border:
-                                Border.all(color: Colors.indigo),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: ClipRRect(
-                                //backgroundColor: Colors.white,
-                                //backgroundImage:
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(15)),
-                                  child: FadeInImage.assetNetwork(
-                                      fit: BoxFit.fill,
-                                      placeholder: 'assets/user.png',
-                                      image: widget.userData.imgUrl)),
-                            ),
-                          ),
-                          Positioned(
-                              bottom: 0.0,
-                              right: 0.0,
-                              left: 0.0,
-                              child: InkWell(
-                                onTap: () {
-                                  editProfile('image', context,infoWidget);
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black45,
-                                    borderRadius: BorderRadius.only(
-                                        bottomRight:
-                                        Radius.circular(15),
-                                        bottomLeft:
-                                        Radius.circular(15)),
-                                  ),
-                                  height: 35,
-                                  child: Row(
-                                    textDirection:
-                                    translator.currentLanguage ==
-                                        "en"
-                                        ? TextDirection.ltr
-                                        : TextDirection.rtl,
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                          translator.currentLanguage ==
-                                              "en"
-                                              ? 'Edit'
-                                              : 'تعديل',
-                                          style: infoWidget.subTitle
-                                              .copyWith(
-                                              color:
-                                              Colors.indigo)),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Icon(
-                                        Icons.edit,
-                                        color: Colors.indigo,
-                                      ),
-                                    ],
-                                  ),
+                      child: Center(
+                        child: Stack(
+                          children: <Widget>[
+                            SizedBox(
+                              width: 160,
+                              height: 130,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border:
+                                  Border.all(color: Colors.indigo),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                              ))
-                        ],
+                                child: ClipRRect(
+                                  //backgroundColor: Colors.white,
+                                  //backgroundImage:
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(15)),
+                                    child: FadeInImage.assetNetwork(
+                                        fit: BoxFit.fill,
+                                        placeholder: 'assets/user.png',
+                                        image: widget.userData.imgUrl)),
+                              ),
+                            ),
+                            Positioned(
+                                bottom: 0.0,
+                                right: 0.0,
+                                left: 0.0,
+                                child: InkWell(
+                                  onTap: () {
+                                    editProfile('image', context,infoWidget);
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.black45,
+                                      borderRadius: BorderRadius.only(
+                                          bottomRight:
+                                          Radius.circular(15),
+                                          bottomLeft:
+                                          Radius.circular(15)),
+                                    ),
+                                    height: 35,
+                                    child: Row(
+                                      textDirection:
+                                      translator.currentLanguage ==
+                                          "en"
+                                          ? TextDirection.ltr
+                                          : TextDirection.rtl,
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text(
+                                            translator.currentLanguage ==
+                                                "en"
+                                                ? 'Edit'
+                                                : 'تعديل',
+                                            style: infoWidget.subTitle
+                                                .copyWith(
+                                                color:
+                                                Colors.indigo)),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.edit,
+                                          color: Colors.indigo,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ))
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -981,7 +999,8 @@ class _EditProfileState extends State<EditProfile> {
                                 widget.userData.loading = true;
                               });
                               bool x = await _home.nurseSupplying(
-                                  nurseId: widget.userData.docId,points: widget.userData.points);
+                                adminId: _auth.userId,
+                                  nurseId: widget.userData.docId);
                               if (x) {
                                 Toast.show(
                                     translator.currentLanguage == "en"
@@ -990,6 +1009,7 @@ class _EditProfileState extends State<EditProfile> {
                                     context,
                                     duration: Toast.LENGTH_SHORT,
                                     gravity: Toast.BOTTOM);
+                                Navigator.of(context).pop();
                               } else {
                                 Toast.show(
                                     translator.currentLanguage == "en"

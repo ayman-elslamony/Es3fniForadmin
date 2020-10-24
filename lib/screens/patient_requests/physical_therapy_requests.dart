@@ -17,12 +17,12 @@ import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
-class AnalysisRequests extends StatefulWidget {
+class PhysicalTherapyRequests extends StatefulWidget {
   @override
-  _AnalysisRequestsState createState() => _AnalysisRequestsState();
+  _PhysicalTherapyRequestsState createState() => _PhysicalTherapyRequestsState();
 }
 
-class _AnalysisRequestsState extends State<AnalysisRequests> {
+class _PhysicalTherapyRequestsState extends State<PhysicalTherapyRequests> {
   Home _home;
   Auth _auth;
   bool loadingBody = false;
@@ -519,19 +519,19 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
     return _scrollController.hasClients &&
         _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
   }
-  getAllAnalysisRequests() async {
-    if(_home.refreshWhenChangeFilters[2]){
-      _home.allAnalysisRequests.clear();
-      _home.refreshWhenChangeFilters[2] = false;
+  getAllPhysicalTherapyRequests() async {
+    if(_home.refreshWhenChangeFilters[1]){
+      _home.allPhysicalTherapyRequests.clear();
+      _home.refreshWhenChangeFilters[1] = false;
     }
-    if(_home.allAnalysisRequests.length ==0){
+    if(_home.allPhysicalTherapyRequests.length ==0){
       setState(() {
         loadingBody = true;
       });
       await getLocationFromLocalStorage();
-      await _home.getAllAnalysisRequests(
-        userLat: _auth.lat.toString(),
-        userLong: _auth.lng.toString()
+      await _home.getAllPhysicalTherapyRequests(
+          userLat: _auth.lat.toString(),
+          userLong: _auth.lng.toString()
       );
       setState(() {
         loadingBody = false;
@@ -567,7 +567,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
           _showFloating = false;
         });
       });
-    getAllAnalysisRequests();
+    getAllPhysicalTherapyRequests();
     super.initState();
   }
   @override
@@ -599,12 +599,12 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
             color: Colors.indigo,
             backgroundColor: Colors.white,
             onRefresh: ()async{
-              _home.getAllAnalysisRequests( userLat: _auth.lat.toString(),
+              _home.getAllPhysicalTherapyRequests( userLat: _auth.lat.toString(),
                   userLong: _auth.lng.toString());
             },
             child: Consumer<Home>(
               builder: (context, data, _) {
-                if (data.allAnalysisRequests.length == 0) {
+                if (data.allPhysicalTherapyRequests.length == 0) {
                   return Center(
                     child: Text(
                       translator.currentLanguage == "en"
@@ -616,12 +616,12 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                   );
                 } else {
                   return ListView.builder(
-                    controller: _scrollController,
-                      itemCount: data.allAnalysisRequests.length,
+                      controller: _scrollController,
+                      itemCount: data.allPhysicalTherapyRequests.length,
                       itemBuilder: (context, index) =>
                           content(
                               infoWidget: infoWidget,
-                              request: data.allAnalysisRequests[index])
+                              request: data.allPhysicalTherapyRequests[index])
 
                   );
                 }

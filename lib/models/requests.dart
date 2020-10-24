@@ -25,10 +25,13 @@ class Requests{
   String priceAfterDiscount;
   String servicePrice;
   String date;
+  String lat;
+  String long;
+  String distance;
   String acceptTime;
   String time;
   String specialization;String specializationBranch;
-  Requests({this.specialization,this.specializationBranch,this.acceptTime,this.nurseId,this.date,this.time,this.servicePrice,this.discountPercentage,this.patientId,this.isLoading=false,this.docId,this.patientName, this.patientPhone, this.patientLocation,
+  Requests({this.distance,this.lat,this.long,this.specialization,this.specializationBranch,this.acceptTime,this.nurseId,this.date,this.time,this.servicePrice,this.discountPercentage,this.patientId,this.isLoading=false,this.docId,this.patientName, this.patientPhone, this.patientLocation,
     this.patientAge, this.patientGender, this.numOfPatients, this.serviceType,
     this.analysisType, this.nurseGender, this.suppliesFromPharmacy,
     this.picture, this.discountCoupon, this.startVisitDate, this.endVisitDate,

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:toast/toast.dart';
 
 class NursesSupplies extends StatefulWidget {
   @override
@@ -42,11 +43,59 @@ class _NursesSuppliesState extends State<NursesSupplies> {
                           : 'مسعف: ${userData.name}',
                       style: infoWidget.title,
                     ),
-                    Text(
-                      translator.currentLanguage == 'en'
-                          ? 'Number of points: ${userData.points}'
-                          : 'عدد النقاط المورده: ${userData.points} ',
-                      style: infoWidget.subTitle,
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          translator.currentLanguage == 'en'
+                              ? 'Number of points that need to supplying: ${userData.points}'
+                              : 'عدد النقاط التى تحتاج الى توريد: ${userData.points} ',
+                          style: infoWidget.subTitle,
+                        ),
+                       userData.points!='0'?Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: RaisedButton(
+                            onPressed:  userData.points!='0'?() async {
+                              setState(() {
+                                userData.loading = true;
+                              });
+                              bool x = await _home.nurseSupplying(
+                                adminId: _auth.userId,
+                                  nurseId: userData.docId);
+                              if (x) {
+                                Toast.show(
+                                    translator.currentLanguage == "en"
+                                        ? "Successfully applying"
+                                        : 'نجح التوريد',
+                                    context,
+                                    duration: Toast.LENGTH_SHORT,
+                                    gravity: Toast.BOTTOM);
+                              } else {
+                                Toast.show(
+                                    translator.currentLanguage == "en"
+                                        ? "try again later"
+                                        : 'حاول مره اخرى',
+                                    context,
+                                    duration: Toast.LENGTH_SHORT,
+                                    gravity: Toast.BOTTOM);
+                              }
+                              setState(() {
+                               userData.loading = false;
+                              });
+                            }:null,
+                            padding: EdgeInsets.all(0.0),
+                            child: Text(
+                              translator.currentLanguage == 'en'
+                                  ? 'Supplying'
+                                  : 'توريد',
+                              style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+                            ),
+                            color: Colors.white,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                            side: BorderSide(color: Colors.indigo)),
+                          ),
+                        ):SizedBox()
+                      ],
                     ),
                   ],
                 ),
@@ -128,15 +177,6 @@ class _NursesSuppliesState extends State<NursesSupplies> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     }),
-                actions: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 18, left: 10, right: 10),
-                    child: Text(
-                      _auth.userData.points,
-                      style: infoWidget.titleButton,
-                    ),
-                  ),
-                ],
               ),
               body: loadingBody
                   ? Padding(

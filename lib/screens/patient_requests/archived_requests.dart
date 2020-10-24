@@ -4,6 +4,7 @@ import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/requests.dart';
 import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
+import 'package:admin/screens/shared_widget/zoom_in_and_out_to_image.dart';
 import 'package:admin/screens/user_profile/show_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:localize_and_translate/localize_and_translate.dart';
@@ -20,7 +21,7 @@ class ArchivedRequests extends StatefulWidget {
 class _ArchivedRequestsState extends State<ArchivedRequests> {
   Home _home;
   bool loadingBody = true;
-
+Auth _auth;
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
@@ -135,6 +136,15 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
                             content: request.patientLocation,
                             infoWidget: infoWidget)
                             : SizedBox(),
+                        request.distance != ''
+                            ? rowWidget(
+                            title: translator.currentLanguage == "en"
+                                ? 'Distance between you: '
+                                : 'المسافه بينكم: ',
+                            content:  translator.currentLanguage == "en"
+                                ? '${request.distance} KM':'${request.distance} كم ',
+                            infoWidget: infoWidget)
+                            : SizedBox(),
                         request.patientAge != ''
                             ? rowWidget(
                             title: translator.currentLanguage == "en"
@@ -183,6 +193,45 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
                             content: request.suppliesFromPharmacy,
                             infoWidget: infoWidget)
                             : SizedBox(),
+                        request.picture!=''?
+                        Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  translator.currentLanguage == "en"
+                                      ? 'Roshita or analysis Picture: '
+                                      : 'صوره الروشته او التحليل: ',
+                                  style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+                                ),
+                                RaisedButton(
+                                  padding: EdgeInsets.all(0.0),
+                                  onPressed:
+                                      (){
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowImage(
+                                      title: translator.currentLanguage == "en" ? 'Roshita or analysis Picture'
+                                          : 'صوره الروشته او التحليل',
+                                      imgUrl: request.picture,
+                                      isImgUrlAsset: false,
+                                    )));
+                                  },
+                                  color: Colors.indigo,
+                                  child: Text(
+                                    translator.currentLanguage == "en" ?'Show':'اظهار',
+                                    style: infoWidget.titleButton
+                                        .copyWith(color: Colors.white),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                          ],
+                        ):SizedBox(),
                         request.startVisitDate != ''
                             ? rowWidget(
                             title: translator.currentLanguage == "en"
@@ -330,6 +379,30 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
                             .copyWith(color: Colors.indigo),
                       )
                           : SizedBox(),
+                      request.specialization != '' && request.specializationBranch !=''
+                          ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            translator.currentLanguage == 'en'
+                                ? 'Nurse specialization: '
+                                : ' تخصص الممرض: ',
+                            style: infoWidget.titleButton
+                                .copyWith(color: Colors.indigo),
+                          ),
+                          Expanded(
+                            child: Text(
+                              translator.currentLanguage == 'en'
+                                  ? request.specializationBranch!=''?'${request.specialization}-${request.specializationBranch}':'${request.specialization}'
+                                  : request.specializationBranch!=''?'${request.specialization} - ${request.specializationBranch}':'${request.specialization}',
+                              style: infoWidget.titleButton
+                                  .copyWith(color: Colors.indigo),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      )
+                          : SizedBox(),
                       request.date != ''
                           ? Text(
                         translator.currentLanguage == 'en'
@@ -429,7 +502,7 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
   getAllArchivedRequests() async {
     print('dvdxvx');
     if (_home.allArchivedRequests.length == 0) {
-      await _home.getAllArchivedRequests();
+      await _home.getAllArchivedRequests(userLong: _auth.lat.toString(),userLat: _auth.lng.toString());
     }
     setState(() {
       loadingBody = false;
@@ -439,6 +512,7 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
+    _auth = Provider.of<Auth>(context, listen: false);
     getAllArchivedRequests();
     super.initState();
   }
@@ -497,7 +571,7 @@ class _ArchivedRequestsState extends State<ArchivedRequests> {
               color: Colors.indigo,
               backgroundColor: Colors.white,
               onRefresh: () async {
-                _home.getAllArchivedRequests();
+                _home.getAllArchivedRequests(userLong: _auth.lat.toString(),userLat: _auth.lng.toString());
               },
               child: Consumer<Home>(
                 builder: (context, data, _) {

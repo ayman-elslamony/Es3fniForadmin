@@ -262,7 +262,8 @@ class _SignInState extends State<SignIn> {
                           children: <Widget>[
                             CircularProgressIndicator(backgroundColor: Colors.indigo,)
                           ],
-                        ):RaisedButton(
+                        ):
+                        RaisedButton(
                           onPressed:
                             _submitForm,
                           color: Colors.white,

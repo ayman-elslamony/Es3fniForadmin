@@ -5,6 +5,8 @@ import 'package:admin/core/ui_components/info_widget.dart';
 import 'package:admin/models/requests.dart';
 import 'package:admin/providers/auth.dart';
 import 'package:admin/providers/home.dart';
+import 'package:admin/screens/patient_requests/add_patient_request.dart';
+import 'package:admin/screens/shared_widget/zoom_in_and_out_to_image.dart';
 import 'package:admin/screens/user_profile/show_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -14,19 +16,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'add_patient_request.dart';
 
-class PatientsRequests extends StatefulWidget {
+class HumanMedicineRequests extends StatefulWidget {
   @override
-  _PatientsRequestsState createState() => _PatientsRequestsState();
+  _HumanMedicineRequestsState createState() => _HumanMedicineRequestsState();
 }
 
-class _PatientsRequestsState extends State<PatientsRequests> {
+class _HumanMedicineRequestsState extends State<HumanMedicineRequests> {
   Home _home;
   Auth _auth;
   bool loadingBody = false;
-  bool _showFloating = true;
-  ScrollController _scrollController;
+
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
@@ -90,29 +90,29 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                         ),
                         request.patientId != ''
                             ? Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                request.patientName != ''
-                                    ? Expanded(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            request.patientName != ''
+                                ? Expanded(
 
-                                      child: rowWidget(
-                                      title:
-                                      translator.currentLanguage == "en"
-                                          ? 'Patient Name: '
-                                          : 'اسم المريض: ',
-                                      content: request.patientName,
-                                      infoWidget: infoWidget),
-                                    )
-                                    : SizedBox(),
-                                IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
-                                    type: translator.currentLanguage == "en"
-                                        ?'Patient':'مريض',
-                                    userId: request.patientId,
-                                  )));
-                                }),
-                              ],
+                              child: rowWidget(
+                                  title:
+                                  translator.currentLanguage == "en"
+                                      ? 'Patient Name: '
+                                      : 'اسم المريض: ',
+                                  content: request.patientName,
+                                  infoWidget: infoWidget),
                             )
+                                : SizedBox(),
+                            IconButton(icon: Icon(Icons.more_horiz,color: Colors.indigo,), onPressed: (){
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowUserProfile(
+                                type: translator.currentLanguage == "en"
+                                    ?'Patient':'مريض',
+                                userId: request.patientId,
+                              )));
+                            }),
+                          ],
+                        )
                             : request.patientName != ''
                             ? rowWidget(
                             title: translator.currentLanguage == "en"
@@ -126,13 +126,13 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                           onTap: (){
                             launch("tel://${request.patientPhone}");
                           },
-                              child: rowWidget(
+                          child: rowWidget(
                               title: translator.currentLanguage == "en"
                                   ? 'Patient Phone: '
                                   : 'رقم الهاتف: ',
                               content: request.patientPhone,
                               infoWidget: infoWidget),
-                            )
+                        )
                             : SizedBox(),
                         request.patientLocation != ''
                             ? rowWidget(
@@ -140,6 +140,15 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                                 ? 'Patient Location: '
                                 : 'موقع المريض: ',
                             content: request.patientLocation,
+                            infoWidget: infoWidget)
+                            : SizedBox(),
+                        request.distance != ''
+                            ? rowWidget(
+                            title: translator.currentLanguage == "en"
+                                ? 'Distance between you: '
+                                : 'المسافه بينكم: ',
+                            content:  translator.currentLanguage == "en"
+                                ? '${request.distance} KM':'${request.distance} كم ',
                             infoWidget: infoWidget)
                             : SizedBox(),
                         request.patientAge != ''
@@ -190,6 +199,45 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                             content: request.suppliesFromPharmacy,
                             infoWidget: infoWidget)
                             : SizedBox(),
+                        request.picture!=''?
+                        Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  translator.currentLanguage == "en"
+                                      ? 'Roshita or analysis Picture: '
+                                      : 'صوره الروشته او التحليل: ',
+                                  style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+                                ),
+                                RaisedButton(
+                                  padding: EdgeInsets.all(0.0),
+                                  onPressed:
+                                      (){
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowImage(
+                                      title: translator.currentLanguage == "en" ? 'Roshita or analysis Picture'
+                                          : 'صوره الروشته او التحليل',
+                                      imgUrl: request.picture,
+                                      isImgUrlAsset: false,
+                                    )));
+                                  },
+                                  color: Colors.indigo,
+                                  child: Text(
+                                    translator.currentLanguage == "en" ?'Show':'اظهار',
+                                    style: infoWidget.titleButton
+                                        .copyWith(color: Colors.white),
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15)),
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                          ],
+                        ):SizedBox(),
                         request.startVisitDate != ''
                             ? rowWidget(
                             title: translator.currentLanguage == "en"
@@ -348,6 +396,30 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                             .copyWith(color: Colors.indigo),
                       )
                           : SizedBox(),
+                      request.specialization != '' && request.specializationBranch !=''
+                          ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            translator.currentLanguage == 'en'
+                                ? 'Nurse specialization: '
+                                : ' تخصص الممرض: ',
+                            style: infoWidget.titleButton
+                                .copyWith(color: Colors.indigo),
+                          ),
+                          Expanded(
+                            child: Text(
+                              translator.currentLanguage == 'en'
+                                  ? request.specializationBranch!=''?'${request.specialization}-${request.specializationBranch}':'${request.specialization}'
+                                  : request.specializationBranch!=''?'${request.specialization} - ${request.specializationBranch}':'${request.specialization}',
+                              style: infoWidget.titleButton
+                                  .copyWith(color: Colors.indigo),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      )
+                          : SizedBox(),
                       request.date != ''
                           ? Text(
                         translator.currentLanguage == 'en'
@@ -405,7 +477,7 @@ class _PatientsRequestsState extends State<PatientsRequests> {
                                   ?'Nurse':'ممرض',
                               userId: request.nurseId,
                             ) ));
-                          }):SizedBox(),
+                          }):SizedBox()
                         ],
                       ),
                       request.acceptTime==''?SizedBox():Text(
@@ -425,132 +497,122 @@ class _PatientsRequestsState extends State<PatientsRequests> {
       ),
     );
   }
-  Widget rowWidget({String title, String content, DeviceInfo infoWidget}) {
+  Widget  rowWidget({String title,String content,DeviceInfo infoWidget}){
     return Column(
       children: <Widget>[
         Row(
           children: <Widget>[
-            Text(
-              title,
-              style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+            Text(title,style: infoWidget.titleButton.copyWith(color: Colors.indigo),
             ),
             Expanded(
-              child: Text(
-                content,
-                style: infoWidget.subTitle,
-                maxLines: 2,
+              child: Text(content,style: infoWidget.subTitle,maxLines: 2,
               ),
             ),
           ],
-        ),
-        SizedBox(
-          height: 5,
-        ),
+        ) ,SizedBox(height: 5,),
       ],
     );
   }
-  bool get _isAppBarExpanded {
-    return _scrollController.hasClients &&
-        _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
-  }
-  getAllPatientsRequests() async {
-
-    if (_home.allPatientsRequests.length == 0) {
+Future<void> getAllHumanMedicineRequests() async {
+    if(_home.refreshWhenChangeFilters[0]){
+      _home.allHumanMedicineRequests.clear();
+      _home.refreshWhenChangeFilters[0] = false;
+    }
+    if(_home.allHumanMedicineRequests.length ==0){
       setState(() {
         loadingBody = true;
       });
-      final prefs = await SharedPreferences.getInstance();
-      if(_home.radiusForAllRequests==1.0){
-        if (prefs.containsKey('radiusForAllRequests')) {
-          print('bdfbdf');
-          final _radiusForAllRequests = await json
-              .decode(prefs.getString('radiusForAllRequests')) as Map<String, Object>;
-          print(_radiusForAllRequests['radiusForAllRequests']);
-          _home.radiusForAllRequests =double.parse(_radiusForAllRequests['radiusForAllRequests']);
-        }else{
-          _home.radiusForAllRequests = 3.0;
-        }
-      }
-      await _home.getAllPatientsRequests(lat: _auth.lat,long: _auth.lng);
+      await getLocationFromLocalStorage();
+      await _home.getAllHumanMedicineRequests(
+          userLat: _auth.lat.toString(),
+          userLong: _auth.lng.toString()
+      );
+      print('svsb');
       setState(() {
         loadingBody = false;
       });
     }
-
   }
-
+  Future<void> getLocationFromLocalStorage()async{
+    final prefs = await SharedPreferences.getInstance();
+    if(_home.radiusForAllRequests==1.0){
+      if (prefs.containsKey('radiusForAllRequests')) {
+        print('bdfbdf');
+        final _radiusForAllRequests = await json
+            .decode(prefs.getString('radiusForAllRequests')) as Map<String, Object>;
+        print(_radiusForAllRequests['radiusForAllRequests']);
+        _home.radiusForAllRequests =double.parse(_radiusForAllRequests['radiusForAllRequests']);
+      }else{
+        _home.radiusForAllRequests = 3.0;
+      }
+    }
+  }
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
-    _auth= Provider.of<Auth>(context, listen: false);
-    _scrollController = ScrollController()
-      ..addListener(() {
-        _isAppBarExpanded
-            ? setState(() {
-          _showFloating = true;
-        })
-            : setState(() {
-          _showFloating = false;
-        });
-      });
-    getAllPatientsRequests();
+    _auth = Provider.of<Auth>(context, listen: false);
+    getAllHumanMedicineRequests();
     super.initState();
   }
-
   @override
   Widget build(BuildContext context) {
     return InfoWidget(
-        builder: (context, infoWidget) => Scaffold(
-              body: loadingBody
-                  ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: ListView.builder(
-                        itemBuilder: (context, _) => Shimmer.fromColors(
-                          baseColor: Colors.black12.withOpacity(0.1),
-                          highlightColor: Colors.black.withOpacity(0.2),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 6),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.blue[100],
-                              ),
-                              height: infoWidget.screenHeight * 0.27,
-                            ),
-                          ),
-                        ),
-                        itemCount: 5,
-                      ),
-                    )
-                  : RefreshIndicator(
-                      color: Colors.indigo,
-                      backgroundColor: Colors.white,
-                      onRefresh: () async {
-                        _home.getAllPatientsRequests();
-                      },
-                      child: Consumer<Home>(
-                        builder: (context, data, _) {
-                          if (data.allPatientsRequests.length == 0) {
-                            return Center(
-                              child: Text(
-                                translator.currentLanguage == "en"
-                                    ? 'There is no any requests'
-                                    : 'لا يوجد طلبات',
-                                style: infoWidget.titleButton
-                                    .copyWith(color: Colors.indigo),
-                              ),
-                            );
-                          } else {
-                            return ListView.builder(
-                              controller: _scrollController,
-                                itemCount: data.allPatientsRequests.length,
-                                itemBuilder: (context, index) => content(
-                                    infoWidget: infoWidget,
-                                    request: data.allPatientsRequests[index]));
-                          }
-                        },
-                      ),
+        builder: (context,infoWidget)=>Scaffold(
+          body:  loadingBody
+              ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ListView.builder(
+              itemBuilder: (context, _) => Shimmer.fromColors(
+                baseColor: Colors.black12.withOpacity(0.1),
+                highlightColor: Colors.black.withOpacity(0.2),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.blue[100],
                     ),
-            ));
+                    height: infoWidget.screenHeight * 0.27,
+                  ),
+                ),
+              ),
+              itemCount: 5,
+            ),
+          )
+              : RefreshIndicator(
+            color: Colors.indigo,
+            backgroundColor: Colors.white,
+            onRefresh: ()async{
+              _home.getAllHumanMedicineRequests( userLat: _auth.lat.toString(),
+                  userLong: _auth.lng.toString());
+            },
+            child: Consumer<Home>(
+              builder: (context, data, _) {
+                if (data.allHumanMedicineRequests.length == 0) {
+                  return Center(
+                    child: Text(
+                      translator.currentLanguage == "en"
+                          ? 'There is no any requests'
+                          : 'لا يوجد طلبات',
+                      style: infoWidget.titleButton
+                          .copyWith(color: Colors.indigo),
+                    ),
+                  );
+                } else {
+                  return ListView.builder(
+
+                      itemCount: data.allHumanMedicineRequests.length,
+                      itemBuilder: (context, index) =>
+                          content(
+                              infoWidget: infoWidget,
+                              request: data.allHumanMedicineRequests[index])
+
+                  );
+                }
+              },
+            ),
+          ),
+        )
+    );
   }
 }

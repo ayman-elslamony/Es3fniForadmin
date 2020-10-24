@@ -1,4 +1,5 @@
 import 'package:admin/screens/shared_widget/show_user_location.dart';
+import 'package:admin/screens/shared_widget/zoom_in_and_out_to_image.dart';
 import 'package:flutter/material.dart';
 import 'package:admin/core/models/device_info.dart';
 import 'package:admin/core/ui_components/info_widget.dart';
@@ -136,34 +137,49 @@ Widget  personalInfo(
                       Padding(
                         padding: const EdgeInsets.only(
                             top: 8.0, left: 2.0, right: 2.0),
-                        child: Container(
-                          height: 140,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(15),
-                              topLeft: Radius.circular(15),
+                        child: InkWell(
+                          onTap: (){
+                            if(_userData.imgUrl !='') {
+                              Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (context) =>
+                                      ShowImage(
+                                        title: translator.currentLanguage ==
+                                            "en" ? 'personal picture'
+                                            : 'الصوره الشخصيه',
+                                        imgUrl: _userData.imgUrl,
+                                        isImgUrlAsset: false,
+                                      )));
+                            }
+                          },
+                          child: Container(
+                            height: 140,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(15),
+                                topLeft: Radius.circular(15),
+                              ),
+                              color: Colors.indigo,
                             ),
-                            color: Colors.indigo,
-                          ),
-                          child: Center(
-                            child: SizedBox(
-                              width: 160,
-                              height: 130,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.indigo),
-                                  borderRadius: BorderRadius.circular(15),
+                            child: Center(
+                              child: SizedBox(
+                                width: 160,
+                                height: 130,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.indigo),
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: ClipRRect(
+                                      //backgroundColor: Colors.white,
+                                      //backgroundImage:
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(15)),
+                                      child: FadeInImage.assetNetwork(
+                                          fit: BoxFit.fill,
+                                          placeholder: 'assets/user.png',
+                                          image: _userData.imgUrl)),
                                 ),
-                                child: ClipRRect(
-                                    //backgroundColor: Colors.white,
-                                    //backgroundImage:
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(15)),
-                                    child: FadeInImage.assetNetwork(
-                                        fit: BoxFit.fill,
-                                        placeholder: 'assets/user.png',
-                                        image: _userData.imgUrl)),
                               ),
                             ),
                           ),

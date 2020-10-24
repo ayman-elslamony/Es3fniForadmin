@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'package:admin/providers/home.dart';
 import 'package:admin/screens/patient_requests/add_patient_request.dart';
 import 'package:admin/screens/patient_requests/archived_requests.dart';
-import 'package:admin/screens/patient_requests/patient_requests.dart';
+import 'package:admin/screens/patient_requests/another_patient_requests.dart';
+import 'package:admin/screens/patient_requests/human_medicine_requests.dart';
+import 'package:admin/screens/patient_requests/physical_therapy_requests.dart';
 import 'package:admin/screens/shared_widget/edit_address.dart';
 import 'package:admin/screens/sign_in_and_up/sign_in.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
@@ -20,6 +22,7 @@ import 'analysis_requests/analysis_request.dart';
 import 'coupons_and_discounts/coupons_and_discounts.dart';
 import 'nurses/nurses.dart';
 import 'nurses/nurses_supplies.dart';
+import 'patients_accounts/patients_accounts.dart';
 import 'services_and_prices/services_and_prices.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _page = 0;
   GlobalKey _bottomNavigationKey = GlobalKey();
   final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
-  List<String> type =  ['Patients requests', 'Analysis request'];
+  List<String> type =  ["Human medicine requests","Physical therapy requests",'Analysis requests',"Another requests"];
   PageController _pageController;
   Auth _auth;
   Home _home;
@@ -44,9 +47,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _auth = Provider.of<Auth>(context, listen: false);
     _home = Provider.of<Home>(context, listen: false);
     type = translator.currentLanguage == "en"
-        ? ['Patients requests', 'Analysis request']
-        : ['طلبات المرضي','طلبات التحليل'];
+        ? ["Human medicine requests","Physical therapy requests",'Analysis requests',"Another requests"]
+        : ['طلبات طب بشرى','طلبات العلاج الطبيعى','طلبات التحليل','طلبات اخرى'];
   }
+
+
   getAddress(String add,String lat,String lng) {
     _auth.address = add;
     _auth.lat =double.parse(lat);
@@ -215,34 +220,61 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en"
-                            ? "Patients requests"
-                            : 'طلبات المسعفين',
-                        isIcon: true,
-                        icon: Icons.remove_from_queue,
-                        infoWidget: infoWidget,
-                        onTap: () {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _page = 0;
-                          });
-                          _pageController.jumpToPage(_page);
-                        }),
-                    _drawerListTile(
-                        name: translator.currentLanguage == "en"
-                            ? "Analysis requests"
-                            : 'طلبات التحليل',
-                        isIcon: true,
-                        icon: Icons.redeem,
-                        infoWidget: infoWidget,
-                        onTap: () async {
-                          Navigator.of(context).pop();
-                          setState(() {
-                            _page = 1;
-                          });
-                          _pageController.jumpToPage(_page);
-                        }),
+//                    _drawerListTile(
+////                        name: translator.currentLanguage == "en"
+////                            ? "Human medicine requests"
+////                            : 'طلبات طب بشرى',
+////                        isIcon: true,
+////                        icon: Icons.remove_from_queue,
+////                        infoWidget: infoWidget,
+////                        onTap: () {
+////                          Navigator.of(context).pop();
+////                          setState(() {
+////                            _page = 0;
+////                          });
+////                          _pageController.jumpToPage(_page);
+////                        }),
+////                    _drawerListTile(
+////                        name: translator.currentLanguage == "en"
+////                            ? "Physical therapy requests"
+////                            : 'طلبات العلاج الطبيعى',
+////                        isIcon: true,
+////                        icon: Icons.chrome_reader_mode,
+////                        infoWidget: infoWidget,
+////                        onTap: () async {
+////                          Navigator.of(context).pop();
+////                          setState(() {
+////                            _page = 1;
+////                          });
+////                          _pageController.jumpToPage(_page);
+////                        }),
+////                    _drawerListTile(
+////                        name: translator.currentLanguage == "en"
+////                            ? 'Analysis requests'
+////                            : 'طلبات التحليل',
+////                        isIcon: true,
+////                        icon: Icons.redeem,
+////                        infoWidget: infoWidget,
+////                        onTap: () async {
+////                          Navigator.of(context).pop();
+////                          setState(() {
+////                            _page = 2;
+////                          });
+////                          _pageController.jumpToPage(_page);
+////                        }),_drawerListTile(
+////                        name: translator.currentLanguage == "en"
+////                            ? "Another requests"
+////                            : 'طلبات اخرى',
+////                        isIcon: true,
+////                        icon: Icons.featured_play_list,
+////                        infoWidget: infoWidget,
+////                        onTap: () async {
+////                          Navigator.of(context).pop();
+////                          setState(() {
+////                            _page = 3;
+////                          });
+////                          _pageController.jumpToPage(_page);
+////                        }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
                             ? "Archived requests"
@@ -254,6 +286,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => ArchivedRequests()));
+                        }),
+                    _drawerListTile(
+                        name: translator.currentLanguage == "en"
+                            ? "Patient accounts"
+                            : 'حسابات المرضي',
+                        isIcon: true,
+                        icon: Icons.people,
+                        infoWidget: infoWidget,
+                        onTap: () async {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (context) => PatientsAccounts()));
                         }),
                     _drawerListTile(
                         name: translator.currentLanguage == "en"
@@ -368,13 +413,21 @@ class _HomeScreenState extends State<HomeScreen> {
               items: <Widget>[
                 _page != 0
                     ? _iconNavBar(
-                        infoWidget: infoWidget,
-                        iconPath: Icons.remove_from_queue,
-                        title: translator.currentLanguage == "en"
-                            ? "Patients requests"
-                            : 'طلبات المرضي')
+                    infoWidget: infoWidget,
+                    iconPath: Icons.remove_from_queue,
+                    title: translator.currentLanguage == "en"
+                        ? "Human medicine"
+                        : 'طب بشرى')
                     : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.remove_from_queue),
                 _page != 1
+                    ? _iconNavBar(
+                    infoWidget: infoWidget,
+                    iconPath: Icons.chrome_reader_mode,
+                    title: translator.currentLanguage == "en"
+                        ? "Physical therapy"
+                        : 'العلاج الطبيعى')
+                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.chrome_reader_mode),
+                _page != 2
                     ? _iconNavBar(
                         infoWidget: infoWidget,
                         iconPath: Icons.redeem,
@@ -383,6 +436,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             : 'طلبات التحليل')
                     : _iconNavBar(
                         infoWidget: infoWidget, iconPath: Icons.redeem),
+                _page != 3
+                    ? _iconNavBar(
+                    infoWidget: infoWidget,
+                    iconPath: Icons.featured_play_list,
+                    title: translator.currentLanguage == "en"
+                        ? "Another requests"
+                        : 'طلبات اخرى')
+                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.featured_play_list),
               ],
               onTap: (index) {
                 setState(() {
@@ -412,7 +473,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: translator.currentLanguage == "en" ? 'Filters' : 'فلتره',
                   ontap:() {
                     showModalBottomSheet(
-                      isDismissible: false,
                         backgroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
@@ -451,6 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 10),
                                         child: InkWell(onTap: ()async{
+
                                           Navigator.of(context).pop();
                                           final prefs = await SharedPreferences.getInstance();
                                           final _radiusForAllRequests = json.encode({
@@ -463,8 +524,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                             'address':_auth.address
                                           });
                                           prefs.setString('location', _location);
-                                          setState(() {
-                                          });
+                                          _home.refreshWhenChangeFilters=[true,true,true,true];
+                                          _home.refreshWhenChangeFilters[_page]=false;
+                                          switch(_page){
+                                            case 0:
+                                              _home.getAllHumanMedicineRequests(
+                                                userLong: _auth.lng.toString(),userLat: _auth.lat.toString()
+                                              );
+                                              break;
+                                            case 1:
+                                              _home.getAllPhysicalTherapyRequests(
+                                                userLong: _auth.lng.toString(),userLat: _auth.lat.toString()
+                                              );
+                                              break;
+                                            case 2:
+                                              _home.getAllAnalysisRequests(
+                                                  userLong: _auth.lng.toString(),userLat: _auth.lat.toString()
+                                              );
+                                              break;
+                                            case 3:
+                                              _home.getAllPatientsRequests(
+                                                  long: _auth.lng,lat: _auth.lat
+                                              );
+                                              break;
+                                          }
+
+
                                         }, child: Text(translator.currentLanguage == "en" ?'Save':'حفظ',style: infoWidget.subTitle.copyWith(color: Colors.indigo),)),
                                       ),
                                     ],
@@ -518,8 +603,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     navBarState.setPage(_page);
                   },
                   children: <Widget>[
-                    PatientsRequests(),
+                    HumanMedicineRequests(),
+                    PhysicalTherapyRequests(),
                     AnalysisRequests(),
+                    PatientsRequests(),
                   ],
                 ),
               ),

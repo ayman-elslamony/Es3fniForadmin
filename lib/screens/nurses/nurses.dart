@@ -22,7 +22,7 @@ class _NursesState extends State<Nurses> {
   TextEditingController nationalId = TextEditingController();
   TextEditingController name = TextEditingController();
   Home _home;
-  bool loadingBody = true;
+  bool loadingBody = false;
   final FocusNode _passwordNode = FocusNode();
   bool _showPassword = false;
   bool _isSpecializationSelected = false;
@@ -240,11 +240,15 @@ class _NursesState extends State<Nurses> {
 
   getAllParamedics() async {
     if (_home.allNurses.length == 0) {
+      setState(() {
+        loadingBody = true;
+      });
       await _home.getAllParamedics();
+      setState(() {
+        loadingBody = false;
+      });
     }
-    setState(() {
-      loadingBody = false;
-    });
+
   }
 
   @override

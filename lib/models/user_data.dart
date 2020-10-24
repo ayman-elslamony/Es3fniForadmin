@@ -18,9 +18,13 @@ class UserData {
   String specializationBranch;
   String rating;
   bool loading;
+  String date;
+  String time;
+  String imgId;
 
   UserData(
-      {this.docId,this.rating,
+      {this.docId,this.imgId,this.rating,
+        this.date,this.time,
       this.specialization,
       this.specializationBranch,
       this.address,
