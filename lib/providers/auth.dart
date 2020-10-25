@@ -20,14 +20,14 @@ class Auth with ChangeNotifier {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final databaseReference = Firestore.instance;
    String _token;
-   String userId = '';
+   static String _userId = '';
   String signInType = '';
-   UserData _userData;
+  static UserData _userData;
 
    double lat= 30.033333;
    double lng=31.233334;
-  String address;
-
+  String address='Cairo';
+String get userId =>_userId;
   UserData get userData => _userData;
   bool get isAuth {
       return _token != null;
@@ -52,7 +52,7 @@ class Auth with ChangeNotifier {
     if (prefs.containsKey('signInUsingEmail')) {
       final dataToSignIn =
       await json.decode(prefs.getString('signInUsingEmail')) as Map<String, Object>;
-   await signInUsingEmail(email: dataToSignIn['email'], password: dataToSignIn['password']).then((_){
+       await signInUsingEmail(email: dataToSignIn['email'], password: dataToSignIn['password']).then((_){
         signInType='signInUsingEmail';
       });
     }
@@ -65,11 +65,10 @@ class Auth with ChangeNotifier {
 
   Future<void> setAndGetAdminData({String email}) async {
     var users = databaseReference.collection("admins");
-    DocumentSnapshot doc = await users.document(userId).get();
+    DocumentSnapshot doc = await users.document(_userId).get();
     var x=email.split('@');
-    if (!doc.exists) {
-      await users.document(userId).setData({
-
+    if (doc.exists == false) {
+      await users.document(_userId).setData({
         'name': x[0]??'Admin',
         'points': '0'
       });
@@ -88,7 +87,7 @@ class Auth with ChangeNotifier {
         password: password,
       );
       if(auth != null) {
-        userId = auth.user.uid;
+        _userId = auth.user.uid;
          IdTokenResult x =await  auth.user.getIdToken();
          _token= x.token;
         await setAndGetAdminData(email: email);
@@ -100,154 +99,22 @@ class Auth with ChangeNotifier {
           });
           prefs.setString('signInUsingEmail', _signInUsingEmail);
         }
-        if(lat==30.033333 && lng == 31.233334){
-          if(prefs.containsKey('location')){
-            final _location = await json
-                .decode(prefs.getString('location')) as Map<String, Object>;
-            lat = double.parse(_location['lat']);
-            lng = double.parse(_location['lng']);
-            address = _location['address'];
-          }else{
-//            try {
-//              Position position = await getCurrentPosition(
-//                  desiredAccuracy: LocationAccuracy.high);
-//              lat = position.latitude;
-//              lng = position.longitude;
-//              final coordinates = new Coordinates(position.latitude, position.longitude);
-//              var addresses =
-//              await Geocoder.local.findAddressesFromCoordinates(coordinates);
-//              address =addresses.first.addressLine;
-//              final _location = json.encode({
-//                'lat': lat.toString(),
-//                'lng': lng.toString(),
-//                'address':address
-//              });
-//              prefs.setString('location', _location);
-//            }catch(e){
-              lat= 30.033333;
-              lng= 31.233334;
-              address ='Cairo';
-          }
-        }
+        return true;
+      }else{
+        return false;
       }
-      notifyListeners();
-      return true;
     }catch (e) {
       throw HttpException(e.code);
     }
   }
 
-  Future<bool> editProfile({String type,String address,String phone,File image,String job,String social,String bio})async{
-//    FormData formData;
-//    var data;
-//    try{
-//      if(type =='bio'){
-//        formData = FormData.fromMap({
-//          'bio': bio,
-//        });
-//        data = await _netWork
-//            .updateData(url: 'doctor/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'image'){
-//        String fileName = image.path
-//            .split('/')
-//            .last;
-//        if(_userType == 'doctor'){
-//          formData = FormData.fromMap({
-//            'doctorImage': await MultipartFile.fromFile(image.path,
-//                filename: fileName)
-//          });
-//        }else{
-//          formData = FormData.fromMap({
-//            'patientImage': await MultipartFile.fromFile(image.path,
-//                filename: fileName)
-//          });
-//        }
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print(data);
-//      }
-//      if(type == 'job'){
-//        formData = FormData.fromMap({
-//          'job': job,
-//        });
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'address'){
-//        String government = '';
-//        for (int i = 0; i < governorateList.length; i++) {
-//          if (address.contains(governorateList[i])) {
-//            government = governorateList[i];
-//          }
-//        }
-//        formData = FormData.fromMap({
-//          'address': address,
-//          'government': government,
-//        });
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'phone'){
-//        if(_userType == 'doctor') {
-//          formData = FormData.fromMap({
-//            'number': '0$phone',
-//          });
-//        }else{
-//          formData = FormData.fromMap({
-//            'phone': '0$phone',
-//          });
-//        }
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if(type == 'social'){
-//        formData = FormData.fromMap({
-//          'status': social,
-//        });
-//        data = await _netWork
-//            .updateData(url: _userType=='doctor'?'doctor/$_userId':'patient/$_userId', formData: formData, headers: {
-//          'Authorization': 'Bearer $_token',
-//        });
-//        print('data $data');
-//      }
-//      if (data != null) {
-//        if(_userType =='doctor'){
-//          rgisterData = RegisterData.fromJson(data['doctor'], 'doctor');
-//        }else{
-//          rgisterData = RegisterData.fromJson(data['patient'], 'patient');
-//        }
-//        print('svfdsb');
-//        notifyListeners();
-//        return true;
-//      }else{
-//        return false;
-//      }
-//    }catch (e){
-//      print(e);
-//      return false;
-//    }
-    return true;
-  }
+
   Future<bool> logout() async {
     try {
       firebaseAuth.signOut();
       _token = null;
-      userId = null;
+      _userId = null;
+      _userData =null;
       final prefs = await SharedPreferences.getInstance();
       prefs.clear();
       return true;

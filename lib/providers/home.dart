@@ -16,13 +16,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class Home with ChangeNotifier {
-  var firebaseAuth = FirebaseAuth.instance;
-  final databaseReference = Firestore.instance;
-  final String authToken;
+  final  FirebaseAuth fireBaseAuth = FirebaseAuth.instance;
+  final Firestore databaseReference = Firestore.instance;
 
-  Home(
-    this.authToken,
-  );
+
   double totalRatingForNurse = 0.0;
   List<Requests> allArchivedRequests = [];
   List<Service> allService = [];
@@ -54,7 +51,6 @@ class Home with ChangeNotifier {
             allAnalysis.indexWhere((x) => x.analysisName == serviceType);
         List<String> x = price.allServiceType;
         x.add(serviceType);
-//       priceBeforeDiscount =price.servicePrice + double.parse(allAnalysis[index].price);
         price = Price(
             servicePrice:
                 price.servicePrice + double.parse(allAnalysis[index].price),
@@ -112,7 +108,7 @@ class Home with ChangeNotifier {
       {String name, String email, String password, String nationalId,String specialization='',String specializationBranch=''}) async {
     AuthResult auth;
     try {
-      auth = await firebaseAuth.createUserWithEmailAndPassword(
+      auth = await fireBaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -169,9 +165,9 @@ class Home with ChangeNotifier {
           }
           allNurses.add(UserData(
               specializationBranch: docs.documents[i]
-                  .data['specializationBranch'].toString() ?? '',
+                  .data['specializationBranch'] ?? '',
               specialization: docs.documents[i].data['specialization']
-                  .toString() ?? '',
+                  ?? '',
               rating: ratingForNurse.toString(),
               isActive: docs.documents[i].data['isActive'] ?? false,
               lat: docs.documents[i].data['lat'] ?? '',
@@ -217,8 +213,8 @@ class Home with ChangeNotifier {
                     (one + two + three + four + five);
           }
           allNursesSupplies.add(UserData(
-              specializationBranch:docs.documents[i].data['specializationBranch'].toString() ?? '',
-              specialization: docs.documents[i].data['specialization'].toString() ?? '',
+              specializationBranch:docs.documents[i].data['specializationBranch']?? '',
+              specialization: docs.documents[i].data['specialization'] ?? '',
               rating: ratingForNurse.toString(),
               isActive: docs.documents[i].data['isActive'] ?? false,
               lat: docs.documents[i].data['lat'] ?? '',
@@ -480,7 +476,7 @@ long:  docsForArchivedRequestsForNoAccount.documents[i].data['long'] ?? '',
     String userId;
     if (userData.email != null && userData.password != null) {
       try {
-        AuthResult auth = await firebaseAuth.signInWithEmailAndPassword(
+        AuthResult auth = await fireBaseAuth.signInWithEmailAndPassword(
           email: userData.email,
           password: userData.password,
         );
@@ -1563,8 +1559,8 @@ long:  docsForArchivedRequestsForNoAccount.documents[i].data['long'] ?? '',
       print(doc.data['specializationBranch']);
       print(doc.data['specialization']);
       user = UserData(
-        specializationBranch: doc.data['specializationBranch'].toString() ?? '',
-        specialization: doc.data['specialization'].toString() ?? '',
+        specializationBranch: doc.data['specializationBranch']?? '',
+        specialization: doc.data['specialization'] ?? '',
         rating: totalRatingForNurse.toString(),
         name: doc.data['name'],
         docId: doc.documentID,

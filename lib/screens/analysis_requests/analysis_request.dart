@@ -26,9 +26,6 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
   Home _home;
   Auth _auth;
   bool loadingBody = false;
-  bool _showFloating = true;
-
-  ScrollController _scrollController;
   Widget content({Requests request, DeviceInfo infoWidget}) {
     String visitDays = '';
     String visitTime = '';
@@ -398,25 +395,30 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                             .copyWith(color: Colors.indigo),
                       )
                           : SizedBox(),
-                      request.specialization != '' && request.specializationBranch !=''
+                      request.specialization != ''
                           ? Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
                             translator.currentLanguage == 'en'
-                                ? 'Nurse specialization: '
-                                : ' تخصص الممرض: ',
+                                ? 'Specialization: '
+                                : 'التخصص: ',
                             style: infoWidget.titleButton
                                 .copyWith(color: Colors.indigo),
                           ),
                           Expanded(
                             child: Text(
                               translator.currentLanguage == 'en'
-                                  ? request.specializationBranch!=''?'${request.specialization}-${request.specializationBranch}':'${request.specialization}'
-                                  : request.specializationBranch!=''?'${request.specialization} - ${request.specializationBranch}':'${request.specialization}',
+                                  ? request.specializationBranch != ''
+                                  ? '${request.specialization}-${request
+                                  .specializationBranch}'
+                                  : '${request.specialization}'
+                                  : request.specializationBranch != ''
+                                  ? '${request.specialization} - ${request
+                                  .specializationBranch}'
+                                  : '${request.specialization}',
                               style: infoWidget.titleButton
                                   .copyWith(color: Colors.indigo),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         ],
@@ -515,10 +517,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
       ],
     );
   }
-  bool get _isAppBarExpanded {
-    return _scrollController.hasClients &&
-        _scrollController.offset < (MediaQuery.of(context).size.height*0.1 - kToolbarHeight);
-  }
+
   getAllAnalysisRequests() async {
     if(_home.refreshWhenChangeFilters[2]){
       _home.allAnalysisRequests.clear();
@@ -528,7 +527,7 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
       setState(() {
         loadingBody = true;
       });
-      await getLocationFromLocalStorage();
+      await getLocationAndRadiusFromLocalStorage();
       await _home.getAllAnalysisRequests(
         userLat: _auth.lat.toString(),
         userLong: _auth.lng.toString()
@@ -539,17 +538,34 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
     }
 
   }
-  Future<void> getLocationFromLocalStorage()async{
+  Future<void> getLocationAndRadiusFromLocalStorage()async{
     final prefs = await SharedPreferences.getInstance();
+    Map<String, Object> _filter;
     if(_home.radiusForAllRequests==1.0){
-      if (prefs.containsKey('radiusForAllRequests')) {
-        print('bdfbdf');
-        final _radiusForAllRequests = await json
-            .decode(prefs.getString('radiusForAllRequests')) as Map<String, Object>;
-        print(_radiusForAllRequests['radiusForAllRequests']);
-        _home.radiusForAllRequests =double.parse(_radiusForAllRequests['radiusForAllRequests']);
+      if (prefs.containsKey('filter')) {
+        _filter = await json
+            .decode(prefs.getString('filter')) as Map<String, Object>;
+        print(_filter['filter']);
+        _home.radiusForAllRequests =double.parse(_filter['radiusForAllRequests']??'10.0');
       }else{
-        _home.radiusForAllRequests = 3.0;
+        _home.radiusForAllRequests = 10.0;
+      }
+    }
+    if(_auth.lat==30.033333 && _auth.lng == 31.233334){
+      if (prefs.containsKey('filter')) {
+        if(_filter == null){
+          _filter = await json
+              .decode(prefs.getString('filter')) as Map<String, Object>;
+        }
+        _auth.lat = double.parse(_filter['lat']);
+        _auth.lng = double.parse(_filter['lng']);
+        _auth.address = _filter['address'];
+
+      }else{
+        _auth.lat= 30.033333;
+        _auth.lng= 31.233334;
+        _auth.address =translator.currentLanguage=='en'?'Cairo':'القاهره';
+        _home.radiusForAllRequests = 10.0;
       }
     }
   }
@@ -557,16 +573,6 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
     _auth = Provider.of<Auth>(context, listen: false);
-    _scrollController = ScrollController()
-      ..addListener(() {
-        _isAppBarExpanded
-            ? setState(() {
-          _showFloating = true;
-        })
-            : setState(() {
-          _showFloating = false;
-        });
-      });
     getAllAnalysisRequests();
     super.initState();
   }
@@ -616,7 +622,6 @@ class _AnalysisRequestsState extends State<AnalysisRequests> {
                   );
                 } else {
                   return ListView.builder(
-                    controller: _scrollController,
                       itemCount: data.allAnalysisRequests.length,
                       itemBuilder: (context, index) =>
                           content(

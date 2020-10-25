@@ -49,15 +49,16 @@ class _HomeScreenState extends State<HomeScreen> {
     type = translator.currentLanguage == "en"
         ? ["Human medicine requests","Physical therapy requests",'Analysis requests',"Another requests"]
         : ['طلبات طب بشرى','طلبات العلاج الطبيعى','طلبات التحليل','طلبات اخرى'];
+
   }
 
 
   getAddress(String add,String lat,String lng) {
+    print('add');
+    print(add);
     _auth.address = add;
     _auth.lat =double.parse(lat);
     _auth.lng =double.parse(lng);
-
-
   }
   @override
   void dispose() {
@@ -511,19 +512,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Padding(
                                         padding: const EdgeInsets.symmetric(horizontal: 10),
                                         child: InkWell(onTap: ()async{
-
                                           Navigator.of(context).pop();
                                           final prefs = await SharedPreferences.getInstance();
-                                          final _radiusForAllRequests = json.encode({
+                                          final _filter = json.encode({
+                                            'address': _auth.address.toString(),
                                             'radiusForAllRequests': _home.radiusForAllRequests.toString(),
-                                          });
-                                          prefs.setString('radiusForAllRequests', _radiusForAllRequests);
-                                          final _location = json.encode({
                                             'lat': _auth.lat.toString(),
-                                            'lng': _auth.lng.toString(),
-                                            'address':_auth.address
+                                            'lng': _auth.lng.toString()
                                           });
-                                          prefs.setString('location', _location);
+                                          await prefs.setString('filter', _filter);
                                           _home.refreshWhenChangeFilters=[true,true,true,true];
                                           _home.refreshWhenChangeFilters[_page]=false;
                                           switch(_page){

@@ -396,25 +396,30 @@ class _HumanMedicineRequestsState extends State<HumanMedicineRequests> {
                             .copyWith(color: Colors.indigo),
                       )
                           : SizedBox(),
-                      request.specialization != '' && request.specializationBranch !=''
+                      request.specialization != ''
                           ? Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
                             translator.currentLanguage == 'en'
-                                ? 'Nurse specialization: '
-                                : ' تخصص الممرض: ',
+                                ? 'Specialization: '
+                                : 'التخصص: ',
                             style: infoWidget.titleButton
                                 .copyWith(color: Colors.indigo),
                           ),
                           Expanded(
                             child: Text(
                               translator.currentLanguage == 'en'
-                                  ? request.specializationBranch!=''?'${request.specialization}-${request.specializationBranch}':'${request.specialization}'
-                                  : request.specializationBranch!=''?'${request.specialization} - ${request.specializationBranch}':'${request.specialization}',
+                                  ? request.specializationBranch != ''
+                                  ? '${request.specialization}-${request
+                                  .specializationBranch}'
+                                  : '${request.specialization}'
+                                  : request.specializationBranch != ''
+                                  ? '${request.specialization} - ${request
+                                  .specializationBranch}'
+                                  : '${request.specialization}',
                               style: infoWidget.titleButton
                                   .copyWith(color: Colors.indigo),
-                              textAlign: TextAlign.center,
                             ),
                           ),
                         ],
@@ -522,7 +527,7 @@ Future<void> getAllHumanMedicineRequests() async {
       setState(() {
         loadingBody = true;
       });
-      await getLocationFromLocalStorage();
+      await getLocationAndRadiusFromLocalStorage();
       await _home.getAllHumanMedicineRequests(
           userLat: _auth.lat.toString(),
           userLong: _auth.lng.toString()
@@ -533,17 +538,34 @@ Future<void> getAllHumanMedicineRequests() async {
       });
     }
   }
-  Future<void> getLocationFromLocalStorage()async{
+  Future<void> getLocationAndRadiusFromLocalStorage()async{
     final prefs = await SharedPreferences.getInstance();
+    Map<String, Object> _filter;
     if(_home.radiusForAllRequests==1.0){
-      if (prefs.containsKey('radiusForAllRequests')) {
-        print('bdfbdf');
-        final _radiusForAllRequests = await json
-            .decode(prefs.getString('radiusForAllRequests')) as Map<String, Object>;
-        print(_radiusForAllRequests['radiusForAllRequests']);
-        _home.radiusForAllRequests =double.parse(_radiusForAllRequests['radiusForAllRequests']);
+      if (prefs.containsKey('filter')) {
+        _filter = await json
+            .decode(prefs.getString('filter')) as Map<String, Object>;
+        print(_filter['filter']);
+        _home.radiusForAllRequests =double.parse(_filter['radiusForAllRequests']??'10.0');
       }else{
-        _home.radiusForAllRequests = 3.0;
+        _home.radiusForAllRequests = 10.0;
+      }
+    }
+    if(_auth.lat==30.033333 && _auth.lng == 31.233334){
+      if (prefs.containsKey('filter')) {
+        if(_filter == null){
+          _filter = await json
+              .decode(prefs.getString('filter')) as Map<String, Object>;
+        }
+        _auth.lat = double.parse(_filter['lat']);
+        _auth.lng = double.parse(_filter['lng']);
+        _auth.address = _filter['address'];
+
+      }else{
+        _auth.lat= 30.033333;
+        _auth.lng= 31.233334;
+        _auth.address =translator.currentLanguage=='en'?'Cairo':'القاهره';
+        _home.radiusForAllRequests = 10.0;
       }
     }
   }
