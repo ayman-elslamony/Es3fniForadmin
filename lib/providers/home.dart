@@ -124,7 +124,7 @@ class Home with ChangeNotifier {
             'specialization':specialization,
             'specializationBranch':specializationBranch
             ,'points': '0'
-          });
+          }, merge: true);
         }
         await getAllParamedics();
       }
@@ -176,7 +176,7 @@ class Home with ChangeNotifier {
               docId: docs.documents[i].documentID,
               email: docs.documents[i].data['email'] ?? '',
               password: docs.documents[i].data['password'] ?? '',
-              points: docs.documents[i].data['points'] ?? '',
+              points: docs.documents[i].data['points'] ?? '0',
               name: docs.documents[i].data['name'] ?? '',
               phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
               imgUrl: docs.documents[i].data['imgUrl'] ?? '',
@@ -223,7 +223,7 @@ class Home with ChangeNotifier {
               docId: docs.documents[i].documentID,
               email: docs.documents[i].data['email'] ?? '',
               password: docs.documents[i].data['password'] ?? '',
-              points: docs.documents[i].data['points'] ?? '',
+              points: docs.documents[i].data['points'] ?? '0',
               name: docs.documents[i].data['name'] ?? '',
               phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
               imgUrl: docs.documents[i].data['imgUrl'] ?? '',
@@ -250,32 +250,34 @@ class Home with ChangeNotifier {
           time='';
         }
         allSpecificNurseSupplies.add(Supplying(
-            points: docs.documents[i].data['points'] ?? '',
+            points: docs.documents[i].data['points'] ?? '0',
             date: docs.documents[i].data['date'] ?? '',
             time: time ));
       }
     }else{
       allSpecificNurseSupplies.clear();
     }
+    print(allSpecificNurseSupplies.length);
     notifyListeners();
   }
 
-  Future nurseSupplying({String nurseId,String adminId}) async {
+  Future nurseSupplying({String nurseId,String adminId,String points}) async {
     DateTime dateTime = DateTime.now();
     var admin = databaseReference.collection("admins");
     CollectionReference nurses = databaseReference.collection("nurses");
     DocumentSnapshot getPoints=await nurses
         .document(nurseId).get();
     await nurses.document(nurseId).collection('supplying').add({
-      'points': getPoints['points'],
+      'points': getPoints.data['points'],
       'date': '${dateTime.year}-${dateTime.month}-${dateTime.day}',
       'time': '${dateTime.hour}:${dateTime.minute}',
     });
-    await admin.document(adminId).setData({
-      'points': getPoints['points']
+    int allPoints = int.parse(points) + int.parse(getPoints.data['points']);
+    await admin.document(adminId).updateData({
+      'points': allPoints.toString()
     });
     await nurses
-        .document(nurseId).setData({
+        .document(nurseId).updateData({
       'points':'0'
     });
     return true;
@@ -1539,7 +1541,7 @@ long:  docsForArchivedRequestsForNoAccount.documents[i].data['long'] ?? '',
         lng: doc.data['lng'] ?? '',
         lat: doc.data['lat'] ?? '',
         aboutYou: doc.data['aboutYou'] ?? '',
-        points: doc.data['points'] ?? '',
+        points: doc.data['points'] ?? '0',
       );
     } else {
       DocumentSnapshot doc = await nursesCollection.document(userId).get();
@@ -1574,7 +1576,7 @@ long:  docsForArchivedRequestsForNoAccount.documents[i].data['long'] ?? '',
         lng: doc.data['lng'] ?? '',
         lat: doc.data['lat'] ?? '',
         aboutYou: doc.data['aboutYou'] ?? '',
-        points: doc.data['points'] ?? '',
+        points: doc.data['points'] ?? '0',
       );
     }
     return user;
@@ -1736,7 +1738,7 @@ Future<void> getPatientAccountsThatToVerify()async{
                docId: docs.documents[i].documentID,
                email: docs.documents[i].data['email'] ?? '',
                password: docs.documents[i].data['password'] ?? '',
-               points: docs.documents[i].data['points'] ?? '',
+               points: docs.documents[i].data['points'] ?? '0',
                name: docs.documents[i].data['name'] ?? '',
                phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
                imgUrl: docs.documents[i].data['imgUrl'] ?? '',

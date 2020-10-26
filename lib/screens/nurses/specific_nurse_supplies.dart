@@ -64,7 +64,7 @@ class _SpecificNursesSuppliesState extends State<SpecificNursesSupplies> {
   }
   getSpecificNurseSupplies() async {
     if (_home.allSpecificNurseSupplies.length == 0) {
-      await _home.getSpecificNurseSupplies();
+      await _home.getSpecificNurseSupplies(nurseId: widget.userData.docId);
     }
     setState(() {
       loadingBody = false;
@@ -90,7 +90,7 @@ class _SpecificNursesSuppliesState extends State<SpecificNursesSupplies> {
             color: Colors.indigo,
             backgroundColor: Colors.white,
             onRefresh: () async {
-              await _home.getSpecificNurseSupplies();
+              await _home.getSpecificNurseSupplies(nurseId: widget.userData.docId);
             },
             child: Scaffold(
               appBar: AppBar(

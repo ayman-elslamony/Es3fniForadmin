@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _pageController = PageController();
     _auth = Provider.of<Auth>(context, listen: false);
     _home = Provider.of<Home>(context, listen: false);
+    _auth.getAdminPoints();
     type = translator.currentLanguage == "en"
         ? ["Human medicine requests","Physical therapy requests",'Analysis requests',"Another requests"]
         : ['طلبات طب بشرى','طلبات العلاج الطبيعى','طلبات التحليل','طلبات اخرى'];
@@ -207,8 +208,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               MaterialPageRoute(
                                   builder: (context) => NursesSupplies()));
                         },
-                        child: Text(translator.currentLanguage == "en"
-                            ?'Points supplied: ${_auth.userData.points}':' النقاط المورده: ${_auth.userData.points}'),
+                        child: Consumer<Auth>(
+                          builder: (context,data,_)=>
+                          Text(translator.currentLanguage == "en"
+                              ?'Points supplied: ${data.points}':' النقاط المورده: ${data.points}'),
+                        ),
                       ),
                       currentAccountPicture: CircleAvatar(
                         backgroundColor:

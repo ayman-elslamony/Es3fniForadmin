@@ -60,6 +60,7 @@ class _NursesSuppliesState extends State<NursesSupplies> {
                               });
                               bool x = await _home.nurseSupplying(
                                 adminId: _auth.userId,
+                                  points: _auth.points,
                                   nurseId: userData.docId);
                               if (x) {
                                 Toast.show(

@@ -33,21 +33,23 @@ class _AnalysissState extends State<Analysiss> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Column(
-                children: <Widget>[
-                  Text(
-                    translator.currentLanguage == 'en'
-                        ? 'Analysis Type: ${analysis.analysisName}'
-                        : 'نوع التحليل: ${analysis.analysisName}',
-                    style: infoWidget.title,
-                  ),
-                  Text(
-                    translator.currentLanguage == 'en'
-                        ? 'Price: ${analysis.price} EGP'
-                        : 'السعر: ${analysis.price} جنيه ',
-                    style: infoWidget.subTitle,
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      translator.currentLanguage == 'en'
+                          ? 'Analysis Type: ${analysis.analysisName}'
+                          : 'نوع التحليل: ${analysis.analysisName}',
+                      style: infoWidget.title,
+                    ),
+                    Text(
+                      translator.currentLanguage == 'en'
+                          ? 'Price: ${analysis.price} EGP'
+                          : 'السعر: ${analysis.price} جنيه ',
+                      style: infoWidget.subTitle,
+                    ),
+                  ],
+                ),
               ),
               Column(
                 children: <Widget>[

@@ -999,6 +999,7 @@ class _EditProfileState extends State<EditProfile> {
                                 widget.userData.loading = true;
                               });
                               bool x = await _home.nurseSupplying(
+                                points: _auth.points,
                                 adminId: _auth.userId,
                                   nurseId: widget.userData.docId);
                               if (x) {

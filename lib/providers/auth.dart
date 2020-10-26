@@ -23,7 +23,7 @@ class Auth with ChangeNotifier {
    static String _userId = '';
   String signInType = '';
   static UserData _userData;
-
+  String points = '0';
    double lat= 30.033333;
    double lng=31.233334;
   String address='Cairo';
@@ -62,7 +62,13 @@ String get userId =>_userId;
       return false;
     }
   }
-
+Future<void> getAdminPoints()async{
+  var users = databaseReference.collection("admins");
+  users.document(_userId).snapshots().listen((doc){
+    points = doc.data['points'];
+    notifyListeners();
+  });
+}
   Future<void> setAndGetAdminData({String email}) async {
     var users = databaseReference.collection("admins");
     DocumentSnapshot doc = await users.document(_userId).get();
@@ -71,7 +77,7 @@ String get userId =>_userId;
       await users.document(_userId).setData({
         'name': x[0]??'Admin',
         'points': '0'
-      });
+      }, merge: true);
       _userData= UserData(name: x[0]??'Admin',points: '0');
     }else{
       _userData= UserData(name: doc.data['name']??'Admin',points: doc.data['points']??'0');
