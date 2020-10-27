@@ -137,9 +137,9 @@ class Home with ChangeNotifier {
   }
 
   Future getAllParamedics() async {
+    CollectionReference nursesCollection = databaseReference.collection("nurses");
+    double ratingForNurse =0.0;
     databaseReference.collection("nurses").snapshots().listen((docs) async{
-      CollectionReference nursesCollection = databaseReference.collection("nurses");
-      double ratingForNurse =0.0;
       if (docs.documents.length != 0) {
         allNurses.clear();
         for (int i = 0; i < docs.documents.length; i++) {
@@ -148,7 +148,7 @@ class Home with ChangeNotifier {
           DocumentSnapshot rating = await nursesCollection.document(
               docs.documents[i].documentID).collection('rating').document(
               'rating').get();
-          if (rating.exists) {
+          if (rating.exists== true) {
             int one = rating.data['1'] == null ? 0 : int.parse(
                 rating.data['1']);
             int two = rating.data['2'] == null ? 0 : int.parse(
@@ -162,6 +162,8 @@ class Home with ChangeNotifier {
             ratingForNurse =
                 (5 * five + 4 * four + 3 * three + 2 * two + 1 * one) /
                     (one + two + three + four + five);
+          }else{
+            ratingForNurse=0.0;
           }
           allNurses.add(UserData(
               specializationBranch: docs.documents[i]
@@ -194,43 +196,44 @@ class Home with ChangeNotifier {
   }
 
   Future getAllNursesSupplies() async {
+    CollectionReference nursesCollection = databaseReference.collection("nurses");
+    double ratingForNurse =0.0;
     databaseReference.collection("nurses").snapshots().listen((docs)async{
-      CollectionReference nursesCollection = databaseReference.collection("nurses");
-      double ratingForNurse =0.0;
-
-      allNursesSupplies.clear();
       if (docs.documents.length != 0) {
+        allNursesSupplies.clear();
         for (int i = 0; i < docs.documents.length; i++) {
           DocumentSnapshot rating = await nursesCollection.document(docs.documents[i].documentID).collection('rating').document('rating').get();
-          if(rating.exists) {
-            int one = rating.data['1'] == null ? 0 : int.parse(rating.data['1']);
-            int two = rating.data['2'] == null ? 0 : int.parse(rating.data['2']);
-            int three = rating.data['3'] == null ? 0 : int.parse(rating.data['3']);
-            int four = rating.data['4'] == null ? 0 : int.parse(rating.data['4']);
-            int five = rating.data['5'] == null ? 0 : int.parse(rating.data['5']);
-            ratingForNurse =
-                (5 * five + 4 * four + 3 * three + 2 * two + 1 * one) /
-                    (one + two + three + four + five);
-          }
-          allNursesSupplies.add(UserData(
-              specializationBranch:docs.documents[i].data['specializationBranch']?? '',
-              specialization: docs.documents[i].data['specialization'] ?? '',
-              rating: ratingForNurse.toString(),
-              isActive: docs.documents[i].data['isActive'] ?? false,
-              lat: docs.documents[i].data['lat'] ?? '',
-              lng: docs.documents[i].data['lng'] ?? '',
-              aboutYou: docs.documents[i].data['aboutYou'] ?? '',
-              docId: docs.documents[i].documentID,
-              email: docs.documents[i].data['email'] ?? '',
-              password: docs.documents[i].data['password'] ?? '',
-              points: docs.documents[i].data['points'] ?? '0',
-              name: docs.documents[i].data['name'] ?? '',
-              phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
-              imgUrl: docs.documents[i].data['imgUrl'] ?? '',
-              address: docs.documents[i].data['address'] ?? '',
-              birthDate: docs.documents[i].data['birthDate'] ?? '',
-              gender: docs.documents[i].data['gender'] ?? '',
-              nationalId: docs.documents[i].data['nationalId'] ?? ''));
+           if(rating.exists) {
+             int one = rating.data['1'] == null ? 0 : int.parse(rating.data['1']);
+             int two = rating.data['2'] == null ? 0 : int.parse(rating.data['2']);
+             int three = rating.data['3'] == null ? 0 : int.parse(rating.data['3']);
+             int four = rating.data['4'] == null ? 0 : int.parse(rating.data['4']);
+             int five = rating.data['5'] == null ? 0 : int.parse(rating.data['5']);
+             ratingForNurse =
+                 (5 * five + 4 * four + 3 * three + 2 * two + 1 * one) /
+                     (one + two + three + four + five);
+           }else{
+              ratingForNurse =0.0;
+           }
+           allNursesSupplies.add(UserData(
+               specializationBranch:docs.documents[i].data['specializationBranch']?? '',
+               specialization: docs.documents[i].data['specialization'] ?? '',
+               rating: ratingForNurse.toString(),
+               isActive: docs.documents[i].data['isActive'] ?? false,
+               lat: docs.documents[i].data['lat'] ?? '',
+               lng: docs.documents[i].data['lng'] ?? '',
+               aboutYou: docs.documents[i].data['aboutYou'] ?? '',
+               docId: docs.documents[i].documentID,
+               email: docs.documents[i].data['email'] ?? '',
+               password: docs.documents[i].data['password'] ?? '',
+               points: docs.documents[i].data['points'] ?? '0',
+               name: docs.documents[i].data['name'] ?? '',
+               phoneNumber: docs.documents[i].data['phoneNumber'] ?? '',
+               imgUrl: docs.documents[i].data['imgUrl'] ?? '',
+               address: docs.documents[i].data['address'] ?? '',
+               birthDate: docs.documents[i].data['birthDate'] ?? '',
+               gender: docs.documents[i].data['gender'] ?? '',
+               nationalId: docs.documents[i].data['nationalId'] ?? ''));
         }
       }
       notifyListeners();

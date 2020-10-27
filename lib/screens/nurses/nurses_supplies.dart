@@ -35,70 +35,76 @@ class _NursesSuppliesState extends State<NursesSupplies> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      translator.currentLanguage == 'en'
-                          ? 'Paramedic: ${userData.name}'
-                          : 'مسعف: ${userData.name}',
-                      style: infoWidget.title,
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Text(
-                          translator.currentLanguage == 'en'
-                              ? 'Number of points that need to supplying: ${userData.points}'
-                              : 'عدد النقاط التى تحتاج الى توريد: ${userData.points} ',
-                          style: infoWidget.subTitle,
-                        ),
-                       userData.points!='0'?Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: RaisedButton(
-                            onPressed:  userData.points!='0'?() async {
-                              setState(() {
-                                userData.loading = true;
-                              });
-                              bool x = await _home.nurseSupplying(
-                                adminId: _auth.userId,
-                                  points: _auth.points,
-                                  nurseId: userData.docId);
-                              if (x) {
-                                Toast.show(
-                                    translator.currentLanguage == "en"
-                                        ? "Successfully applying"
-                                        : 'نجح التوريد',
-                                    context,
-                                    duration: Toast.LENGTH_SHORT,
-                                    gravity: Toast.BOTTOM);
-                              } else {
-                                Toast.show(
-                                    translator.currentLanguage == "en"
-                                        ? "try again later"
-                                        : 'حاول مره اخرى',
-                                    context,
-                                    duration: Toast.LENGTH_SHORT,
-                                    gravity: Toast.BOTTOM);
-                              }
-                              setState(() {
-                               userData.loading = false;
-                              });
-                            }:null,
-                            padding: EdgeInsets.all(0.0),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        translator.currentLanguage == 'en'
+                            ? 'Paramedic: ${userData.name}'
+                            : 'مسعف: ${userData.name}',
+                        style: infoWidget.title,
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
                             child: Text(
                               translator.currentLanguage == 'en'
-                                  ? 'Supplying'
-                                  : 'توريد',
-                              style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+                                  ? 'Number of points that need to supplying: ${userData.points}'
+                                  : 'عدد النقاط التى تحتاج الى توريد: ${userData.points} ',
+                              style: infoWidget.subTitle,
                             ),
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                            side: BorderSide(color: Colors.indigo)),
                           ),
-                        ):SizedBox()
-                      ],
-                    ),
-                  ],
+                         userData.points!='0'?Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: RaisedButton(
+                              onPressed:  userData.points!='0'?() async {
+                                setState(() {
+                                  userData.loading = true;
+                                });
+                                bool x = await _home.nurseSupplying(
+                                  adminId: _auth.userId,
+                                    points: _auth.points,
+                                    nurseId: userData.docId);
+                                if (x) {
+                                  Toast.show(
+                                      translator.currentLanguage == "en"
+                                          ? "Successfully applying"
+                                          : 'نجح التوريد',
+                                      context,
+                                      duration: Toast.LENGTH_SHORT,
+                                      gravity: Toast.BOTTOM);
+                                } else {
+                                  Toast.show(
+                                      translator.currentLanguage == "en"
+                                          ? "try again later"
+                                          : 'حاول مره اخرى',
+                                      context,
+                                      duration: Toast.LENGTH_SHORT,
+                                      gravity: Toast.BOTTOM);
+                                }
+                                setState(() {
+                                 userData.loading = false;
+                                });
+                              }:null,
+                              padding: EdgeInsets.all(0.0),
+                              child: Text(
+                                translator.currentLanguage == 'en'
+                                    ? 'Supplying'
+                                    : 'توريد',
+                                style: infoWidget.titleButton.copyWith(color: Colors.indigo),
+                              ),
+                              color: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                              side: BorderSide(color: Colors.indigo)),
+                            ),
+                          ):SizedBox()
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
                 Column(
                   children: <Widget>[
