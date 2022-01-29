@@ -17,8 +17,8 @@ class _EditImageState extends State<EditImage> {
   File? _imageFile;
   Future<void> _getImage(ImageSource source) async {
     await _picker
-        .getImage(source: source, maxWidth: 400.0)
-        .then((PickedFile? image) {
+        .pickImage(source: source, maxWidth: 400.0)
+        .then(( image) {
       if (image != null) {
         File x = File(image.path);
         widget.getImageFile!(x);

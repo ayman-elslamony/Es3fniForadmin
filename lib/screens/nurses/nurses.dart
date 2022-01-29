@@ -126,11 +126,13 @@ class _NursesState extends State<Nurses> {
               Positioned(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Container(
+                  child: SizedBox(
                     width: infoWidget.screenWidth! * 0.05,
                     height: infoWidget.screenWidth! * 0.05,
                     child: LoadingIndicator(
-                      backgroundColor: userData.isActive == false ? Colors.grey : Colors.red,
+                      colors: [
+                        userData.isActive == false ? Colors.grey : Colors.red,
+                      ],
                       indicatorType: Indicator.ballScale,
                     ),
                   ),

@@ -36,10 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
   int _page = 0;
   GlobalKey _bottomNavigationKey = GlobalKey();
   final GlobalKey<ScaffoldState> mainKey = GlobalKey<ScaffoldState>();
-  List<String> type =  ["Human medicine requests","Physical therapy requests",'Analysis requests',"Another requests"];
+  List<String> type = [
+    "Human medicine requests",
+    "Physical therapy requests",
+    'Analysis requests',
+    "Another requests"
+  ];
+
   PageController? _pageController;
+
   late Auth _auth;
+
   late Home _home;
+
   @override
   void initState() {
     super.initState();
@@ -48,26 +57,36 @@ class _HomeScreenState extends State<HomeScreen> {
     _home = Provider.of<Home>(context, listen: false);
     _auth.getAdminPoints();
     type = translator.activeLanguageCode == "en"
-        ? ["Human medicine requests","Physical therapy requests",'Analysis requests',"Another requests"]
-        : ['طلبات طب بشرى','طلبات العلاج الطبيعى','طلبات التحليل','طلبات اخرى'];
-
+        ? [
+            "Human medicine requests",
+            "Physical therapy requests",
+            'Analysis requests',
+            "Another requests"
+          ]
+        : [
+            'طلبات طب بشرى',
+            'طلبات العلاج الطبيعى',
+            'طلبات التحليل',
+            'طلبات اخرى'
+          ];
   }
 
-
-  getAddress(String add,String lat,String lng) {
+  getAddress(String add, String lat, String lng) {
     print('add');
     print(add);
     _auth.address = add;
-    _auth.lat =double.parse(lat);
-    _auth.lng =double.parse(lng);
+    _auth.lat = double.parse(lat);
+    _auth.lng = double.parse(lng);
   }
+
   @override
   void dispose() {
     _pageController!.dispose();
     super.dispose();
   }
 
-  Widget _iconNavBar({IconData? iconPath, String? title, DeviceInfo? infoWidget}) {
+  Widget _iconNavBar(
+      {IconData? iconPath, String? title, DeviceInfo? infoWidget}) {
     return title == null
         ? Icon(
             iconPath,
@@ -201,17 +220,17 @@ class _HomeScreenState extends State<HomeScreen> {
 //                  }()),
                     UserAccountsDrawerHeader(
                       accountName:
-                          Text("${_auth.userData?.name?.toUpperCase()}"),
+                          Text("${_auth.userData.name?.toUpperCase()}"),
                       accountEmail: InkWell(
-                        onTap: (){
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => NursesSupplies()));
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => NursesSupplies()));
                         },
                         child: Consumer<Auth>(
-                          builder: (context,data,_)=>
-                          Text(translator.activeLanguageCode == "en"
-                              ?'Points supplied: ${data.points}':' النقاط المورده: ${data.points}'),
+                          builder: (context, data, _) => Text(
+                              translator.activeLanguageCode == "en"
+                                  ? 'Points supplied: ${data.points}'
+                                  : ' النقاط المورده: ${data.points}'),
                         ),
                       ),
                       currentAccountPicture: CircleAvatar(
@@ -220,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ? Colors.indigo
                                 : Colors.white,
                         child: Text(
-                          "${_auth.userData!.name!.substring(0, 1).toUpperCase().toUpperCase()}",
+                          "${_auth.userData.name?.substring(0, 1).toUpperCase().toUpperCase()}",
                           style: TextStyle(fontSize: 40.0),
                         ),
                       ),
@@ -301,9 +320,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => PatientsAccounts()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => PatientsAccounts()));
                         }),
                     _drawerListTile(
                         name: translator.activeLanguageCode == "en"
@@ -314,9 +332,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => Nurses()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Nurses()));
                         }),
                     _drawerListTile(
                         name: translator.activeLanguageCode == "en"
@@ -325,11 +342,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         isIcon: true,
                         icon: Icons.panorama_fish_eye,
                         infoWidget: infoWidget,
-                        onTap: ()  {
+                        onTap: () {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => NursesSupplies()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => NursesSupplies()));
                         }),
                     _drawerListTile(
                         name: translator.activeLanguageCode == "en"
@@ -340,9 +356,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget,
                         onTap: () {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => ServicesAndPrices()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ServicesAndPrices()));
                         }),
                     _drawerListTile(
                         name: translator.activeLanguageCode == "en"
@@ -353,9 +368,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => Analysiss()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => Analysiss()));
                         }),
 
                     _drawerListTile(
@@ -367,30 +381,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget,
                         onTap: () async {
                           Navigator.of(context).pop();
-                          Navigator.of(context).push(
-                              MaterialPageRoute(
-                                  builder: (context) => CouponsAndDiscounts()));
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => CouponsAndDiscounts()));
                         }),
                     _drawerListTile(
                         name: translator.activeLanguageCode != "en"
-                            ? "English":"العربية",
+                            ? "English"
+                            : "العربية",
                         isIcon: true,
                         icon: Icons.language,
                         infoWidget: infoWidget,
                         onTap: () {
                           translator.activeLanguageCode == "en"
                               ? translator.setNewLanguage(
-                            context,
-                            newLanguage: 'ar',
-                            remember: true,
-                            restart: true,
-                          )
+                                  context,
+                                  newLanguage: 'ar',
+                                  remember: true,
+                                  restart: true,
+                                )
                               : translator.setNewLanguage(
-                            context,
-                            newLanguage: 'en',
-                            remember: true,
-                            restart: true,
-                          );
+                                  context,
+                                  newLanguage: 'en',
+                                  remember: true,
+                                  restart: true,
+                                );
                         }),
                     _drawerListTile(
                         name: translator.activeLanguageCode == "en"
@@ -418,20 +432,24 @@ class _HomeScreenState extends State<HomeScreen> {
               items: <Widget>[
                 _page != 0
                     ? _iconNavBar(
-                    infoWidget: infoWidget,
-                    iconPath: Icons.remove_from_queue,
-                    title: translator.activeLanguageCode == "en"
-                        ? "Human medicine"
-                        : 'طب بشرى')
-                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.remove_from_queue),
+                        infoWidget: infoWidget,
+                        iconPath: Icons.remove_from_queue,
+                        title: translator.activeLanguageCode == "en"
+                            ? "Human medicine"
+                            : 'طب بشرى')
+                    : _iconNavBar(
+                        infoWidget: infoWidget,
+                        iconPath: Icons.remove_from_queue),
                 _page != 1
                     ? _iconNavBar(
-                    infoWidget: infoWidget,
-                    iconPath: Icons.chrome_reader_mode,
-                    title: translator.activeLanguageCode == "en"
-                        ? "Physical therapy"
-                        : 'العلاج الطبيعى')
-                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.chrome_reader_mode),
+                        infoWidget: infoWidget,
+                        iconPath: Icons.chrome_reader_mode,
+                        title: translator.activeLanguageCode == "en"
+                            ? "Physical therapy"
+                            : 'العلاج الطبيعى')
+                    : _iconNavBar(
+                        infoWidget: infoWidget,
+                        iconPath: Icons.chrome_reader_mode),
                 _page != 2
                     ? _iconNavBar(
                         infoWidget: infoWidget,
@@ -443,12 +461,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         infoWidget: infoWidget, iconPath: Icons.redeem),
                 _page != 3
                     ? _iconNavBar(
-                    infoWidget: infoWidget,
-                    iconPath: Icons.featured_play_list,
-                    title: translator.activeLanguageCode == "en"
-                        ? "Another requests"
-                        : 'طلبات اخرى')
-                    : _iconNavBar(infoWidget: infoWidget, iconPath: Icons.featured_play_list),
+                        infoWidget: infoWidget,
+                        iconPath: Icons.featured_play_list,
+                        title: translator.activeLanguageCode == "en"
+                            ? "Another requests"
+                            : 'طلبات اخرى')
+                    : _iconNavBar(
+                        infoWidget: infoWidget,
+                        iconPath: Icons.featured_play_list),
               ],
               onTap: (index) {
                 setState(() {
@@ -464,131 +484,180 @@ class _HomeScreenState extends State<HomeScreen> {
               iconColor: Colors.white,
               items: [
                 HawkFabMenuItem(
-                  label: translator.activeLanguageCode == "en" ? 'add' : 'اضافه',
-                  ontap:() {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => AddPatientRequest()));
-                  },
-                  icon: Icon(Icons.add,color: Colors.white,),
-                  color: Colors.indigo,
-                  labelColor: Colors.white,
-                  labelBackgroundColor: Colors.indigo
-                ),
+                    label:
+                        translator.activeLanguageCode == "en" ? 'add' : 'اضافه',
+                    ontap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => AddPatientRequest()));
+                    },
+                    icon: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    ),
+                    color: Colors.indigo,
+                    labelColor: Colors.white,
+                    labelBackgroundColor: Colors.indigo),
                 HawkFabMenuItem(
-                  label: translator.activeLanguageCode == "en" ? 'Filters' : 'فلتره',
-                  ontap:() {
-                    showModalBottomSheet(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                topLeft: Radius.circular(10))),
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Directionality(
-                            textDirection: translator.activeLanguageCode=='en'?TextDirection.ltr:TextDirection.rtl,
-                            child: StatefulBuilder(
-                              builder: (context, setState) => Container(
-                                height: MediaQuery.of(context).orientation ==
-                                    Orientation.portrait
-                                    ? MediaQuery.of(context).size.height * 0.3
-                                    : MediaQuery.of(context).size.height * 0.28,
-                                padding: EdgeInsets.all(10.0),
-                                child: Column(children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      SizedBox(width:1.0,),
-                                      Text(
-                                          translator.activeLanguageCode == "en"
-                                              ? 'Filter Requests'
-                                              : 'فلتره الطلبات',
-                                          style: TextStyle(
-                                              fontSize: MediaQuery.of(context)
-                                                  .orientation ==
-                                                  Orientation.portrait
-                                                  ? MediaQuery.of(context).size.width *
-                                                  0.04
-                                                  : MediaQuery.of(context).size.width *
-                                                  0.03,
-                                              color: Colors.indigo,
-                                              fontWeight: FontWeight.bold)),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                                        child: InkWell(onTap: ()async{
-                                          Navigator.of(context).pop();
-                                          final prefs = await SharedPreferences.getInstance();
-                                          final _filter = json.encode({
-                                            'address': _auth.address.toString(),
-                                            'radiusForAllRequests': _home.radiusForAllRequests.toString(),
-                                            'lat': _auth.lat.toString(),
-                                            'lng': _auth.lng.toString()
-                                          });
-                                          await prefs.setString('filter', _filter);
-                                          _home.refreshWhenChangeFilters=[true,true,true,true];
-                                          _home.refreshWhenChangeFilters[_page]=false;
-                                          switch(_page){
-                                            case 0:
-                                              _home.getAllHumanMedicineRequests(
-                                                userLong: _auth.lng.toString(),userLat: _auth.lat.toString()
-                                              );
-                                              break;
-                                            case 1:
-                                              _home.getAllPhysicalTherapyRequests(
-                                                userLong: _auth.lng.toString(),userLat: _auth.lat.toString()
-                                              );
-                                              break;
-                                            case 2:
-                                              _home.getAllAnalysisRequests(
-                                                  userLong: _auth.lng.toString(),userLat: _auth.lat.toString()
-                                              );
-                                              break;
-                                            case 3:
-                                              _home.getAllPatientsRequests(
-                                                  long: _auth.lng,lat: _auth.lat
-                                              );
-                                              break;
-                                          }
-
-
-                                        }, child: Text(translator.activeLanguageCode == "en" ?'Save':'حفظ',style: infoWidget.subTitle!.copyWith(color: Colors.indigo),)),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  Consumer<Home>(
-                                    builder: (context,data,_)=>
-                                        Slider(
-                                          value: data.radiusForAllRequests,
-                                          onChanged: _home.changeRadiusForAllRequests,
-                                          min: 0.0,
-                                          max: 100.0,
-                                          divisions: 10,
-                                          label: '${data.radiusForAllRequests.floor()} KM',
-                                          inactiveColor: Colors.blue[100],
-                                          activeColor: Colors.indigo,
+                    label: translator.activeLanguageCode == "en"
+                        ? 'Filters'
+                        : 'فلتره',
+                    ontap: () {
+                      showModalBottomSheet(
+                          backgroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(10),
+                                  topLeft: Radius.circular(10))),
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Directionality(
+                              textDirection:
+                                  translator.activeLanguageCode == 'en'
+                                      ? TextDirection.ltr
+                                      : TextDirection.rtl,
+                              child: StatefulBuilder(
+                                builder: (BuildContext context, StateSetter setState) => Container(
+                                  height: MediaQuery.of(context).orientation ==
+                                          Orientation.portrait
+                                      ? MediaQuery.of(context).size.height * 0.3
+                                      : MediaQuery.of(context).size.height *
+                                          0.28,
+                                  padding: EdgeInsets.all(10.0),
+                                  child: Column(children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        SizedBox(
+                                          width: 1.0,
                                         ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: EditAddress(
-                                      getAddress: getAddress,
-                                      address: _auth.address,
+                                        Text(
+                                            translator.activeLanguageCode ==
+                                                    "en"
+                                                ? 'Filter Requests'
+                                                : 'فلتره الطلبات',
+                                            style: TextStyle(
+                                                fontSize: MediaQuery.of(context)
+                                                            .orientation ==
+                                                        Orientation.portrait
+                                                    ? MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.04
+                                                    : MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.03,
+                                                color: Colors.indigo,
+                                                fontWeight: FontWeight.bold)),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: InkWell(
+                                              onTap: () async {
+                                                Navigator.of(context).pop();
+                                                final prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                final _filter = json.encode({
+                                                  'address':
+                                                      _auth.address.toString(),
+                                                  'radiusForAllRequests': _home
+                                                      .radiusForAllRequests
+                                                      .toString(),
+                                                  'lat': _auth.lat.toString(),
+                                                  'lng': _auth.lng.toString()
+                                                });
+                                                await prefs.setString(
+                                                    'filter', _filter);
+                                                _home.refreshWhenChangeFilters =
+                                                    [true, true, true, true];
+                                                _home.refreshWhenChangeFilters[
+                                                    _page] = false;
+                                                switch (_page) {
+                                                  case 0:
+                                                    _home
+                                                        .getAllHumanMedicineRequests(
+                                                            userLong: _auth.lng
+                                                                .toString(),
+                                                            userLat: _auth.lat
+                                                                .toString());
+                                                    break;
+                                                  case 1:
+                                                    _home
+                                                        .getAllPhysicalTherapyRequests(
+                                                            userLong: _auth.lng
+                                                                .toString(),
+                                                            userLat: _auth.lat
+                                                                .toString());
+                                                    break;
+                                                  case 2:
+                                                    _home
+                                                        .getAllAnalysisRequests(
+                                                            userLong: _auth.lng
+                                                                .toString(),
+                                                            userLat: _auth.lat
+                                                                .toString());
+                                                    break;
+                                                  case 3:
+                                                    _home
+                                                        .getAllPatientsRequests(
+                                                            long: _auth.lng,
+                                                            lat: _auth.lat);
+                                                    break;
+                                                }
+                                              },
+                                              child: Text(
+                                                translator.activeLanguageCode ==
+                                                        "en"
+                                                    ? 'Save'
+                                                    : 'حفظ',
+                                                style: infoWidget.subTitle!
+                                                    .copyWith(
+                                                        color: Colors.indigo),
+                                              )),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ]),
+                                    SizedBox(
+                                      height: 10.0,
+                                    ),
+                                    Consumer<Home>(
+                                      builder: (context, data, _) => Slider(
+                                        value: data.radiusForAllRequests,
+                                        onChanged: (val) {
+                                         // setState(() {});
+                                          _home.changeRadiusForAllRequests(val);
+                                        },
+                                        min: 0.0,
+                                        max: 100.0,
+                                        divisions: 10,
+                                        label:
+                                            '${data.radiusForAllRequests.floor()} KM',
+                                        inactiveColor: Colors.blue[100],
+                                        activeColor: Colors.indigo,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: EditAddress(
+                                        getAddress: getAddress,
+                                        address: _auth.address,
+                                      ),
+                                    ),
+                                  ]),
+                                ),
                               ),
-                            ),
-                          );
-                        });
-                  },
-                  icon: Icon(Icons.filter_list,color: Colors.white,),
-                  color: Colors.indigo,
-                  labelColor: Colors.white,
-                  labelBackgroundColor: Colors.indigo
-                ),
+                            );
+                          });
+                    },
+                    icon: Icon(
+                      Icons.filter_list,
+                      color: Colors.white,
+                    ),
+                    color: Colors.indigo,
+                    labelColor: Colors.white,
+                    labelBackgroundColor: Colors.indigo),
               ],
               body: Padding(
                 padding: const EdgeInsets.only(bottom: 14.0),
@@ -600,7 +669,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       _page = index;
                     });
                     final CurvedNavigationBarState navBarState =
-                        _bottomNavigationKey.currentState as CurvedNavigationBarState;
+                        _bottomNavigationKey.currentState
+                            as CurvedNavigationBarState;
                     navBarState.setPage(_page);
                   },
                   children: <Widget>[
@@ -612,7 +682,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
           ),
         );
       },

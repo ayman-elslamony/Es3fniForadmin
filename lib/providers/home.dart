@@ -75,6 +75,7 @@ class Home with ChangeNotifier {
     price = Price(allServiceType: [], servicePrice: 0.0);
   }
   changeRadiusForAllRequests(double val){
+    print(val);
     radiusForAllRequests = val;
     notifyListeners();
   }
@@ -135,19 +136,27 @@ class Home with ChangeNotifier {
       throw HttpException(e.toString());
     }
   }
-
+  isDocContains({required document,required String key}){
+    if(document.data().toString().contains(key)){
+      return document.get(key);
+    }else {
+      return null;
+    }
+  }
   Future getAllParamedics() async {
     CollectionReference nursesCollection = databaseReference.collection("nurses");
     double ratingForNurse =0.0;
     databaseReference.collection("nurses").snapshots().listen((docs) async{
       if (docs.docs.isNotEmpty) {
         allNurses.clear();
+
         for (int i = 0; i < docs.docs.length; i++) {
           print('scv');
-          print(docs.docs[i].id);
+
           DocumentSnapshot rating = await nursesCollection.doc(
               docs.docs[i].id).collection('rating').doc(
               'rating').get();
+
           if (rating.exists== true) {
             int one = rating.get('1') == null ? 0 : int.parse(
                 rating.get('1'));
@@ -165,27 +174,27 @@ class Home with ChangeNotifier {
           }else{
             ratingForNurse=0.0;
           }
+
           allNurses.add(UserData(
-              specializationBranch: docs.docs[i]
-                  .get('specializationBranch') ?? '',
-              specialization: docs.docs[i].get('specialization')
-                  ?? '',
+              specializationBranch:
+              isDocContains(document: docs.docs[i],key:'specializationBranch' )?? '',
+              specialization: isDocContains(document: docs.docs[i],key:'specialization' )?? '',
               rating: ratingForNurse.toString(),
-              isActive: docs.docs[i].get('isActive') ?? false,
-              lat: docs.docs[i].get('lat') ?? '',
-              lng: docs.docs[i].get('lng')?? '',
-              aboutYou: docs.docs[i].get('aboutYou') ?? '',
+              isActive: isDocContains(document: docs.docs[i],key:'isActive' ) ?? false,
+              lat: isDocContains(document: docs.docs[i],key:'lat' )?? '',
+              lng: isDocContains(document: docs.docs[i],key:'lng' )?? '',
+              aboutYou: isDocContains(document: docs.docs[i],key:'aboutYou' ) ?? '',
               docId: docs.docs[i].id,
-              email: docs.docs[i].get('email') ?? '',
-              password: docs.docs[i].get('password') ?? '',
-              points: docs.docs[i].get('points') ?? '0',
-              name: docs.docs[i].get('name') ?? '',
-              phoneNumber: docs.docs[i].get('phoneNumber') ?? '',
-              imgUrl: docs.docs[i].get('imgUrl') ?? '',
-              address: docs.docs[i].get('address') ?? '',
-              birthDate: docs.docs[i].get('birthDate') ?? '',
-              gender: docs.docs[i].get('gender') ?? '',
-              nationalId: docs.docs[i].get('nationalId') ?? ''));
+              email: isDocContains(document: docs.docs[i],key:'email') ?? '',
+              password: isDocContains(document: docs.docs[i],key:'password') ?? '',
+              points: isDocContains(document: docs.docs[i],key:'points') ?? '0',
+              name: isDocContains(document: docs.docs[i],key:'name') ?? '',
+              phoneNumber: isDocContains(document: docs.docs[i],key:'phoneNumber') ?? '',
+              imgUrl: isDocContains(document: docs.docs[i],key:'imgUrl') ?? '',
+              address: isDocContains(document: docs.docs[i],key:'address') ?? '',
+              birthDate: isDocContains(document: docs.docs[i],key:'birthDate') ?? '',
+              gender: isDocContains(document: docs.docs[i],key:'gender') ?? '',
+              nationalId: isDocContains(document: docs.docs[i],key:'nationalId') ?? ''));
         }
       }
         else{
@@ -216,24 +225,24 @@ class Home with ChangeNotifier {
               ratingForNurse =0.0;
            }
            allNursesSupplies.add(UserData(
-               specializationBranch:docs.docs[i].get('specializationBranch')?? '',
-               specialization: docs.docs[i].get('specialization') ?? '',
+               specializationBranch:isDocContains(document: docs.docs[i],key:'specializationBranch')?? '',
+               specialization: isDocContains(document: docs.docs[i],key:'specialization') ?? '',
                rating: ratingForNurse.toString(),
-               isActive: docs.docs[i].get('isActive') ?? false,
-               lat: docs.docs[i].get('lat') ?? '',
-               lng: docs.docs[i].get('lng') ?? '',
-               aboutYou: docs.docs[i].get('aboutYou') ?? '',
+               isActive: isDocContains(document: docs.docs[i],key:'isActive') ?? false,
+               lat: isDocContains(document: docs.docs[i],key:'lat') ?? '',
+               lng: isDocContains(document: docs.docs[i],key:'lng') ?? '',
+               aboutYou: isDocContains(document: docs.docs[i],key:'aboutYou') ?? '',
                docId: docs.docs[i].id,
-               email: docs.docs[i].get('email') ?? '',
-               password: docs.docs[i].get('password') ?? '',
-               points: docs.docs[i].get('points') ?? '0',
-               name: docs.docs[i].get('name') ?? '',
-               phoneNumber: docs.docs[i].get('phoneNumber') ?? '',
-               imgUrl: docs.docs[i].get('imgUrl') ?? '',
-               address: docs.docs[i].get('address') ?? '',
-               birthDate: docs.docs[i].get('birthDate') ?? '',
-               gender: docs.docs[i].get('gender') ?? '',
-               nationalId: docs.docs[i].get('nationalId') ?? ''));
+               email: isDocContains(document: docs.docs[i],key:'email') ?? '',
+               password: isDocContains(document: docs.docs[i],key:'password') ?? '',
+               points: isDocContains(document: docs.docs[i],key:'points') ?? '0',
+               name: isDocContains(document: docs.docs[i],key:'name') ?? '',
+               phoneNumber: isDocContains(document: docs.docs[i],key:'phoneNumber') ?? '',
+               imgUrl: isDocContains(document: docs.docs[i],key:'imgUrl') ?? '',
+               address: isDocContains(document: docs.docs[i],key:'address') ?? '',
+               birthDate: isDocContains(document: docs.docs[i],key:'birthDate') ?? '',
+               gender: isDocContains(document: docs.docs[i],key:'gender') ?? '',
+               nationalId: isDocContains(document: docs.docs[i],key:'nationalId') ?? ''));
         }
       }
       notifyListeners();
@@ -247,14 +256,14 @@ class Home with ChangeNotifier {
     if (docs.docs.isNotEmpty) {
       allSpecificNurseSupplies.clear();
       for (int i = 0; i < docs.docs.length; i++) {
-        if(docs.docs[i].get('time') !=null&&docs.docs[i].get('time') !=''){
-          time=convertTimeToAMOrPM(time: docs.docs[i].get('time'));
+        if(isDocContains(document: docs.docs[i],key:'time') !=null&&isDocContains(document: docs.docs[i],key:'time') !=''){
+          time=convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'time'));
         }else{
           time='';
         }
         allSpecificNurseSupplies.add(Supplying(
-            points: docs.docs[i].get('points') ?? '0',
-            date: docs.docs[i].get('date') ?? '',
+            points: isDocContains(document: docs.docs[i],key:'points') ?? '0',
+            date: isDocContains(document: docs.docs[i],key:'date') ?? '',
             time: time ));
       }
     }else{
@@ -1058,6 +1067,8 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
       String? patientGender,
       String? numOfPatients,
       String? serviceType,
+      String? lat,
+      String? long,
       String? nurseGender,
       String? suppliesFromPharmacy,
       File? picture,
@@ -1082,18 +1093,17 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
         var storageReference = FirebaseStorage.instance.ref().child(
             '$serviceType/$patientName/$patientPhone/${path.basename(picture.path)}');
         UploadTask uploadTask = storageReference.putFile(picture);
-        await uploadTask.then((p){
-
-        });
-        await storageReference.getDownloadURL().then((fileURL) async {
-          imgUrl = fileURL;
+         uploadTask.then((p){
+            storageReference.getDownloadURL().then((fileURL) async {
+             imgUrl = fileURL;
+           });
         });
       } catch (e) {
         print(e);
       }
     }
-    print('docs.docs[0].id');
-    print(docs.docs[0].id);
+   // print('docs.docs[0].id');
+  //  print(docs.docs[0].id);
     DateTime dateTime = DateTime.now();
     await databaseReference.collection('requests').add({
       'nurseId': '',
@@ -1107,8 +1117,10 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
       'numOfPatients': numOfPatients,
       'serviceType': serviceType,
       'analysisType': analysisType,
-    'specialization':specialization,
-    'specializationBranch':specializationBranch,
+      'specialization':specialization,
+      'lat':lat,
+      'long' : long,
+      'specializationBranch':specializationBranch,
       'nurseGender': nurseGender,
       'date': '${dateTime.year}-${dateTime.month}-${dateTime.day}',
       'time': '${dateTime.hour}:${dateTime.minute}',
@@ -1248,24 +1260,32 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
             String acceptTime='';
             List<String> convertAllVisitsTime=[];
             for (int i = 0; i < docs.docs.length; i++) {
+              print('nnnnn');
               distance = _calculateDistance(
                   userLat != '0.0'? double.parse(userLat):0.0,
                   userLong != '0.0'? double.parse(userLong):0.0,
-                  double.parse(docs.docs[i].get('lat')??'0.0'),
-                  double.parse(docs.docs[i].get('long')??'0.0'));
+                  double.parse(isDocContains(document: docs.docs[i],key:'lat')??'0.0'),
+                  double.parse(isDocContains(document: docs.docs[i],key:'long')??'0.0'));
+              print(userLat);
+              print(userLong);
+              print(isDocContains(document: docs.docs[i],key:'lat'));
+              print(distance);
+              print(radiusForAllRequests);
               if (distance <= radiusForAllRequests) {
-              if(docs.docs[i].get('time') !=''){
-                time=convertTimeToAMOrPM(time: docs.docs[i].get('time'));
+                print('yyyy');
+              if(isDocContains(document: docs.docs[i],key:'time') !=''){
+                time=convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'time'));
               }else{
                 time='';
               }
-              if(docs.docs[i].get('acceptTime') !=null&& docs.docs[i].get('acceptTime') !=''){
-                acceptTime=convertTimeToAMOrPM(time: docs.docs[i].get('acceptTime'));
+              if(isDocContains(document: docs.docs[i],key:'acceptTime') !=null&& isDocContains(document: docs.docs[i],key:'acceptTime') !=''){
+                acceptTime=convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'acceptTime'));
               }else{
                 acceptTime='';
               }
-              if (docs.docs[i].get('visitTime') != '[]') {
-                var x = docs.docs[i].get('visitTime').replaceFirst('[', '').toString();
+              if (isDocContains(document: docs.docs[i],key:'visitTime') != '[]') {
+                print('ttttttttttyyyy');
+                var x = isDocContains(document: docs.docs[i],key:'visitTime').replaceFirst('[', '').toString();
                 String visitTime = x.replaceAll(')', '');
                 List<String> times=visitTime.split(',');
                 if(times.length !=0){
@@ -1276,48 +1296,49 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
               }else{
                 convertAllVisitsTime=[];
               }
+              print('tttttttttt');
               allAnalysisRequests.add(Requests(
-                  specialization: docs.docs[i].get('specialization') ?? '',
-                  specializationBranch: docs.docs[i].get('specializationBranch') ?? '',
+                  specialization: isDocContains(document: docs.docs[i],key:'specialization') ?? '',
+                  specializationBranch: isDocContains(document: docs.docs[i],key:'specializationBranch') ?? '',
                   acceptTime: acceptTime,
-                  nurseId: docs.docs[i].get('nurseId') ?? '',
+                  nurseId: isDocContains(document: docs.docs[i],key:'nurseId') ?? '',
                   distance:  distance.floor().toString(),
-                  lat:  docs.docs[i].get('lat') ?? '',
-                  long:  docs.docs[i].get('long') ?? '',
-                  patientId: docs.docs[i].get('patientId') ?? '',
+                  lat:  isDocContains(document: docs.docs[i],key:'lat') ?? '',
+                  long:  isDocContains(document: docs.docs[i],key:'long') ?? '',
+                  patientId: isDocContains(document: docs.docs[i],key:'patientId') ?? '',
                   docId: docs.docs[i].id,
                   visitTime: convertAllVisitsTime.toString() == '[]'
                       ? ''
                       : convertAllVisitsTime.toString(),
-                  visitDays: docs.docs[i].get('visitDays') ?? '',
+                  visitDays: isDocContains(document: docs.docs[i],key:'visitDays') ?? '',
                   suppliesFromPharmacy:
-                      docs.docs[i].get('suppliesFromPharmacy') ?? '',
+                      isDocContains(document: docs.docs[i],key:'suppliesFromPharmacy') ?? '',
                   startVisitDate:
-                      docs.docs[i].get('startVisitDate') ?? '',
-                  serviceType: docs.docs[i].get('serviceType') ?? '',
-                  picture: docs.docs[i].get('picture') ?? '',
-                  patientPhone: docs.docs[i].get('patientPhone') ?? '',
-                  patientName: docs.docs[i].get('patientName') ?? '',
+                      isDocContains(document: docs.docs[i],key:'startVisitDate') ?? '',
+                  serviceType: isDocContains(document: docs.docs[i],key:'serviceType') ?? '',
+                  picture: isDocContains(document: docs.docs[i],key:'picture') ?? '',
+                  patientPhone: isDocContains(document: docs.docs[i],key:'patientPhone') ?? '',
+                  patientName: isDocContains(document: docs.docs[i],key:'patientName') ?? '',
                   patientLocation:
-                      docs.docs[i].get('patientLocation') ?? '',
-                  patientGender: docs.docs[i].get('patientGender') ?? '',
+                      isDocContains(document: docs.docs[i],key:'patientLocation') ?? '',
+                  patientGender: isDocContains(document: docs.docs[i],key:'patientGender') ?? '',
                   time: time,
-                  date: docs.docs[i].get('date') ?? '',
+                  date: isDocContains(document: docs.docs[i],key:'date') ?? '',
                   discountPercentage:
-                      docs.docs[i].get('discountPercentage') ?? '',
-                  patientAge: docs.docs[i].get('patientAge') ?? '',
-                  servicePrice: docs.docs[i].get('servicePrice') ?? '',
-                  nurseGender: docs.docs[i].get('nurseGender') ?? '',
-                  numOfPatients: docs.docs[i].get('numOfPatients') ?? '',
-                  endVisitDate: docs.docs[i].get('endVisitDate') ?? '',
+                      isDocContains(document: docs.docs[i],key:'discountPercentage') ?? '',
+                  patientAge: isDocContains(document: docs.docs[i],key:'patientAge') ?? '',
+                  servicePrice: isDocContains(document: docs.docs[i],key:'servicePrice') ?? '',
+                  nurseGender: isDocContains(document: docs.docs[i],key:'nurseGender') ?? '',
+                  numOfPatients: isDocContains(document: docs.docs[i],key:'numOfPatients') ?? '',
+                  endVisitDate: isDocContains(document: docs.docs[i],key:'endVisitDate') ?? '',
                   discountCoupon:
-                      docs.docs[i].get('discountCoupon') ?? '',
+                      isDocContains(document: docs.docs[i],key:'discountCoupon') ?? '',
                   priceBeforeDiscount:
-                      docs.docs[i].get('priceBeforeDiscount') ?? '',
-                  analysisType: docs.docs[i].get('analysisType') ?? '',
-                  notes: docs.docs[i].get('notes') ?? '',
+                      isDocContains(document: docs.docs[i],key:'priceBeforeDiscount') ?? '',
+                  analysisType: isDocContains(document: docs.docs[i],key:'analysisType') ?? '',
+                  notes: isDocContains(document: docs.docs[i],key:'notes') ?? '',
                   priceAfterDiscount:
-                      docs.docs[i].get('priceAfterDiscount').toString()
+                      isDocContains(document: docs.docs[i],key:'priceAfterDiscount').toString()
                           ));
             }
           }
@@ -1346,21 +1367,21 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
               distance = _calculateDistance(
                   userLat != '0.0'? double.parse(userLat):0.0,
                   userLong != '0.0'? double.parse(userLong):0.0,
-                  double.parse(docs.docs[i].get('lat')??'0.0'),
-                  double.parse(docs.docs[i].get('long')??'0.0'));
+                  double.parse(isDocContains(document: docs.docs[i],key:'lat')??'0.0'),
+                  double.parse(isDocContains(document: docs.docs[i],key:'long')??'0.0'));
               if (distance <= radiusForAllRequests) {
-              if(docs.docs[i].get('time') !=''){
-                time=convertTimeToAMOrPM(time: docs.docs[i].get('time'));
+              if(isDocContains(document: docs.docs[i],key:'time') !=''){
+                time=convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'time'));
               }else{
                 time='';
               }
-              if(docs.docs[i].get('acceptTime') !=null&& docs.docs[i].get('acceptTime') !=''){
-                acceptTime=convertTimeToAMOrPM(time: docs.docs[i].get('acceptTime'));
+              if(isDocContains(document: docs.docs[i],key:'acceptTime') !=null&& isDocContains(document: docs.docs[i],key:'acceptTime') !=''){
+                acceptTime=convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'acceptTime'));
               }else{
                 acceptTime='';
               }
-              if (docs.docs[i].get('visitTime') != '[]') {
-                var x = docs.docs[i].get('visitTime').replaceFirst('[', '').toString();
+              if (isDocContains(document: docs.docs[i],key:'visitTime') != '[]') {
+                var x = isDocContains(document: docs.docs[i],key:'visitTime').replaceFirst('[', '').toString();
                 String visitTime = x.replaceAll(')', '');
                 List<String> times=visitTime.split(',');
                 if(times.length !=0){
@@ -1372,47 +1393,47 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
                 convertAllVisitsTime=[];
               }
               allPhysicalTherapyRequests.add(Requests(
-                  specialization: docs.docs[i].get('specialization') ?? '',
-                  specializationBranch: docs.docs[i].get('specializationBranch') ?? '',
+                  specialization: isDocContains(document: docs.docs[i],key:'specialization') ?? '',
+                  specializationBranch: isDocContains(document: docs.docs[i],key:'specializationBranch') ?? '',
                   acceptTime: acceptTime,
-                  nurseId: docs.docs[i].get('nurseId') ?? '',
+                  nurseId: isDocContains(document: docs.docs[i],key:'nurseId') ?? '',
                   distance:  distance.floor().toString(),
-                  lat:  docs.docs[i].get('lat') ?? '',
-                  long:  docs.docs[i].get('long') ?? '',
-                  patientId: docs.docs[i].get('patientId') ?? '',
+                  lat:  isDocContains(document: docs.docs[i],key:'lat') ?? '',
+                  long:  isDocContains(document: docs.docs[i],key:'long') ?? '',
+                  patientId: isDocContains(document: docs.docs[i],key:'patientId') ?? '',
                   docId: docs.docs[i].id,
                   visitTime: convertAllVisitsTime.toString() == '[]'
                       ? ''
                       : convertAllVisitsTime.toString(),
-                  visitDays: docs.docs[i].get('visitDays') ?? '',
+                  visitDays: isDocContains(document: docs.docs[i],key:'visitDays') ?? '',
                   suppliesFromPharmacy:
-                      docs.docs[i].get('suppliesFromPharmacy') ?? '',
+                      isDocContains(document: docs.docs[i],key:'suppliesFromPharmacy') ?? '',
                   startVisitDate:
-                      docs.docs[i].get('startVisitDate') ?? '',
-                  serviceType: docs.docs[i].get('serviceType') ?? '',
-                  picture: docs.docs[i].get('picture') ?? '',
-                  patientPhone: docs.docs[i].get('patientPhone') ?? '',
-                  patientName: docs.docs[i].get('patientName') ?? '',
+                      isDocContains(document: docs.docs[i],key:'startVisitDate') ?? '',
+                  serviceType: isDocContains(document: docs.docs[i],key:'serviceType') ?? '',
+                  picture: isDocContains(document: docs.docs[i],key:'picture') ?? '',
+                  patientPhone: isDocContains(document: docs.docs[i],key:'patientPhone') ?? '',
+                  patientName: isDocContains(document: docs.docs[i],key:'patientName') ?? '',
                   patientLocation:
-                      docs.docs[i].get('patientLocation') ?? '',
-                  patientGender: docs.docs[i].get('patientGender') ?? '',
+                      isDocContains(document: docs.docs[i],key:'patientLocation') ?? '',
+                  patientGender: isDocContains(document: docs.docs[i],key:'patientGender') ?? '',
                   time: time,
-                  date: docs.docs[i].get('date') ?? '',
+                  date: isDocContains(document: docs.docs[i],key:'date') ?? '',
                   discountPercentage:
-                      docs.docs[i].get('discountPercentage') ?? '',
-                  patientAge: docs.docs[i].get('patientAge') ?? '',
-                  servicePrice: docs.docs[i].get('servicePrice') ?? '',
-                  nurseGender: docs.docs[i].get('nurseGender') ?? '',
-                  numOfPatients: docs.docs[i].get('numOfPatients') ?? '',
-                  endVisitDate: docs.docs[i].get('endVisitDate') ?? '',
+                      isDocContains(document: docs.docs[i],key:'discountPercentage') ?? '',
+                  patientAge: isDocContains(document: docs.docs[i],key:'patientAge') ?? '',
+                  servicePrice: isDocContains(document: docs.docs[i],key:'servicePrice') ?? '',
+                  nurseGender: isDocContains(document: docs.docs[i],key:'nurseGender') ?? '',
+                  numOfPatients: isDocContains(document: docs.docs[i],key:'numOfPatients') ?? '',
+                  endVisitDate: isDocContains(document: docs.docs[i],key:'endVisitDate') ?? '',
                   discountCoupon:
-                      docs.docs[i].get('discountCoupon') ?? '',
+                      isDocContains(document: docs.docs[i],key:'discountCoupon') ?? '',
                   priceBeforeDiscount:
-                      docs.docs[i].get('priceBeforeDiscount') ?? '',
-                  analysisType: docs.docs[i].get('analysisType') ?? '',
-                  notes: docs.docs[i].get('notes') ?? '',
+                      isDocContains(document: docs.docs[i],key:'priceBeforeDiscount') ?? '',
+                  analysisType: isDocContains(document: docs.docs[i],key:'analysisType') ?? '',
+                  notes: isDocContains(document: docs.docs[i],key:'notes') ?? '',
                   priceAfterDiscount:
-                      docs.docs[i].get('priceAfterDiscount').toString()
+                      isDocContains(document: docs.docs[i],key:'priceAfterDiscount').toString()
                           ));
             }
           }
@@ -1441,24 +1462,25 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
             distance = _calculateDistance(
                 userLat != '0.0' ? double.parse(userLat) : 0.0,
                 userLong != '0.0' ? double.parse(userLong) : 0.0,
-                double.parse(docs.docs[i].get('lat') ?? '0.0'),
-                double.parse(docs.docs[i].get('long') ?? '0.0'));
+                double.parse(isDocContains(document: docs.docs[i],key:'lat') ?? '0.0'),
+                double.parse(isDocContains(document: docs.docs[i],key:'long') ?? '0.0'));
+            print('egedgdr');
             if (distance <= radiusForAllRequests) {
-              if (docs.docs[i].get('time') != '') {
+              if (isDocContains(document: docs.docs[i],key:'time') != '') {
                 time =
-                    convertTimeToAMOrPM(time: docs.docs[i].get('time'));
+                    convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'time'));
               } else {
                 time = '';
               }
-              if (docs.docs[i].get('acceptTime') != null &&
-                  docs.docs[i].get('acceptTime') != '') {
+              if (isDocContains(document: docs.docs[i],key:'acceptTime') != null &&
+                  isDocContains(document: docs.docs[i],key:'acceptTime') != '') {
                 acceptTime = convertTimeToAMOrPM(
-                    time: docs.docs[i].get('acceptTime'));
+                    time: isDocContains(document: docs.docs[i],key:'acceptTime'));
               } else {
                 acceptTime = '';
               }
-              if (docs.docs[i].get('visitTime') != '[]') {
-                var x = docs.docs[i].get('visitTime').replaceFirst(
+              if (isDocContains(document: docs.docs[i],key:'visitTime') != '[]') {
+                var x = isDocContains(document: docs.docs[i],key:'visitTime').replaceFirst(
                     '[', '').toString();
                 String visitTime = x.replaceAll(')', '');
                 List<String> times = visitTime.split(',');
@@ -1472,49 +1494,49 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
                 convertAllVisitsTime = [];
               }
               allHumanMedicineRequests.add(Requests(
-                  specialization: docs.docs[i].get('specialization') ??
+                  specialization: isDocContains(document: docs.docs[i],key:'specialization') ??
                       '',
                   specializationBranch: docs.docs[i]
                       .get('specializationBranch') ?? '',
                   acceptTime: acceptTime,
-                  nurseId: docs.docs[i].get('nurseId') ?? '',
+                  nurseId: isDocContains(document: docs.docs[i],key:'nurseId') ?? '',
                   distance: distance.floor().toString(),
-                  lat: docs.docs[i].get('lat') ?? '',
-                  long: docs.docs[i].get('long') ?? '',
-                  patientId: docs.docs[i].get('patientId') ?? '',
+                  lat: isDocContains(document: docs.docs[i],key:'lat') ?? '',
+                  long: isDocContains(document: docs.docs[i],key:'long') ?? '',
+                  patientId: isDocContains(document: docs.docs[i],key:'patientId') ?? '',
                   docId: docs.docs[i].id,
                   visitTime: convertAllVisitsTime.toString() == '[]'
                       ? ''
                       : convertAllVisitsTime.toString(),
-                  visitDays: docs.docs[i].get('visitDays') ?? '',
+                  visitDays: isDocContains(document: docs.docs[i],key:'visitDays') ?? '',
                   suppliesFromPharmacy:
-                  docs.docs[i].get('suppliesFromPharmacy') ?? '',
+                  isDocContains(document: docs.docs[i],key:'suppliesFromPharmacy') ?? '',
                   startVisitDate:
-                  docs.docs[i].get('startVisitDate') ?? '',
-                  serviceType: docs.docs[i].get('serviceType') ?? '',
-                  picture: docs.docs[i].get('picture') ?? '',
-                  patientPhone: docs.docs[i].get('patientPhone') ?? '',
-                  patientName: docs.docs[i].get('patientName') ?? '',
+                  isDocContains(document: docs.docs[i],key:'startVisitDate') ?? '',
+                  serviceType: isDocContains(document: docs.docs[i],key:'serviceType') ?? '',
+                  picture: isDocContains(document: docs.docs[i],key:'picture') ?? '',
+                  patientPhone: isDocContains(document: docs.docs[i],key:'patientPhone') ?? '',
+                  patientName: isDocContains(document: docs.docs[i],key:'patientName') ?? '',
                   patientLocation:
-                  docs.docs[i].get('patientLocation') ?? '',
-                  patientGender: docs.docs[i].get('patientGender') ?? '',
+                  isDocContains(document: docs.docs[i],key:'patientLocation') ?? '',
+                  patientGender: isDocContains(document: docs.docs[i],key:'patientGender') ?? '',
                   time: time,
-                  date: docs.docs[i].get('date') ?? '',
+                  date: isDocContains(document: docs.docs[i],key:'date') ?? '',
                   discountPercentage:
-                  docs.docs[i].get('discountPercentage') ?? '',
-                  patientAge: docs.docs[i].get('patientAge') ?? '',
-                  servicePrice: docs.docs[i].get('servicePrice') ?? '',
-                  nurseGender: docs.docs[i].get('nurseGender') ?? '',
-                  numOfPatients: docs.docs[i].get('numOfPatients') ?? '',
-                  endVisitDate: docs.docs[i].get('endVisitDate') ?? '',
+                  isDocContains(document: docs.docs[i],key:'discountPercentage') ?? '',
+                  patientAge: isDocContains(document: docs.docs[i],key:'patientAge') ?? '',
+                  servicePrice: isDocContains(document: docs.docs[i],key:'servicePrice') ?? '',
+                  nurseGender: isDocContains(document: docs.docs[i],key:'nurseGender') ?? '',
+                  numOfPatients: isDocContains(document: docs.docs[i],key:'numOfPatients') ?? '',
+                  endVisitDate: isDocContains(document: docs.docs[i],key:'endVisitDate') ?? '',
                   discountCoupon:
-                  docs.docs[i].get('discountCoupon') ?? '',
+                  isDocContains(document: docs.docs[i],key:'discountCoupon') ?? '',
                   priceBeforeDiscount:
-                  docs.docs[i].get('priceBeforeDiscount') ?? '',
-                  analysisType: docs.docs[i].get('analysisType') ?? '',
-                  notes: docs.docs[i].get('notes') ?? '',
+                  isDocContains(document: docs.docs[i],key:'priceBeforeDiscount') ?? '',
+                  analysisType: isDocContains(document: docs.docs[i],key:'analysisType') ?? '',
+                  notes: isDocContains(document: docs.docs[i],key:'notes') ?? '',
                   priceAfterDiscount:
-                  docs.docs[i].get('priceAfterDiscount').toString()
+                  isDocContains(document: docs.docs[i],key:'priceAfterDiscount').toString()
                       ));
             }
           }
@@ -1617,30 +1639,30 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
         List<String> convertAllVisitsTime=[];
         for (int i = 0; i < docs.docs.length; i++) {
           print('userlat:$lat');
-          print('lat:${docs.docs[i].get('lat')}');
+          print('lat:${isDocContains(document: docs.docs[i],key:'lat')}');
           print('userlng:$long');
-          print('lng:${docs.docs[i].get('long')}');
+          print('lng:${isDocContains(document: docs.docs[i],key:'long')}');
           distance = _calculateDistance(
             lat!,
               long!,
-              double.parse(docs.docs[i].get('lat') ?? 0.0 as String),
-              double.parse(docs.docs[i].get('long') ?? 0.0 as String));
+              double.parse(isDocContains(document: docs.docs[i],key:'lat') ?? 0.0 as String),
+              double.parse(isDocContains(document: docs.docs[i],key:'long') ?? 0.0 as String));
           print('distance::$distance');
           if (distance <= radiusForAllRequests) {
-          if (docs.docs[i].get('time') != '') {
-            time = convertTimeToAMOrPM(time: docs.docs[i].get('time'));
+          if (isDocContains(document: docs.docs[i],key:'time') != '') {
+            time = convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'time'));
           } else {
             time = '';
           }
-          if (docs.docs[i].get('acceptTime') != null &&
-              docs.docs[i].get('acceptTime') != '') {
+          if (isDocContains(document: docs.docs[i],key:'acceptTime') != null &&
+              isDocContains(document: docs.docs[i],key:'acceptTime') != '') {
             acceptTime =
-                convertTimeToAMOrPM(time: docs.docs[i].get('acceptTime'));
+                convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'acceptTime'));
           } else {
             acceptTime = '';
           }
-          if (docs.docs[i].get('visitTime') != '[]') {
-            var x = docs.docs[i].get('visitTime')
+          if (isDocContains(document: docs.docs[i],key:'visitTime') != '[]') {
+            var x = isDocContains(document: docs.docs[i],key:'visitTime')
                 .replaceFirst('[', '')
                 .toString();
             String visitTime = x.replaceAll(')', '');
@@ -1653,51 +1675,51 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
           } else {
             convertAllVisitsTime = [];
           }
-          print(docs.docs[i].get('specialization'));
+          print(isDocContains(document: docs.docs[i],key:'specialization'));
           print(docs.docs[i]
               .get('specializationBranch'));
           allPatientsRequests.add(Requests(
-              specialization: docs.docs[i].get('specialization') ?? '',
+              specialization: isDocContains(document: docs.docs[i],key:'specialization') ?? '',
               specializationBranch: docs.docs[i]
                   .get('specializationBranch') ?? '',
               acceptTime: acceptTime,
               distance:  distance.floor().toString(),
-              lat:  docs.docs[i].get('lat') ?? '',
-              long:  docs.docs[i].get('long') ?? '',
-              patientId: docs.docs[i].get('patientId') ?? '',
+              lat:  isDocContains(document: docs.docs[i],key:'lat') ?? '',
+              long:  isDocContains(document: docs.docs[i],key:'long') ?? '',
+              patientId: isDocContains(document: docs.docs[i],key:'patientId') ?? '',
               docId: docs.docs[i].id,
               visitTime: convertAllVisitsTime.toString() == '[]'
                   ? ''
                   : convertAllVisitsTime.toString(),
-              visitDays: docs.docs[i].get('visitDays') == '[]'
+              visitDays: isDocContains(document: docs.docs[i],key:'visitDays') == '[]'
                   ? ''
-                  : docs.docs[i].get('visitDays') ?? '',
-              nurseId: docs.docs[i].get('nurseId') ?? '',
+                  : isDocContains(document: docs.docs[i],key:'visitDays') ?? '',
+              nurseId: isDocContains(document: docs.docs[i],key:'nurseId') ?? '',
               suppliesFromPharmacy:
-              docs.docs[i].get('suppliesFromPharmacy') ?? '',
-              startVisitDate: docs.docs[i].get('startVisitDate') ?? '',
-              serviceType: docs.docs[i].get('serviceType') ?? '',
-              picture: docs.docs[i].get('picture') ?? '',
-              patientPhone: docs.docs[i].get('patientPhone') ?? '',
-              patientName: docs.docs[i].get('patientName') ?? '',
-              patientLocation: docs.docs[i].get('patientLocation') ?? '',
-              patientGender: docs.docs[i].get('patientGender') ?? '',
-              patientAge: docs.docs[i].get('patientAge') ?? '',
-              servicePrice: docs.docs[i].get('servicePrice') ?? '',
+              isDocContains(document: docs.docs[i],key:'suppliesFromPharmacy') ?? '',
+              startVisitDate: isDocContains(document: docs.docs[i],key:'startVisitDate') ?? '',
+              serviceType: isDocContains(document: docs.docs[i],key:'serviceType') ?? '',
+              picture: isDocContains(document: docs.docs[i],key:'picture') ?? '',
+              patientPhone: isDocContains(document: docs.docs[i],key:'patientPhone') ?? '',
+              patientName: isDocContains(document: docs.docs[i],key:'patientName') ?? '',
+              patientLocation: isDocContains(document: docs.docs[i],key:'patientLocation') ?? '',
+              patientGender: isDocContains(document: docs.docs[i],key:'patientGender') ?? '',
+              patientAge: isDocContains(document: docs.docs[i],key:'patientAge') ?? '',
+              servicePrice: isDocContains(document: docs.docs[i],key:'servicePrice') ?? '',
               time: time,
-              date: docs.docs[i].get('date') ?? '',
+              date: isDocContains(document: docs.docs[i],key:'date') ?? '',
               discountPercentage:
-              docs.docs[i].get('discountPercentage') ?? '',
-              nurseGender: docs.docs[i].get('nurseGender') ?? '',
-              numOfPatients: docs.docs[i].get('numOfPatients') ?? '',
-              endVisitDate: docs.docs[i].get('endVisitDate') ?? '',
-              discountCoupon: docs.docs[i].get('discountCoupon') ?? '',
+              isDocContains(document: docs.docs[i],key:'discountPercentage') ?? '',
+              nurseGender: isDocContains(document: docs.docs[i],key:'nurseGender') ?? '',
+              numOfPatients: isDocContains(document: docs.docs[i],key:'numOfPatients') ?? '',
+              endVisitDate: isDocContains(document: docs.docs[i],key:'endVisitDate') ?? '',
+              discountCoupon: isDocContains(document: docs.docs[i],key:'discountCoupon') ?? '',
               priceBeforeDiscount:
-              docs.docs[i].get('priceBeforeDiscount') ?? '',
-              analysisType: docs.docs[i].get('analysisType') ?? '',
-              notes: docs.docs[i].get('notes') ?? '',
+              isDocContains(document: docs.docs[i],key:'priceBeforeDiscount') ?? '',
+              analysisType: isDocContains(document: docs.docs[i],key:'analysisType') ?? '',
+              notes: isDocContains(document: docs.docs[i],key:'notes') ?? '',
               priceAfterDiscount:
-              docs.docs[i].get('priceAfterDiscount').toString()
+              isDocContains(document: docs.docs[i],key:'priceAfterDiscount').toString()
                   ));
         }
         }
@@ -1728,31 +1750,31 @@ Future<void> getPatientAccountsThatToVerify()async{
        if (docs.docs.isNotEmpty) {
          patientAccountsThatToVerify.clear();
          for (int i = 0; i < docs.docs.length; i++) {
-           if(docs.docs[i].get('time') !=null&&docs.docs[i].get('time') !=''){
-             time=convertTimeToAMOrPM(time: docs.docs[i].get('time'));
+           if(isDocContains(document: docs.docs[i],key:'time') !=null&&isDocContains(document: docs.docs[i],key:'time') !=''){
+             time=convertTimeToAMOrPM(time: isDocContains(document: docs.docs[i],key:'time'));
            }else{
              time='';
            }
-           print(' docs.docs[i].get(pictureId]');
-           print( docs.docs[i].get('pictureId'));
+           print(' isDocContains(document: docs.docs[i],key:pictureId]');
+           print( isDocContains(document: docs.docs[i],key:'pictureId'));
            patientAccountsThatToVerify.add(UserData(
-               imgId: docs.docs[i].get('pictureId') ?? '',
-               date: docs.docs[i].get('date') ?? '',
+               imgId: isDocContains(document: docs.docs[i],key:'pictureId') ?? '',
+               date: isDocContains(document: docs.docs[i],key:'date') ?? '',
                time: time,
-               lat: docs.docs[i].get('lat') ?? '',
-               lng: docs.docs[i].get('lng') ?? '',
-               aboutYou: docs.docs[i].get('aboutYou') ?? '',
+               lat: isDocContains(document: docs.docs[i],key:'lat') ?? '',
+               lng: isDocContains(document: docs.docs[i],key:'lng') ?? '',
+               aboutYou: isDocContains(document: docs.docs[i],key:'aboutYou') ?? '',
                docId: docs.docs[i].id,
-               email: docs.docs[i].get('email') ?? '',
-               password: docs.docs[i].get('password') ?? '',
-               points: docs.docs[i].get('points') ?? '0',
-               name: docs.docs[i].get('name') ?? '',
-               phoneNumber: docs.docs[i].get('phoneNumber') ?? '',
-               imgUrl: docs.docs[i].get('imgUrl') ?? '',
-               address: docs.docs[i].get('address') ?? '',
-               birthDate: docs.docs[i].get('birthDate') ?? '',
-               gender: docs.docs[i].get('gender') ?? '',
-               nationalId: docs.docs[i].get('nationalId') ?? ''));
+               email: isDocContains(document: docs.docs[i],key:'email') ?? '',
+               password: isDocContains(document: docs.docs[i],key:'password') ?? '',
+               points: isDocContains(document: docs.docs[i],key:'points') ?? '0',
+               name: isDocContains(document: docs.docs[i],key:'name') ?? '',
+               phoneNumber: isDocContains(document: docs.docs[i],key:'phoneNumber') ?? '',
+               imgUrl: isDocContains(document: docs.docs[i],key:'imgUrl') ?? '',
+               address: isDocContains(document: docs.docs[i],key:'address') ?? '',
+               birthDate: isDocContains(document: docs.docs[i],key:'birthDate') ?? '',
+               gender: isDocContains(document: docs.docs[i],key:'gender') ?? '',
+               nationalId: isDocContains(document: docs.docs[i],key:'nationalId') ?? ''));
          }
        }else{
          patientAccountsThatToVerify.clear();

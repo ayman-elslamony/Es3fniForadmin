@@ -340,7 +340,7 @@ class _HumanMedicineRequestsState extends State<HumanMedicineRequests> {
                     width: infoWidget.screenWidth!*0.06,
                     height:infoWidget.screenWidth!*0.06
                     ,child: LoadingIndicator(
-                    backgroundColor: request.nurseId==''?Colors.red:Colors.indigo,
+    colors: [request.nurseId==''?Colors.red:Colors.indigo,],
                     indicatorType: Indicator.ballScale,
                   ),
                   ),
@@ -540,11 +540,11 @@ Future<void> getAllHumanMedicineRequests() async {
   }
   Future<void> getLocationAndRadiusFromLocalStorage()async{
     final prefs = await SharedPreferences.getInstance();
-    Map<String, Object>? _filter;
+    Map<String, dynamic>? _filter;
     if(_home.radiusForAllRequests==1.0){
       if (prefs.containsKey('filter')) {
         _filter = await json
-            .decode(prefs.getString('filter')!) as Map<String, Object>?;
+            .decode(prefs.getString('filter')!) as Map<String, dynamic>?;
         print(_filter!['filter']);
         _home.radiusForAllRequests =double.parse((_filter['radiusForAllRequests'] as String));
       }else{
@@ -555,7 +555,7 @@ Future<void> getAllHumanMedicineRequests() async {
       if (prefs.containsKey('filter')) {
         if(_filter == null){
           _filter = await json
-              .decode(prefs.getString('filter')!) as Map<String, Object>?;
+              .decode(prefs.getString('filter')!) as Map<String, dynamic>?;
         }
         _auth.lat = double.parse(_filter!['lat'] as String);
         _auth.lng = double.parse(_filter['lng'] as String);

@@ -465,6 +465,8 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
         bool isSccuess = await _home.addPatientRequest(
           specializationBranch: _specializationBranch,
           specialization: _specializationType,
+          lat: _paramedicsData['lat'],
+          long:  _paramedicsData['long'],
           analysisType: _paramedicsData['analysis type'],
           notes: _paramedicsData['notes'],
           discountCoupon: _paramedicsData['coupon'],
@@ -1955,7 +1957,7 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                     color: Colors.indigo),
                                               ),
                                             ),
-                                            keyboardType: TextInputType.text,
+                                            keyboardType:TextInputType.multiline,
                                             onChanged: (value) {
                                               _paramedicsData['accessories'] =
                                                   value.trim();
@@ -2223,6 +2225,8 @@ class _AddPatientRequestState extends State<AddPatientRequest> {
                                                                                 });
                                                                                 String x = await _home.verifyCoupon(phoneNumber: _paramedicsData['Phone number'],couponName: _paramedicsData['coupon']);
                                                                                 couponFocusNode.unfocus();
+                                                                                print('XXXXXXXXXXXXX');
+                                                                                print(x);
                                                                                 if (x == 'true') {
                                                                                   flutterToast(
                                       msg: translator.activeLanguageCode == "en" ? "Scuessfully Discount" : 'نجح الخصم',  );

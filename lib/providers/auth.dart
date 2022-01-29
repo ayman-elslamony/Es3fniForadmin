@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +20,7 @@ class Auth with ChangeNotifier {
    double lng=31.233334;
   String? address='Cairo';
 String? get userId =>_userId;
-  UserData? get userData => _userData;
+  UserData get userData => _userData!;
   bool get isAuth {
       return _token != null;
   }
