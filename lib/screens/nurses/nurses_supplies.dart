@@ -67,7 +67,7 @@ class _NursesSuppliesState extends State<NursesSupplies> {
                                 bool x = await (_home.nurseSupplying(
                                   adminId: _auth.userId,
                                     points: _auth.points!,
-                                    nurseId: userData.docId) as Future<bool>);
+                                    nurseId: userData.docId));
                                 if (x) {
                                   flutterToast(
                                     msg: translator.activeLanguageCode == "en" ? "Successfully applying"

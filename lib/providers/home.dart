@@ -153,21 +153,16 @@ class Home with ChangeNotifier {
         for (int i = 0; i < docs.docs.length; i++) {
           print('scv');
 
-          DocumentSnapshot rating = await nursesCollection.doc(
+          DocumentSnapshot<Map<String, dynamic>> rating = await nursesCollection.doc(
               docs.docs[i].id).collection('rating').doc(
               'rating').get();
 
           if (rating.exists== true) {
-            int one = rating.get('1') == null ? 0 : int.parse(
-                rating.get('1'));
-            int two = rating.get('2') == null ? 0 : int.parse(
-                rating.get('2'));
-            int three = rating.get('3') == null ? 0 : int.parse(
-                rating.get('3'));
-            int four = rating.get('4') == null ? 0 : int.parse(
-                rating.get('4'));
-            int five = rating.get('5') == null ? 0 : int.parse(
-                rating.get('5'));
+            int one = rating.data().toString().contains('1')? int.parse(rating.data()!['1']??'0'): 0 ;
+            int two = rating.data().toString().contains('2')? int.parse(rating.data()!['2']??'0'): 0 ;
+            int three = rating.data().toString().contains('3')? int.parse(rating.data()!['3']??'0'): 0 ;
+            int four = rating.data().toString().contains('4')? int.parse(rating.data()!['4']??'0'): 0 ;
+            int five = rating.data().toString().contains('5')? int.parse(rating.data()!['5']??'0'): 0 ;
             ratingForNurse =
                 (5 * five + 4 * four + 3 * three + 2 * two + 1 * one) /
                     (one + two + three + four + five);
@@ -211,13 +206,13 @@ class Home with ChangeNotifier {
       if (docs.docs.length != 0) {
         allNursesSupplies.clear();
         for (int i = 0; i < docs.docs.length; i++) {
-          DocumentSnapshot rating = await nursesCollection.doc(docs.docs[i].id).collection('rating').doc('rating').get();
+          DocumentSnapshot<Map<String, dynamic>> rating = await nursesCollection.doc(docs.docs[i].id).collection('rating').doc('rating').get();
            if(rating.exists) {
-             int one = rating.get('1') == null ? 0 : int.parse(rating.get('1'));
-             int two = rating.get('2')== null ? 0 : int.parse(rating.get('2'));
-             int three = rating.get('3') == null ? 0 : int.parse(rating.get('3'));
-             int four = rating.get('4') == null ? 0 : int.parse(rating.get('4'));
-             int five = rating.get('5') == null ? 0 : int.parse(rating.get('5'));
+             int one = rating.data().toString().contains('1')? int.parse(rating.data()!['1']??'0'): 0 ;
+             int two = rating.data().toString().contains('2')? int.parse(rating.data()!['2']??'0'): 0 ;
+             int three = rating.data().toString().contains('3')? int.parse(rating.data()!['3']??'0'): 0 ;
+             int four = rating.data().toString().contains('4')? int.parse(rating.data()!['4']??'0'): 0 ;
+             int five = rating.data().toString().contains('5')? int.parse(rating.data()!['5']??'0'): 0 ;
              ratingForNurse =
                  (5 * five + 4 * four + 3 * three + 2 * two + 1 * one) /
                      (one + two + three + four + five);
@@ -273,7 +268,7 @@ class Home with ChangeNotifier {
     notifyListeners();
   }
 
-  Future nurseSupplying({String? nurseId,String? adminId,required String points}) async {
+  Future<bool> nurseSupplying({String? nurseId,String? adminId,required String points}) async {
     DateTime dateTime = DateTime.now();
     var admin = databaseReference.collection("admins");
     CollectionReference nurses = databaseReference.collection("nurses");
@@ -586,9 +581,9 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
   }
 
   Future getAllAnalysis() async {
-    var analysis = databaseReference.collection("analysis");
-    var docs = await analysis.get();
-    if (docs.docs.length != 0) {
+    QuerySnapshot<Map<String, dynamic>> docs = await databaseReference.collection("analysis").get();
+    print('dgdg');
+    if (docs.docs.length !=0) {
       allAnalysis.clear();
       allAnalysisType.clear();
       for (int i = 0; i < docs.docs.length; i++) {
@@ -1548,64 +1543,62 @@ long:  docsForArchivedRequestsForNoAccount.docs[i].get('long') ?? '',
 
   }
 
-  Future<UserData> getUserData({String? type, String? userId}) async {
+  Future<UserData> getUserData({required String type,required String userId}) async {
     var nursesCollection = databaseReference.collection("nurses");
     var patientCollection = databaseReference.collection("users");
-    UserData user;
+    late UserData user;
     if (type == 'Patient' || type == 'مريض') {
-      DocumentSnapshot doc = await patientCollection.doc(userId).get();
-      user = UserData(
-        name: doc.get('name'),
-        docId: doc.id,
-        specialization: '',
-        specializationBranch: '',
-        rating: '0.0',
-        nationalId: doc.get('nationalId') ?? '',
-        gender: doc.get('gender') ?? '',
-        birthDate: doc.get('birthDate') ?? '',
-        address: doc.get('address') ?? '',
-        phoneNumber: doc.get('phoneNumber') ?? '',
-        imgUrl: doc.get('imgUrl') ?? '',
-        email: doc.get('email') ?? '',
-        lng: doc.get('lng') ?? '',
-        lat: doc.get('lat') ?? '',
-        aboutYou: doc.get('aboutYou') ?? '',
-        points: doc.get('points') ?? '0',
-      );
+      DocumentSnapshot<Map<String, dynamic>> doc = await patientCollection.doc(userId).get();
+      if (doc.exists) {
+        user = UserData(
+          specialization: '',
+          specializationBranch: '',
+          name: doc.data()!['name'] ?? '',
+          docId: doc.id,
+          rating: '0.0',
+          lat: doc.data()!['lat'] ?? '',
+          lng: doc.data()!['lng'] ?? '',
+          nationalId: doc.data()!['nationalId'] ?? '',
+          gender: doc.data()!['gender'] ?? '',
+          birthDate: doc.data()!['birthDate'] ?? '',
+          address: doc.data()!['address'] ?? '',
+          phoneNumber: doc.data()!['phoneNumber'] ?? '',
+          imgUrl: doc.data()!['imgUrl'] ?? '',
+          email: doc.data()!['email'] ?? '',
+          aboutYou: doc.data()!['aboutYou'] ?? '',
+          points: doc.data()!['points'] ?? '',
+        );
+      }
     } else {
-      DocumentSnapshot doc = await nursesCollection.doc(userId).get();
-      DocumentSnapshot rating = await nursesCollection.doc(userId).collection('rating').doc('rating').get();
+      DocumentSnapshot<Map<String, dynamic>> doc = await nursesCollection.doc(userId).get();
+      DocumentSnapshot<Map<String, dynamic>> rating = await nursesCollection.doc(userId).collection('rating').doc('rating').get();
       if(rating.exists) {
-        int one = rating.get('1') == null ? 0 : int.parse(rating.get('1'));
-        int two = rating.get('2') == null ? 0 : int.parse(rating.get('2'));
-        int three = rating.get('3') == null ? 0 : int.parse(rating.get('3'));
-        int four = rating.get('4') == null ? 0 : int.parse(rating.get('4'));
-        int five = rating.get('5') == null ? 0 : int.parse(rating.get('5'));
+        int one = rating.data()!['1'] == null ? 0 : int.parse(rating.data()!['1']);
+        int two = rating.data()!['2'] == null ? 0 : int.parse(rating.data()!['2']);
+        int three = rating.data()!['3'] == null ? 0 : int.parse(rating.data()!['3']);
+        int four = rating.data()!['4'] == null ? 0 : int.parse(rating.data()!['4']);
+        int five = rating.data()!['5'] == null ? 0 : int.parse(rating.data()!['5']);
         totalRatingForNurse =
             (5 * five + 4 * four + 3 * three + 2 * two + 1 * one) /
                 (one + two + three + four + five);
       }
-      print('evedwgew');
-      print(totalRatingForNurse);
-      print(doc.get('specializationBranch'));
-      print(doc.get('specialization'));
       user = UserData(
-        specializationBranch: doc.get('specializationBranch')?? '',
-        specialization: doc.get('specialization') ?? '',
+        specializationBranch: doc.data()!['specializationBranch'] ?? '',
+        specialization: doc.data()!['specialization'] ?? '',
         rating: totalRatingForNurse.toString(),
-        name: doc.get('name'),
+        name: doc.data()!['name'] ?? '',
         docId: doc.id,
-        nationalId: doc.get('nationalId') ?? '',
-        gender: doc.get('gender') ?? '',
-        birthDate: doc.get('birthDate') ?? '',
-        address: doc.get('address') ?? '',
-        phoneNumber: doc.get('phoneNumber') ?? '',
-        imgUrl: doc.get('imgUrl') ?? '',
-        email: doc.get('email') ?? '',
-        lng: doc.get('lng') ?? '',
-        lat: doc.get('lat') ?? '',
-        aboutYou: doc.get('aboutYou') ?? '',
-        points: doc.get('points') ?? '0',
+        lat: doc.data()!['lat'] ?? '',
+        lng: doc.data()!['lng'] ?? '',
+        nationalId: doc.data()!['nationalId'] ?? '',
+        gender: doc.data()!['gender'] ?? '',
+        birthDate: doc.data()!['birthDate'] ?? '',
+        address: doc.data()!['address'] ?? '',
+        phoneNumber: doc.data()!['phoneNumber'] ?? '',
+        imgUrl: doc.data()!['imgUrl'] ?? '',
+        email: doc.data()!['email'] ?? '',
+        aboutYou: doc.data()!['aboutYou'] ?? '',
+        points: doc.data()!['points'] ?? '',
       );
     }
     return user;

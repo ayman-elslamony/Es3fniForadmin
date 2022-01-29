@@ -54,7 +54,7 @@ TextEditingController _realAddressController =TextEditingController();
       if ( _initialCamera.target != null && radius != null) {
         url += "&location=${_initialCamera.target.latitude},${_initialCamera.target.longitude}&radius=${radius}";
       }
-      final response = await http.get(Uri(path: url));
+      final response = await http.get(Uri.parse( url));
       final json = jsonDecode(response.body);
 
       if (json["error_message"] != null) {

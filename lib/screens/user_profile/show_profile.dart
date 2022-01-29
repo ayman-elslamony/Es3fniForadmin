@@ -48,7 +48,7 @@ Widget  personalInfo(
 
   getUserData() async {
     _userData =
-        await _home.getUserData(type: widget.type, userId: widget.userId);
+        await _home.getUserData(type: widget.type!, userId: widget.userId!);
     setState(() {
       isLoading = false;
     });
@@ -196,7 +196,8 @@ Widget  personalInfo(
                           infoWidget: infoWidget),
                       InkWell(
                           onTap: _userData!.lat !=''?(){
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowSpecificUserLocation(userData: _userData,)));
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>
+        ShowSpecificUserLocation(userData: _userData!,)));
                           }:null,
                           child:
                           personalInfo(

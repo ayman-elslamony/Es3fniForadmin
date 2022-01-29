@@ -139,7 +139,7 @@ class _AnalysissState extends State<Analysiss> {
   }
 
   getAllAnalysis() async {
-    if(_home.allAnalysis.isNotEmpty){
+    if(_home.allAnalysis.isEmpty){
       await _home.getAllAnalysis();
     }
     setState(() {
@@ -150,6 +150,7 @@ class _AnalysissState extends State<Analysiss> {
   @override
   void initState() {
     _home = Provider.of<Home>(context, listen: false);
+
     getAllAnalysis();
     super.initState();
   }

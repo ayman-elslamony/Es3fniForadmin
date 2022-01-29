@@ -230,7 +230,7 @@ Widget  personalInfo(
                             infoWidget: infoWidget),
                         InkWell(
                             onTap: widget.userData!.lat !=''?(){
-                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowSpecificUserLocation(userData: widget.userData,)));
+                              Navigator.of(context).push(MaterialPageRoute(builder: (context)=>ShowSpecificUserLocation(userData: widget.userData!,)));
                             }:null,
                             child:
                             personalInfo(

@@ -5,8 +5,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class ShowSpecificUserLocation extends StatefulWidget {
-  final UserData? userData;
-  ShowSpecificUserLocation({required this.userData});
+  final UserData userData;
+   ShowSpecificUserLocation({required this.userData});
 
   @override
   State<StatefulWidget> createState() => ShowSpecificUserLocationState();
@@ -26,17 +26,17 @@ class ShowSpecificUserLocationState extends State<ShowSpecificUserLocation>
   @override
   void initState() {
     super.initState();
-    _currentPosition = LatLng(double.parse(widget.userData!.lat!), double.parse(widget.userData!.lng!));//_auth.myLatLng;
+    _currentPosition = LatLng(double.parse(widget.userData.lat!), double.parse(widget.userData.lng!));//_auth.myLatLng;
     print(_currentPosition);
     markers = Set.from([]);
-    markerId = MarkerId(widget.userData!.name!);
+    markerId = MarkerId(widget.userData.name!);
     markers.add(Marker(
       visible: true,
         markerId: markerId,
-        position: LatLng(double.parse(widget.userData!.lat!), double.parse(widget.userData!.lng!)),
+        position: LatLng(double.parse(widget.userData.lat!), double.parse(widget.userData.lng!)),
         infoWindow: InfoWindow(
-            title: widget.userData!.name,
-            snippet: widget.userData!.address,
+            title: widget.userData.name,
+            snippet: widget.userData.address,
             onTap: () {
             }
             )));
@@ -50,7 +50,7 @@ class ShowSpecificUserLocationState extends State<ShowSpecificUserLocation>
         builder: (context,infoWidget)=>
         Scaffold(
           appBar: AppBar(
-            shape: ContinuousRectangleBorder(
+            shape: const ContinuousRectangleBorder(
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(40),
                     bottomRight: Radius.circular(40))),
